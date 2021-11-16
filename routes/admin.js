@@ -191,13 +191,13 @@ router.get('/adItemMan', function(req, res, next) {
             'END AS order_param \n' +
             'FROM itemstate, item\n' +
             'WHERE itemstate.itemId=item.itemId\n' +
-            'ORDER BY  order_param,item.itemId,itemArea DESC ';
+            'ORDER BY  order_param,item.itemName ASC ';
         //sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId ORDER BY item.itemArea';
     }else {
         sql=url.sql;
     }
 
-    console.log(sql)
+    //console.log(sql)
     connection.query( sql,function (err, result) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
@@ -293,7 +293,7 @@ router.post('/adItemMan', function(req, res,){
             'END AS order_param \n ' +
             'FROM itemstate, item\n' +
             'WHERE itemstate.itemId=item.itemId AND (item.itemName Like' +indexOf+' OR item.itemId Like '+indexOf+' OR item.itemModel Like '+indexOf+' OR item.itemSupplier Like '+indexOf+' OR item.itemArea Like '+indexOf+' OR item.itemNote Like '+indexOf+')' +
-            'ORDER BY  order_param,item.itemId,itemArea ASC';
+            'ORDER BY  order_param,item.itemName ASC';
 
         //sql='sql=SELECT * FROM item,itemstate WHERE item.itemId=itemstate.itemId AND (item.itemName Like' +indexOf+' OR item.itemId Like '+indexOf+' OR item.itemNote Like '+indexOf+')';
     }
