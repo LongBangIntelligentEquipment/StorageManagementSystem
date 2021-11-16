@@ -1109,6 +1109,7 @@ router.get('/adItemEnter', function(req, res, next) {
             getInfo(url,function (err,result) {
                 // console.log(result)
                 return  res.render('adItemEnter', {
+                    orderPrice:result1[0].price,
                     itemList:result.item,
                     itemStateList:result.itemStateList,
                     orderId:orderId,
@@ -1128,6 +1129,7 @@ router.get('/adItemEnter', function(req, res, next) {
         getInfo(url,function (err,result) {
             // console.log(result)
             return  res.render('adItemEnter', {
+                orderPrice:result.item.itemPrice,
                 itemList:result.item,
                 itemStateList:result.itemStateList,
                 orderId:orderId,

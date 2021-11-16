@@ -117,7 +117,7 @@
                                 <div class="itemDetail">临时进仓总数：<span style="color: orange"><%=itemList.itemTemNum%></span><%=itemList.itemUnit%></div>
                                 <div class="itemDetail">区域：<%=itemList.itemArea%></div>
 
-                                <div class="itemDetail">购入价：<%=itemList.itemPrice%></div>
+                                <div class="itemDetail">购入价：<%=orderPrice%></div>
 
                                 <div class="itemDetail">数量预警：<input class="itemDetailsInput" id="detail5" value="<%=itemList.itemAlarmSetting%>" disabled="true" style="width: 300px"></div>
                                 <div class="itemDetail">报警：
@@ -178,7 +178,8 @@
                         <style onload="hideEnterModel()"></style>
                         <span style="margin-left: -50px">送货方式：<input required="required" name="saveDeliver" type="text" class="indexOf" style="height: 35px;width: 100px"></span>
                         <span style="margin-left: 155px;">经办人：<input required="required" value="<%=user.userName%>" name="saveManager" type="text" class="indexOf" style="height: 35px;width: 100px"></span>
-                        <span style="margin-left: 155px;" hidden>价格：<input required="required" value="<%=itemList.itemPrice%>" name="savePrice" type="text" class="indexOf" style="height: 35px;width: 100px" hidden></span>
+                        <span style="margin-left: 155px;" hidden>价格：<input required="required" value="<%= orderPrice %>" name="savePrice" type="text" class="indexOf" style="height: 35px;width: 100px" hidden></span>
+
                     </div>
 
                     <div style="font-weight: bold; color: #666;margin-top: 30px">
