@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>二维码打印页</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+    <script language="javascript">
+        function display(ojId,hidenId){
+            if(document.getElementById(ojId).style.display===''){
+                document.getElementById(ojId).style.display='none';
+            }else{
+                document.getElementById(ojId).style.display=''
+                document.getElementById(hidenId).style.display='none';
+
+            }
+        }
+
+        function stateColor(ojId){
+            if(document.getElementById(ojId).innerText==='正常'){
+                document.getElementById(ojId).style.color='green';
+            }else if(document.getElementById(ojId).innerText==='存在未检测'){
+                document.getElementById(ojId).style.color='orange';
+            }else if(document.getElementById(ojId).innerText==='少剩余'){
+                document.getElementById(ojId).style.color='red';
+            }else if(document.getElementById(ojId).innerText==='有退回'){
+                document.getElementById(ojId).style.color='brown';
+            }else {
+                document.getElementById(ojId).style.color='#FE1DC6';
+            }
+        }
+
+        function editable(){
+            for(var i=0;i<6;i++){
+                var id='detail'+(i+1);
+                document.getElementById(id).disabled=false;
+                document.getElementById(id).style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;";
+            }
+            document.getElementById('detail7').style="display:''";
+            document.getElementById('editButton').style="background-color:red!important";
+            document.getElementById('confirmButton').style="display:'';margin-left: 10px";
+
+
+
+        }
+    </script>
+
+</head>
+<body >
+
+
+
+
+
+
+
+    <div class="functionBoard" style="padding-top: 100px">
+        <main role="main" class="container mt-3 mb-3">
+
+
+            <form>
+                <div style="font-size: 2.8rem;font-weight: bold;">【<%=itemList[0].itemSupplier%>】<%=itemList[0].itemName%></div>
+
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage" style="margin-top: 30px">
+                    <tr>
+                        <td >
+
+                            <div style="width: 450px;margin-top: 30px">
+                                <div class="itemDetail" style="font-size: xx-large;margin-bottom: 5px">物料编号：<input class="itemDetailsInput" id="detail2" value="<%=itemList[0].itemId%>" disabled="true"></div>
+                                <div class="itemDetail" style="font-size: xx-large;margin-bottom: 5px">型号(图号)：<input class="itemDetailsInput" id="detail3" value="<%=itemList[0].itemModel%>" disabled="true"></div>
+                                <div class="itemDetail" style="font-size: xx-large;margin-bottom: 15px" >类型：<%=itemList[0].itemType%></div>
+                                <div class="itemDetail" style="font-size: xx-large;margin-bottom: 15px">区域：<%=itemList[0].itemArea%></div>
+                                <div class="itemDetail" style="font-size: xx-large;margin-bottom: 15px" >备注：<input class="itemDetailsInput" id="detail6" value="<%=itemList[0].itemNote%>" disabled="true" ></div>
+
+                            </div>
+                        </td>
+                        <td>
+                            <div style="margin-left: -35px;margin-top: -20px">
+                                <img src="/create_qrcode?text=http://192.168.0.127:3000/adItem?itemId=<%=itemList[0].itemId%>&returnSql='+document.URL.split('sql=')[1]" height="320px" width="320px">
+                            </div>
+
+                        </td>
+                    </tr>
+                </table>
+
+            </form>
+
+
+
+
+        </main>
+    </div>
+
+
+
+
+
+</body>
+
+</body>
+</html>

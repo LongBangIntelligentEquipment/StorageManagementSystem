@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>test</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script language="javascript">
+
+      $(window).scroll(function(){
+        var scrollTop = $(this).scrollTop();
+        var scrollHeight = $(document).height();
+        var windowHeight = $(this).height();
+        if(scrollTop + windowHeight == scrollHeight){
+          loadData();
+        }
+      });
+
+      var page=1
+      var isEnd=false;
+      function getDate(ojId,dataDate) {
+        var dateEnd = new Date('2020-11-06')<!--获得日期数据-->
+        var dateStart=new Date(dataDate.split(' '));
+        var difValue = (dateEnd - dateStart) / (1000 * 60 * 60 * 24);
+       // alert(difValue)
+        document.getElementById(ojId).innerHTML = difValue;
+      }
+
+      function loadData()
+      {
+        alert(window.location);
+
+        $.ajax({
+          data: {'page': page},
+          url: '/index',
+          dataType: 'json',
+          type: 'get',
+          success: function(res) {
+            console.log('1111')
+            document.getElementById('666').innerText = '666666';
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <h1></h1>
+    <p>Welcome to</p>
+
+
+    <h3>文件上传：</h3>
+    选择一个文件上传: <br />
+    <form  method="post" enctype="multipart/form-data">
+      <div id="666" ></div>
+      <a id="load-btn" class="load-btn" onclick="loadData()">Load more...</a>
+        <input type="file" name="avatra" size="50" />
+        <input type="submit" value="上传文件" />
+      <a id="ads" onload=""></a>
+    </form>
+
+  </body>
+</html>

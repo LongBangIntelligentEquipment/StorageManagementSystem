@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta  content="yes"  name="apple-mobile-web-app-capable">
+    <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
+    <title>隆邦ERP系统_物料管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+    <script language="javascript">
+        function display(ojId,hidenId){
+            if(document.getElementById(ojId).style.display===''){
+                document.getElementById(ojId).style.display='none';
+            }else{
+                document.getElementById(ojId).style.display=''
+                document.getElementById(hidenId).style.display='none';
+
+            }
+        }
+
+
+        function editable(){
+            for(var i=0;i<6;i++){
+                var id='detail'+(i+1);
+                document.getElementById(id).disabled=false;
+                document.getElementById(id).style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;";
+            }
+            document.getElementById('detail7').style="display:''";
+            document.getElementById('editButton').style="background-color:red!important";
+            document.getElementById('confirmButton').style="display:'';margin-left: 10px";
+
+        }
+
+        function InfoDisplay(type1,type2,type3,type4,ojIdJudge,ojId){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if(judge===type1||judge===type2||judge===type3||judge===type4){
+                document.getElementById(ojId).style.display="";
+            }else {
+                document.getElementById(ojId).style.display="none";
+            }
+        }
+
+
+
+        function InfoBGC(type,ojIdJudge,ojId,color){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if(judge===type){
+                document.getElementById(ojId).style=color;
+            }
+
+        }
+
+
+
+        /**
+         * @return {string}
+         */
+
+
+        function stateColor(ojId){
+            if(document.getElementById(ojId).innerText==='无'){
+                document.getElementById(ojId).style.color='green';
+            }else if(document.getElementById(ojId).innerText==='存在未检测'){
+                document.getElementById(ojId).style.color='orange';
+            }else if(document.getElementById(ojId).innerText==='少剩余'){
+                document.getElementById(ojId).style.color='red';
+            }else if(document.getElementById(ojId).innerText==='有退回'){
+                document.getElementById(ojId).style.color='#FE1DC6';
+            }else  if(document.getElementById(ojId).innerText==='有订单未处理'){
+                document.getElementById(ojId).style.color='#fe007b';
+            }else if(document.getElementById(ojId).innerText==='需归还物料'){
+                document.getElementById(ojId).style.color='#80d5d7';
+            }
+        }
+
+        function confirmEnter(num) {
+            var isExistOrder=false;
+            for(var i=0;i<num;i++){
+                if(document.getElementById('itemState'+i).innerText==="有订单未处理"){
+                    isExistOrder=true;
+                    break;
+                }
+            }
+
+            if(isExistOrder){
+                if (window.confirm("该物料存在订单未处理，【直接入仓】将不会处理订单数据，是否继续【直接入仓】?")){
+                    window.location.href='/adItemEnter';
+                }
+            }else{
+                window.location.href='/adItemEnter';
+            }
+
+        }
+
+        function NumAlarm() {
+            var a=parseInt(document.getElementById('totalNum').innerText);
+            var b=parseInt(document.getElementById('detail5').value);
+
+            if(a<=b){
+                document.getElementById('totalNum').style.color='red';
+
+            }
+        }
+
+        function stateColorChange(ojId,content,color) {
+            if( document.getElementById(ojId).innerText===content){
+                document.getElementById(ojId).style=color;
+            }
+        }
+
+
+        function OrderState(ojId,ojId2,ojId3,ojId4,arriveNum,orderNum){
+            if(document.getElementById(ojId).innerText==='已下单'){
+                document.getElementById(ojId).style.color='green';
+            }else if(document.getElementById(ojId).innerText==='申请中'){
+                document.getElementById(ojId).style.color='orange';
+                document.getElementById(ojId3).style.display='';
+                document.getElementById(ojId4).style.display='none';
+            }else if(document.getElementById(ojId).innerText==='已到货'){
+                document.getElementById(ojId).style.color='green';
+                if(arriveNum===orderNum){
+                    document.getElementById(ojId2).innerText='订单货物已全部到达';
+                    document.getElementById(ojId2).style.color='green'
+                }
+            }else if(document.getElementById(ojId).innerText==='已拒绝'||document.getElementById(ojId).innerText==='已取消'){
+                document.getElementById(ojId2).style.display='none';
+                document.getElementById(ojId).style.color='red';
+            } else if(document.getElementById(ojId).innerText==='已完成'){
+                document.getElementById(ojId2).style.display='none';
+                document.getElementById(ojId).style.color='gray';
+            }else if(document.getElementById(ojId).innerText==='有退回'){
+                document.getElementById(ojId).style.color='#fe007b';
+
+            }
+        }
+
+        function overDate(ojId,judgeId) {
+            var judgement=parseInt(document.getElementById(judgeId).innerText)
+            if(judgement>0){
+                document.getElementById(ojId).style.display='';
+            }else if(judgement===0){
+                document.getElementById(ojId).style.display='';
+                document.getElementById(ojId).innerText='(今天应到货)'
+                document.getElementById(ojId).style.color='orange';
+            }
+        }
+
+        function loadTwice() {
+            var judgement=document.URL.split('=');
+            var reloadURL=document.URL.split('?');
+            var flashURL;
+
+            if(judgement.length===2){
+                flashURL=reloadURL[0]+'?'+reloadURL[1]+'&reload=true'
+                window.setTimeout(  location.href=flashURL,1000)
+            }
+        }
+
+        function Authority() {
+
+            if(document.getElementById('role').innerText==='系统管理员'){
+                document.getElementById('authority').style.display='';
+            }else{
+                document.getElementById('authority').style.display='none';
+            }
+        }
+
+
+
+    </script>
+
+</head>
+<body onload="loadTwice()">
+
+
+<section class="functionBoard">
+
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonLogin" onclick="location.href='/adminHome'">首页</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button" id="buttonRegist" onclick="location.href='/adItemMan'">物料管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/adOrderMan'">采购管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adBOMListMan'">BOM表</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
+                <style onload="Authority()"></style>
+
+            </u1>
+            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+        </div>
+
+
+
+
+
+    </div>
+    </div>
+
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        物料管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <form method="post">
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
+                    <tr>
+                        <td >
+                            <div style="width: 450px">
+                                <div class="itemDetail">详细信息：</div>
+                                <div class="itemDetail">供应商：<%=itemList.itemSupplier%></div>
+                                <div class="itemDetail">名称：<%=itemList.itemName%></div>
+                                <div class="itemDetail">物料编号：<input class="itemDetailsInput" name="updateId" id="detail2" value="<%=itemList.itemId%>" placeholder="<%=itemList.itemId%>" disabled="true"></div>
+                                <div class="itemDetail">型号(图号)：<input class="itemDetailsInput" name="updateModel" id="detail3" value="<%=itemList.itemModel%>" placeholder="<%=itemList.itemModel%>" disabled="true"></div>
+                                <div class="itemDetail" >类型：<%=itemList.itemType%></div>
+                                <div class="itemDetail" >库存总数：<span id="totalNum"><%=itemList.itemNum%></span><%=itemList.itemUnit%></div>
+                                <div class="itemDetail">临时进仓总数：<span style="color: orange"><%=itemList.itemTemNum%></span><%=itemList.itemUnit%></div>
+                                <div class="itemDetail">区域：<%=itemList.itemArea%></div>
+                                <div class="itemDetail">数量预警：<input class="itemDetailsInput" id="detail5" value="<%=itemList.itemAlarmSetting%>" disabled="true" style="width: 300px"></div>
+                                <div class="itemDetail">报警：
+                                    <%for(let j=0;j<itemStateList.length;j++){%>
+                                    <a style="font-weight:bold;" id="itemState<%=j%>" onload="stateColor(this.id)" ><%=itemStateList[j]%></a>&emsp;
+                                    <style onload="stateColor('itemState<%=j%>')"></style>
+                                    <% }%>
+                                </div>
+                                <div class="itemDetail" >备注：<%=itemList.itemNote%></div>
+                                <style onload="NumAlarm()"></style>
+
+                            </div>
+                        </td>
+                        <td>
+                            <div style="margin-left: -35px;margin-top: -20px">
+                                <img src="/create_qrcode?text=http://192.168.0.127:3000/adItem?itemId=<%=itemList.itemId%>" height="320px" width="320px">
+                            </div>
+                            <div>
+                                <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.open('uploads/<%=itemList.itemFileName%>')"  style="background-color: gold!important; ">查看图纸</button>
+                                <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.open('/qrCodePrint?itemId=<%=itemList.itemId%>')"  style=" padding-left: 10px;  margin-left: 70px;background-color: mediumseagreen!important;">打印二维码</button>
+                            </div>
+
+                        </td>
+                    </tr>
+
+
+
+                </table>
+                <div class="pageCard" style="border-top: 0.1rem solid #404142;margin-bottom: 0">
+                    <div class="pageTitle">
+                        <div style="margin-bottom: 15px;font-weight: bold">订单进仓管理：</div>
+                        <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.history.go(-1)"style="position: absolute!important; margin-top: -45px; margin-left: 560px;" >返回上一页</button>
+
+                        <div style="margin: 15px; color:red;font-size: 1rem">*请在以下选择需要操作的订单</div>
+
+                    </div>
+                    <div class="pageCard" >
+                        <div class="pageTitle">
+                            <a class="typeFilter">
+                                <button class="filterButton" type="button" onclick="display('typeOption1','typeOption2')"> —状态—<span style="float: right;margin-right: 4px">▼</span></button>
+                            </a>
+                            <a class="typeFilter">
+                                <button class="filterButton" type="button" onclick="display('typeOption2','typeOption1')"> —排序—<span style="float: right;margin-right: 4px">▼</span></button>
+                            </a>
+
+
+                            <input class="indexOf" name="indexOf" style="margin-left: 4px;width: 320px" placeholder="根据订单号/物料名称/型号(图号)/供货商/备注进行搜索">
+                            <button class="searchInputBoxButton" name="indexOfButton" value="true" type="submit" style="margin-left: 320px">搜&emsp;索</button>
+
+                            <div class="filterBox" id="typeOption1" style="display: none">
+                                <button  class="filterButton filterOption" name="state" value="0" type="submit"> 全部</button>
+                                <button  class="filterButton filterOption" name="state" value="1" type="submit"> 已下单</button>
+                                <button  class="filterButton filterOption" name="state" value="2" type="submit"> 申请中</button>
+                                <button  class="filterButton filterOption" name="state" value="3" type="submit"> 已拒绝</button>
+                                <button  class="filterButton filterOption" name="state" value="4" type="submit"> 已到货</button>
+                                <button  class="filterButton filterOption" name="state" value="5" type="submit"> 有退回</button>
+                                <button  class="filterButton filterOption" name="state" value="7" type="submit"> 已取消</button>
+                                <button  class="filterButton filterOption" name="state" value="6" type="submit"style="border-bottom-left-radius: 0.3rem;border-bottom-right-radius: 0.3rem" >已完成</button>
+                            </div>
+
+                            <div class="filterBox" id="typeOption2" style="display: none;margin-left: 112px">
+                                <button  class="filterButton filterOption" name="order" value="0" type="submit"> 默认排序</button>
+                                <button  class="filterButton filterOption" name="order" value="1" type="submit"style="border-bottom-left-radius: 0.3rem;border-bottom-right-radius: 0.3rem" >按下单日期排序</button>
+                            </div>
+
+
+
+                        </div>
+                        <%for(let i = 0 ; i < orderList.length ; i++) { %>
+
+                        <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%" cellpadding="0" cellspacing="0">
+                            <tr >
+                                <td style="width: 87%;">
+                                    <button class="noteButton" style="padding-left: 80px;" type="button" onclick="location.href='/adOrder?orderId=<%=orderList[i].orderId%>'">
+                                        <div  style= "font-size: 0.7rem; height: 30px; ">
+                                            <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=orderList.length-i%></span>
+                                            <span class="itemInfo" >采购单号：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].orderId%></a></span>
+                                            <span class="itemInfo" style="margin-left: 170px">状态：<a id='orderState<%=i%>' style="color: #0050fa; "><%=orderList[i].state%></a></span>
+                                            <style onload="OrderState('orderState<%=i%>','comingDate<%=i%>','applyDate<%=i%>','orderDate<%=i%>','<%=orderList[i].getNum+orderList[i].pendingNum%>','<%=orderList[i].totalNum%>')"></style>
+                                            <span class="itemInfo" id="applyDate<%=i%>" style="margin-left: 280px;display: none">申请日期：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].orderDate.getFullYear()%>-<%=orderList[i].orderDate.getMonth()+1%>-<%=orderList[i].orderDate.getDate()%> &emsp;<%=orderList[i].orderDate.getHours()%>:<%=orderList[i].orderDate.getMinutes()%>:<%=orderList[i].orderDate.getSeconds()%> </a></span>
+                                            <span class="itemInfo" id="orderDate<%=i%>" style="margin-left: 280px">下单日期：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].orderDate.getFullYear()%>-<%=orderList[i].orderDate.getMonth()+1%>-<%=orderList[i].orderDate.getDate()%> &emsp;<%=orderList[i].orderDate.getHours()%>:<%=orderList[i].orderDate.getMinutes()%>:<%=orderList[i].orderDate.getSeconds()%> </a></span>
+                                            <span class="itemInfo" id="comingDate<%=i%>" style="margin-left: 480px">到货预期：<span  style="font-weight:normal;color: #0050fa; "><%=orderList[i].commingDate.getFullYear()%>-<%=orderList[i].commingDate.getMonth()+1%>-<%=orderList[i].commingDate.getDate()%><span style="color:red;display: none" id="overDate<%=i%>">（已逾期<a id="overDays<%=i%>"><%=parseInt((new Date()-orderList[i].commingDate)/ (1000 * 60 * 60 * 24))%></a>天）</span></span></span>
+                                            <style onload="overDate('overDate<%=i%>','overDays<%=i%>')"></style>
+                                        </div>
+                                        <div  style= "font-size: 0.7rem; height: 30px; ">
+                                            <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].itemName%></a></span>
+                                            <span class="itemInfo" style="margin-left: 170px">型号（图号）：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].itemId%></a></span>
+                                            <span class="itemInfo" style="margin-left: 480px">订单数量：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].totalNum%></a></span>
+                                        </div>
+                                        <div  style= "font-size: 0.7rem; height: 30px; ">
+                                            <span class="itemInfo"  >供货商：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].supplier%></a></span>
+                                            <span class="itemInfo" style="margin-left: 170px">申请备注：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].applyNote%></a></span>
+                                            <span class="itemInfo" style="margin-left: 480px" >审批备注：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].replyNote%></a></span>
+                                        </div>
+
+                                    </button>
+                                </td>
+
+                            </tr>
+                        </table>
+
+
+
+
+
+
+                        <% } %>
+                    <div style="bottom: 0;height: 100px"> </div>
+
+                </div>
+                </div>
+            </form>
+
+
+
+
+        </main>
+    </div>
+</section>
+
+
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+
+
+</body>
+
+</body>
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>隆邦ERP系统_物料管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+    <script language="javascript">
+        function display(ojId,hidenId){
+            if(document.getElementById(ojId).style.display===''){
+                document.getElementById(ojId).style.display='none';
+            }else{
+                document.getElementById(ojId).style.display=''
+                document.getElementById(hidenId).style.display='none';
+
+            }
+        }
+
+        function stateColor(ojId){
+            if(document.getElementById(ojId).innerText==='无'){
+                document.getElementById(ojId).style.color='green';
+            }else if(document.getElementById(ojId).innerText==='存在未检测'){
+                document.getElementById(ojId).style.color='orange';
+            }else if(document.getElementById(ojId).innerText==='少剩余'){
+                document.getElementById(ojId).style.color='red';
+            } else if(document.getElementById(ojId).innerText==='有订单未处理'){
+                document.getElementById(ojId).style.color='#fe007b';
+            }
+        else if(document.getElementById(ojId).innerText==='需归还物料'){
+                document.getElementById(ojId).style.color='#80D5D7';
+            }
+        }
+
+        function Authority(role,ojId) {
+            if(document.getElementById('role').innerText===role){
+                document.getElementById(ojId).style.display='';
+            }
+            if(document.getElementById('role').innerText==='系统管理员'){
+                document.getElementById('authority').style.display='';
+            }else{
+                document.getElementById('authority').style.display='none';
+            }
+        }
+    </script>
+
+</head>
+<body >
+
+
+<section class="functionBoard">
+
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonLogin" onclick="location.href='/adminHome'">首页</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button" id="buttonRegist" onclick="location.href='/adItemMan'">物料管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/adOrderMan'">采购管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adBOMListMan'">BOM表</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
+            </u1>
+            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+        </div>
+
+
+
+
+
+    </div>
+    </div>
+
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        物料管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <form action="adItemMan" method="post">
+                <div class="pageCard" >
+                    <div class="pageTitle">
+                        <a class="typeFilter">
+                            <button class="filterButton" type="button" onclick="display('typeOption1','typeOption2')"> —类型—<span style="float: right;margin-right: 4px">▼</span></button>
+                        </a>
+                        <a class="typeFilter">
+                            <button class="filterButton" type="button" onclick="display('typeOption2','typeOption1')">—报警— <span style="float: right;margin-right: 4px">▼</span></button>
+                        </a>
+                        <input class="indexOf" name="indexOf" style="margin-left: 4px" placeholder="请输入关键字搜索物料">
+                        <button class="searchInputBoxButton" name="indexOfButton" value=true type="submit">搜&emsp;索</button>
+                        <button class="searchInputBoxButton" onclick="location.href='/adItemAdd'"  type="button" id="addNewButton" style="display: none;margin-left: 390px;background-color: #00cb46!important;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem; padding-left: 10px;padding-right: 10px">添加新型物料</button>
+
+                        <style onload="Authority('系统管理员','addNewButton')"></style>
+                        <style onload="Authority('仓库管理员','addNewButton')"></style>
+                        <style onload="Authority('技术员','addNewButton')"></style>
+
+                        <div class="filterBox" id="typeOption1" style="display: none">
+                            <button  class="filterButton filterOption" name="type" value="0" type="submit"> 全部</button>
+                            <button  class="filterButton filterOption" name="type" value="1" type="submit"> 光机类</button>
+                            <button  class="filterButton filterOption" name="type" value="2" type="submit"> 电气类</button>
+                            <button  class="filterButton filterOption" name="type" value="3" type="submit"> 钣金类</button>
+                            <button  class="filterButton filterOption" name="type" value="4" type="submit"> 铸件类</button>
+                            <button  class="filterButton filterOption" name="type" value="5" type="submit"style="border-bottom-left-radius: 0.3rem;border-bottom-right-radius: 0.3rem" > 其它类</button>
+                        </div>
+                        <div class="filterBox" id="typeOption2" style="display: none;margin-left: 112px">
+                            <button  class="filterButton filterOption" name="alarm" value="0" type="submit"> 全部</button>
+                            <button  class="filterButton filterOption" name="alarm" value="1" type="submit"> 无</button>
+                            <button  class="filterButton filterOption" name="alarm" value="2" type="submit"> 存在未检测</button>
+                            <button  class="filterButton filterOption" name="alarm" value="3" type="submit"> 少剩余</button>
+                            <button  class="filterButton filterOption" name="alarm" value="4" type="submit"> 有订单未处理</button>
+                            <button  class="filterButton filterOption" name="alarm" value="5" type="submit"> 需归还物料</button>
+                        </div>
+                    </div>
+                    <div  style="margin-left: 30px;color: #0050fa; font-weight: bold; font-size: small; ">物料数量：<%=itemList.length%></div>
+
+                    <%for(let i = 0 ; i < itemList.length ; i++) { %>
+
+                        <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%" cellpadding="0" cellspacing="0">
+                            <tr >
+                                <td style="width: 87%;">
+                                    <button class="noteButton" style="padding-left: 80px;" type="button" onclick="location.href='/adItem?itemId=<%=itemList[i].itemId%>&returnSql='+document.URL.split('sql=')[1]">
+                                        <div  style= "font-size: 0.7rem; height: 30px; ">
+                                            <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i+1%></span>
+                                            <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;">【<%=itemList[i].itemSupplier%>】<%=itemList[i].itemName%></a></span>
+                                            <span class="itemInfo" style="margin-left: 260px">物料编号：<a style="font-weight:normal;color: #0050fa; "><%=itemList[i].itemId%></a></span>
+                                            <span class="itemInfo" style="margin-left: 530px">区域：<a style="font-weight:normal;color: #0050fa; "><%=itemList[i].itemArea%></a></span>
+
+                                        </div>
+                                        <div  style= "font-size: 0.7rem; height: 30px; ">
+                                            <span class="itemInfo" >型号（图号）:<a style="font-weight: normal;color: #0050fa;"><%=itemList[i].itemModel%></a></span>
+                                            <span class="itemInfo" style="margin-left: 350px">报警：
+                                                <%for(let j=0;j<itemStateList[i].length;j++){%>
+                                                <a style="font-weight:bolder;" id="itemState<%=i%><%=j%>" onload="stateColor(this.id)" ><%=itemStateList[i][j]%></a>&emsp;
+                                                 <style onload="stateColor('itemState<%=i%><%=j%>')"></style>
+                                                <% }%>
+                                            </span>
+                                        </div>
+
+                                        <div  style= "font-size: 0.7rem; height: 30px;" id="itemNote<%=i%>">
+                                            <span class="itemInfo" >类型：<a style="font-weight:normal;color: #0050fa; "><%=itemList[i].itemType%></a></span>
+                                            <span class="itemInfo" style="margin-left: 140px">数量：<a style="font-weight: normal;color: #0050fa;"><%=itemList[i].itemNum%><%=itemList[i].itemUnit%></a></span>
+                                            <span class="itemInfo" style="margin-left: 260px" >备注：<a style="font-weight: normal;color: red;"><%=itemList[i].itemNote%></a></span>
+                                        </div>
+                                    </button>
+                                </td>
+                                <td style="width: 13%">
+                                    <table cellspacing="0" cellpadding="0" style="width: 100%">
+                                        <tr >
+                                    <td>
+                                        <button class="itemButton1" type="button" onclick="window.open('uploads/<%=itemList[i].itemFileName%>')"><img src='images/checkDrawing.png' height="30px" width="30px"></button>
+                                    </td>
+                                        </tr>
+                                        <tr>
+                                    <td>
+                                        <button class="itemButton2" type="button" onclick="window.open('/qrCodePrint?itemId=<%=itemList[i].itemId%>')"><img src='images/checkQRcode.png' height="23px" width="23px"></button>
+                                    </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+
+
+
+
+
+                    <% } %>
+
+                </div>
+            </form>
+
+
+
+
+        </main>
+    </div>
+</section>
+
+
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+
+
+</body>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta  content="yes"  name="apple-mobile-web-app-capable">
+    <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
+    <title>隆邦ERP系统_物料管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script language="javascript">
+
+
+        function confirmAgain() {
+
+            if (window.confirm("确认执行【下单该物料】操作?")) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        function NumAlarm() {
+            var a=parseInt(document.getElementById('totalNum').innerText);
+            var b=parseInt(document.getElementById('detail5').value);
+
+            if(a<=b){
+                document.getElementById('totalNum').style.color='red';
+
+            }
+        }
+        function stateColor(ojId){
+            if(document.getElementById(ojId).innerText==='无'){
+                document.getElementById(ojId).style.color='green';
+            }else if(document.getElementById(ojId).innerText==='存在未检测'){
+                document.getElementById(ojId).style.color='orange';
+            }else if(document.getElementById(ojId).innerText==='少剩余'){
+                document.getElementById(ojId).style.color='red';
+            }else if(document.getElementById(ojId).innerText==='有退回'){
+                document.getElementById(ojId).style.color='#FE1DC6';
+            }else  if(document.getElementById(ojId).innerText==='有订单未处理'){
+                document.getElementById(ojId).style.color='#fe007b';
+            }else if(document.getElementById(ojId).innerText==='需归还物料'){
+                document.getElementById(ojId).style.color='#80d5d7';
+            }
+        }
+
+        function Authority() {
+
+            if(document.getElementById('role').innerText==='系统管理员'){
+                document.getElementById('authority').style.display='';
+            }else{
+                document.getElementById('authority').style.display='none';
+            }
+        }
+
+    </script>
+
+
+</head>
+<body >
+
+
+<section class="functionBoard">
+
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonLogin" onclick="location.href='/adminHome'">首页</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button" id="buttonRegist" onclick="location.href='/adItemMan'">物料管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/adOrderMan'">采购管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adBOMListMan'">BOM表</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
+                <style onload="Authority()"></style>
+            </u1>
+            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+        </div>
+
+
+
+    </div>
+    </div>
+
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        物料管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <form method="post" onsubmit="return confirmAgain()">
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
+                    <tr>
+                        <td >
+                            <div style="width: 450px; margin-top: -10px">
+                                <div class="itemDetail">详细信息：</div>
+                                <div class="itemDetail">供应商：<%=itemList.itemSupplier%></div>
+                                <div class="itemDetail">名称：<%=itemList.itemName%></div>
+                                <div class="itemDetail">物料编号：<input class="itemDetailsInput" name="updateId" id="detail2" value="<%=itemList.itemId%>" placeholder="<%=itemList.itemId%>" disabled="true"></div>
+                                <div class="itemDetail">型号(图号)：<input class="itemDetailsInput" name="updateModel" id="detail3" value="<%=itemList.itemModel%>" placeholder="<%=itemList.itemModel%>" disabled="true"></div>
+                                <div class="itemDetail" >类型：<%=itemList.itemType%></div>
+                                <div class="itemDetail" >库存总数：<span id="totalNum"><%=itemList.itemNum%></span><%=itemList.itemUnit%></div>
+                                <div class="itemDetail">临时进仓总数：<span style="color: orange"><%=itemList.itemTemNum%></span><%=itemList.itemUnit%></div>
+                                <div class="itemDetail">区域：<%=itemList.itemArea%></div>
+                                <div class="itemDetail">数量预警：<input class="itemDetailsInput" id="detail5" value="<%=itemList.itemAlarmSetting%>" disabled="true" style="width: 300px"></div>
+                                <div class="itemDetail">报警：
+                                    <%for(let j=0;j<itemStateList.length;j++){%>
+                                    <a style="font-weight:bold;" id="itemState<%=j%>" onload="stateColor(this.id)" ><%=itemStateList[j]%></a>&emsp;
+                                    <style onload="stateColor('itemState<%=j%>')"></style>
+                                    <% }%>
+                                </div>
+                                <div class="itemDetail" >备注：<%=itemList.itemNote%></div>
+                                <style onload="NumAlarm()"></style>
+
+                            </div>
+                        </td>
+                        <td>
+                            <div style="margin-left: -35px;margin-top: -20px">
+                                <img src="/create_qrcode?text=http://192.168.0.127:3000/adItem?itemId=<%=itemList.itemId%>" height="320px" width="320px">
+                            </div>
+                            <div>
+                                <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.open('uploads/<%=itemList.itemFileName%>')"  style="background-color: gold!important; ">查看图纸</button>
+                                <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.open('/qrCodePrint?itemId=<%=itemList.itemId%>')"  style=" padding-left: 10px;  margin-left: 70px;background-color: mediumseagreen!important;">打印二维码</button>
+                            </div>
+
+                        </td>
+                    </tr>
+
+
+
+                </table>
+
+
+
+
+
+
+
+                <div class="pageCard" style="border-top: 0.1rem solid #404142;background-color:#f0e8ff!important;position: absolute;width: 77.5%;top:530px;bottom: -130px;height: auto;margin-bottom: 0px ">
+
+                    <div class="pageTitle">
+                        <div style="margin-bottom: 15px;font-weight: bold;font-size: 1.2rem">下单该物料：</div>
+                        <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.history.go(-1)"style="position: absolute!important; margin-top: -45px; margin-left: 560px;" >返回上一页</button>
+
+                    </div>
+                    <div style="font-weight: bold; color: #666">
+                        <span style="margin-left: 30px" >数量：<input name="num" type="text" class="indexOf" style="height: 35px;width: 100px;" required><span style="margin: 110px"><%=itemList.itemUnit%></span></span>
+                        <span style="margin-left: 170px">申请人：<input name="applier" type="text" class="indexOf" style="height: 35px;width: 120px" value="<%=user.userName%>" required></span>
+                    </div>
+                    <div style="font-weight: bold; color: #666;margin-top: 30px">
+                        <span style="margin-left: 30px" >到货预期设置：<input name="commingDate"  type="date" class="indexOf" style="height: 35px;width: 200px;" required></span>
+                    </div>
+                    <div style="font-weight: bold; color: #666;margin-top: 30px">
+                        <span style="margin-left: 30px" >申请备注：<input name="applyNote" type="text" class="indexOf" style="height: 35px;width: 565px"></span>
+                    </div>
+                    <div>
+                        <button class="btn btn-block btn-submit button button--primary smaller" type="submit"  style=" background-color: #fe007b!important;position: absolute!important; margin-top: 30px; margin-left: 585px;" >申请下单</button>
+                    </div>
+
+                </div>
+            </form>
+        </main>
+    </div>
+</section>
+
+
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+
+
+</body>
+
+</body>
+</html>

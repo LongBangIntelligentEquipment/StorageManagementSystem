@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta  content="yes"  name="apple-mobile-web-app-capable">
+    <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
+    <title>隆邦ERP系统_物料管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+    <script language="javascript">
+        function display(ojId,hidenId){
+            if(document.getElementById(ojId).style.display===''){
+                document.getElementById(ojId).style.display='none';
+            }else{
+                document.getElementById(ojId).style.display=''
+                document.getElementById(hidenId).style.display='none';
+
+            }
+        }
+
+
+        function editable(){
+
+                for(var i=0;i<4;i++){
+                    var id='detail'+(i+1);
+                    document.getElementById(id).disabled=false;
+                    document.getElementById(id).style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important; width:300px";
+                }
+                document.getElementById('editButton').style="background-color:red!important";
+                document.getElementById('confirmButton1').style="display:'';margin-left: 10px";
+
+        }
+
+        function InfoDisplay(type1,type2,type3,type4,ojIdJudge,ojId){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if(judge===type1||judge===type2||judge===type3||judge===type4){
+                document.getElementById(ojId).style.display="";
+            }else {
+                document.getElementById(ojId).style.display="none";
+            }
+        }
+
+
+        function InfoBGC(type,ojIdJudge,ojId,color){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if(judge===type){
+                document.getElementById(ojId).style=color;
+            }
+
+        }
+
+
+
+        /**
+         * @return {string}
+         */
+
+
+        function stateColor(ojId){
+            if(document.getElementById(ojId).innerText==='无'){
+                document.getElementById(ojId).style.color='gray';
+            }else if(document.getElementById(ojId).innerText==='存在未检测'){
+                document.getElementById(ojId).style.color='orange';
+            }else if(document.getElementById(ojId).innerText==='少剩余'){
+                document.getElementById(ojId).style.color='red';
+            } else if(document.getElementById(ojId).innerText==='有订单未处理'){
+                document.getElementById(ojId).style.color='#fe007b';
+            } else if(document.getElementById(ojId).innerText==='需归还物料'){
+                document.getElementById(ojId).style.color='#80d5d7';
+            }
+        }
+
+
+
+        function NumAlarm() {
+            var a=parseInt(document.getElementById('totalNum').innerText);
+            var b=parseInt(document.getElementById('detail5').value);
+
+            if(a<=b){
+                document.getElementById('totalNum').style.color='red';
+
+            }
+        }
+
+        function stateColorChange(ojId,content,color,ojDo) {
+            if( document.getElementById(ojId).innerText===content){
+                document.getElementById(ojDo).style=color;
+            }
+        }
+
+        function ExitState(ojId,doOjId,style) {
+            if(document.getElementById(ojId).innerText==='借用（需归还）'||document.getElementById(ojId).innerText==='返工（需归还）'){
+                document.getElementById(doOjId).style.display='';
+                document.getElementById(ojId).style='color:red';
+            }
+        }
+
+        function getDate(ojId,doOjId) {
+
+            if(document.getElementById(ojId).innerText==='已处理'){
+                document.getElementById(doOjId).style.display='none'
+            }
+        }
+
+
+
+        function Authority(role,ojId) {
+            if(document.getElementById('role').innerText===role){
+                document.getElementById(ojId).style.display='';
+            }
+            if(document.getElementById('role').innerText==='系统管理员'){
+                document.getElementById('authority').style.display='';
+            }else{
+                document.getElementById('authority').style.display='none';
+            }
+        }
+
+        function backMan() {
+            var urlString=document.URL.split('&')[1]
+            if(urlString==='returnSql=undefined'){
+                location.href='/adItemMan'
+            }else {
+                location.href='/adItemMan?sql='+urlString.split('returnSql=')[1]
+            }
+        }
+
+        function loadTwice() {
+            var judgement=document.URL.split('&');
+            var reloadURL=document.URL.split('?');
+            var flashURL;
+
+
+            if(judgement.length===1){
+                flashURL=reloadURL[0]+'?'+reloadURL[1]+'&reload=true'
+                window.setTimeout(  location.href=flashURL,1000)
+            }
+
+        }
+
+
+
+
+    </script>
+
+</head>
+<body onload="loadTwice()" >
+
+
+<section class="functionBoard" >
+
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adminHome'">首页</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adItemMan'">物料管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adOrderMan'">采购管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adBOMListMan'">BOM表</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button"  onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
+            </u1>
+            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+        </div>
+
+
+    </div>
+    </div>
+
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        权限管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <form method="post" >
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
+                    <tr>
+                        <td >
+                            <div style="margin-top: -10px">
+                                <div class="itemDetail">详细信息：</div>
+                                <div class="itemDetail">姓名：<input class="itemDetailsInput" name="userName" id="userName" value="<%=userList[0].userName%>" disabled="false" ></div>
+                                <div class="itemDetail">工号：<input class="itemDetailsInput" name="userId" id="userId" value="<%=userList[0].userId%>" placeholder="<%=userList[0].userId%>" disabled="true"></div>
+                                <div class="itemDetail" >系统角色：<select class="itemDetailsInput" name="updateRole" id="detail1" disabled="true" style="width: 250px;color:black;">
+                                        <option value="<%=userList[0].role%>"><%=userList[0].role%></option>
+                                        <option value="系统管理员">变更为：系统管理员</option>
+                                        <option value="仓库管理员">变更为：仓库管理员</option>
+                                        <option value="技术员">变更为：技术员</option>
+                                        <option value="普通权限员">变更为：普通权限员</option>
+
+                                    </select></div>
+                                <div class="itemDetail" >岗位：<input class="itemDetailsInput" name="updatePost" id="detail2" value="<%=userList[0].post%>" disabled="false" ></div>
+                                <span>入职日期：<input class="itemDetailsInput" name="joinedDate" id="updateJoinedDate" value="<%=userList[0].joinedDate.getFullYear()%>-<%=userList[0].joinedDate.getMonth()+1%>-<%=userList[0].joinedDate.getDate()%>" disabled="false" style="width: 250px" ></span>
+                                <div class="itemDetail">联系方式：<input class="itemDetailsInput" name="updateContact" id="detail3" value="<%=userList[0].contact%>" disabled="false" ></div>
+                                <div class="itemDetail" >职位状态：<select class="itemDetailsInput" name="updateState" id="detail4" disabled="true" style="width: 100px;color:black;">
+                                        <option value="<%=userList[0].state%>"><%=userList[0].state%></option>
+                                        <option value="在职">变更为：在职</option>
+                                        <option value="离职">变更为：离职</option>
+                                    </select></div>
+
+
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td >
+                            <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="editable()" style="margin-top: 10px" >编辑</button>
+
+                            <button class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" id="confirmButton1"  style="display:none ; margin-top: 15px; margin-left: 10px">确定</button>
+
+
+                        </td>
+                    </tr>
+
+
+
+                </table>
+            </form>
+
+
+
+
+        </main>
+    </div>
+</section>
+
+
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+
+
+</body>
+
+</body>
+</html>

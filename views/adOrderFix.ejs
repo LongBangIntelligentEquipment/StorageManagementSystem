@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta  content="yes"  name="apple-mobile-web-app-capable">
+    <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
+    <title>隆邦ERP系统_采购管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script language="javascript">
+
+        function confirmAgain() {
+
+            if (window.confirm("确认执行【退回】操作?")) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        function overDate() {
+            if(document.getElementById('overDays').innerText>0){
+                document.getElementById('overDate').style.display='';
+            }else if(document.getElementById('overDays').innerText==='0'){
+                document.getElementById('overDate').style.display='';
+                document.getElementById('overDate').innerText='(今天应到货)'
+                document.getElementById('overDate').style.color='orange';
+            }
+        }
+
+
+
+
+        function OrderState(ojId){
+            if(document.getElementById(ojId).innerText==='已下单'){
+                document.getElementById(ojId).style.color='green';
+            }else if(document.getElementById(ojId).innerText==='申请中'){
+                document.getElementById(ojId).style.color='orange';
+            }else if(document.getElementById(ojId).innerText==='已拒绝'){
+                document.getElementById(ojId).style.color='red';
+            }else if(document.getElementById(ojId).innerText==='已完成'){
+                document.getElementById(ojId).style.color='gray';
+            }
+            else if(document.getElementById(ojId).innerText==='有退回'){
+                document.getElementById(ojId).style.color='#fe007b';
+            }
+        }
+        function Authority() {
+
+            if(document.getElementById('role').innerText==='系统管理员'){
+                document.getElementById('authority').style.display='';
+            }else{
+                document.getElementById('authority').style.display='none';
+            }
+        }
+
+    </script>
+
+
+</head>
+<body >
+
+
+<section class="functionBoard">
+
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonLogin" onclick="location.href='/adminHome'">首页</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/adItemMan'">物料管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button" id="buttonRegist" onclick="location.href='/adOrderMan'">采购管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adBOMListMan'">BOM表</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
+                <style onload="Authority()"></style>
+            </u1>
+            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+        </div>
+
+
+
+
+
+    </div>
+    </div>
+
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        采购管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <form method="post"  onsubmit="return confirmAgain()">
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
+                    <tr>
+                        <td >
+                            <div style="width: 450px">
+                                <div class="itemDetail">详细信息：</div>
+                                <div class="itemDetail">采购单号：<%=orderList[0].orderId%></div>
+                                <div class="itemDetail" >订单状态：<span id="orderState"><%=orderList[0].state%></span></div> <style onload="OrderState('orderState')"></style>
+                                <div class="itemDetail">申请日期：<%=orderList[0].applyDate.getFullYear()%>-<%=orderList[0].applyDate.getMonth()+1%>-<%=orderList[0].applyDate.getDate()%> &emsp;<%=orderList[0].applyDate.getHours()%>:<%=orderList[0].applyDate.getMinutes()%>:<%=orderList[0].applyDate.getSeconds()%> </div>
+                                <div class="itemDetail" id="orderDate">下单日期：<%=orderList[0].orderDate.getFullYear()%>-<%=orderList[0].orderDate.getMonth()+1%>-<%=orderList[0].orderDate.getDate()%> &emsp;<%=orderList[0].orderDate.getHours()%>:<%=orderList[0].orderDate.getMinutes()%>:<%=orderList[0].orderDate.getSeconds()%></div> <style onload="AntiInfoDisplay('申请中','已拒绝',false,false,'orderState','orderDate')"></style>
+                                <div class="itemDetail" id="arriveDate">到货预期：<input class="itemDetailsInput" name="arriveDateInput" id="arriveDateInput" type="date" style="width: 155px" value="<%=orderList[0].commingDate.getFullYear()%>-<%=orderList[0].commingDate.getMonth()+1%>-<%=orderList[0].commingDate.getDate()%>" disabled=""><span id="overDate" style="color:red;display: none">(已逾期<a id="overDays"><%=parseInt((new Date()-orderList[0].commingDate)/ (1000 * 60 * 60 * 24))%></a>天)</span></div>
+                                <style onload="overDate()"></style>
+                                <style onload="AntiInfoDisplay('已完成','已拒绝',false,false,'orderState','arriveDate')"></style>
+                                <div class="itemDetail">名称：<%=orderList[0].itemName%></div>
+                                <div class="itemDetail">型号（图号）：<%=orderList[0].itemId%></div>
+
+                                <div class="itemDetail">供应商：<%=orderList[0].itemSupplier%></div>
+                                <div class="itemDetail" id="orderNum">下单数量：<input class="itemDetailsInput"  name="applyNum" id="applyNum" value="<%=orderList[0].totalNum%>" disabled="true" style="width: 50px; "><%=orderList[0].itemUnit%></div>
+                                <div class="itemDetail">申请人：<%=orderList[0].applier%></div>
+                                <div class="itemDetail" >申请备注：<input class="itemDetailsInput"  value="<%=orderList[0].applyNote%>" disabled="true" ></div>
+                                <div class="itemDetail" id="confirmNote" >审批备注：<input class="itemDetailsInput" name="confirmNoteInput" id="confirmNoteInput" value="<%=orderList[0].replyNote%>" disabled="true"></div>
+                                <style onload="AntiInfoDisplay('申请中','已拒绝',false,false,'orderState','confirmNote')"></style>
+                                <style onload="InfoDisplay('申请中','已拒绝',false,false,'orderState','orderNum')" ></style>
+                            </div>
+                        </td>
+                        <td>
+
+                            <div style="width: 200px;" id="account"> <style onload="AntiInfoDisplay('申请中','已拒绝',false,false,'orderState','account')"></style>
+                                清点：
+                                <div class="itemDetail" >应收总数量：<span id="totalNum" style="color: red"><%=orderList[0].totalNum%></span><%=orderList[0].itemUnit%></div>
+                                <div class="itemDetail" >到货总数量：<span  style="color: blue"><%=orderList[0].getNum+orderList[0].pendingNum%></span><%=orderList[0].itemUnit%></div>
+
+                                <div class="itemDetail" >已收数量：<span  style="color: green"><%=orderList[0].getNum%></span><%=orderList[0].itemUnit%></div>
+                                <div class="itemDetail">待检数量：<span id="pendingNum" style="color: orange"><%=orderList[0].pendingNum%></span><%=orderList[0].itemUnit%></div>
+                                <div class="itemDetail" >退回数量：<span id="returnNum" style="color: #fe007b"><%=orderList[0].returnNum%></span><%=orderList[0].itemUnit%></div>
+
+                            </div>
+                        </td>
+                    </tr>
+
+
+
+                </table>
+
+
+
+
+
+
+
+                <div class="pageCard" style="border-top: 0.1rem solid #404142;background-color:#faf1f7!important;position: absolute;width: 77.5%;top:580px;bottom: -130px;height: auto;margin-bottom: 0px ">
+
+                    <div class="pageTitle">
+                        <div style="margin-bottom: 15px;font-weight: bold;font-size: 1.2rem">订单退回：</div>
+                    </div>
+                    <div style="font-weight: bold; color: #666">
+                        <span style="margin-left: 30px" >退回数量：<input name="saveNum" type="text" class="indexOf" style="height: 35px;width: 100px;" required><span style="margin: 110px" ></span></span>
+                        <span style="margin-left: -70px" id="enterModel">退回模式：<select required="required "  name="enterModel" type="text" class="indexOf" style="color:blue;font-weight: bold;height: 35px;width: 150px;background-color: rgb(232, 240, 254) !important;" >
+                                <option value="直接退回" style="color:red;">直接退回</option>
+                                <option value="从临时仓库退回" style="color:orange">从临时仓库退回</option>
+                            </select></span>
+                    </div>
+                    <div style="font-weight: bold; color: #666;margin-top: 30px">
+
+
+                    </span>
+
+                    <div>
+                        <button class="btn btn-block btn-submit button button--primary smaller" type="submit"  style=" margin-top: 30px; margin-left: 585px;padding-left: 10px"  >确定</button>
+                    </div>
+
+                </div>
+                </div>
+            </form>
+        </main>
+    </div>
+</section>
+
+
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+
+
+</body>
+
+</body>
+</html>

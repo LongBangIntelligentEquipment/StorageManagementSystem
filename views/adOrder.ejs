@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta  content="yes"  name="apple-mobile-web-app-capable">
+    <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
+    <title>隆邦ERP系统_采购管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+    <script language="javascript">
+        function display(ojId,hidenId){
+            if(document.getElementById(ojId).style.display===''){
+                document.getElementById(ojId).style.display='none';
+            }else{
+                document.getElementById(ojId).style.display=''
+                document.getElementById(hidenId).style.display='none';
+
+            }
+        }
+
+
+        function editable(){
+            document.getElementById('arriveDateInput').disabled=false;
+            document.getElementById('applyNum').disabled=false;
+            document.getElementById('purchasePrice').disabled=false;
+            document.getElementById('applyNum').style='width: 100px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;';
+            document.getElementById('purchasePrice').style='width: 100px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;';
+
+            document.getElementById('arriveDateInput').style='width:155px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;';
+            document.getElementById('confirmNoteInput').disabled=false;
+            document.getElementById('confirmNote').style.display='';
+            document.getElementById('confirmNoteInput').style='outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;';
+            document.getElementById('confirmButton1').style.display='';
+            document.getElementById('cancelButton').style.display='';
+            document.getElementById('agreeButton').style.display='none';
+            document.getElementById('refuseButton').style.display='none';
+
+        }
+
+        function Uneditable(){
+            document.getElementById('applyNum').disabled=true;
+            document.getElementById('purchasePrice').disabled=true;
+            document.getElementById('applyNum').style='width:50px';
+            document.getElementById('purchasePrice').style='width:50px';
+            document.getElementById('arriveDateInput').disabled=true;
+            document.getElementById('arriveDateInput').style='width:155px;';
+            document.getElementById('confirmNote').style.display='none';
+            document.getElementById('confirmButton1').style.display='none';
+            document.getElementById('confirmButton2').style.display='none';
+            document.getElementById('cancelButton').style.display='none';
+            document.getElementById('agreeButton').style.display='';
+            document.getElementById('refuseButton').style.display='';
+
+
+        }
+        function editableSingle() {
+            document.getElementById('arriveDateInput').disabled=false;
+            document.getElementById('arriveDateInput').style='width:155px;outline: none; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;';
+            document.getElementById('confirmButton1').style.display='';
+            document.getElementById('confirmButton2').style.display='';
+            document.getElementById('changeDateButton').style.display='none';
+            document.getElementById('cancelOrderButton').style.display='none';
+            document.getElementById('cancelChangeButton').style.display='';
+            document.getElementById('arriveDateInput').style.display='';
+            document.getElementById('arriveDateDisplay').style.display='none';
+            HideConfirmButton1()
+        }
+
+        function HideConfirmButton1() {
+            if( document.getElementById('confirmButton2').style.display===''){
+                document.getElementById('confirmButton1').style.display='none';
+            }
+        }
+
+        function UneditableSingle() {
+            document.getElementById('arriveDateInput').disabled=true;
+            document.getElementById('arriveDateInput').style='width:155px;';
+            document.getElementById('changeDateButton').style.display='';
+            document.getElementById('cancelChangeButton').style.display='none';
+            document.getElementById('confirmButton1').style.display='none';
+            document.getElementById('confirmButton2').style.display='none';
+            document.getElementById('arriveDateInput').style.display='none';
+            document.getElementById('arriveDateDisplay').style.display='';
+        }
+
+        function InfoDisplay(type1,type2,type3,type4,ojIdJudge,ojId){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if(judge===type1||judge===type2||judge===type3||judge===type4){
+                document.getElementById(ojId).style.display="";
+            }else {
+                document.getElementById(ojId).style.display="none";
+            }
+        }
+
+        function AntiInfoDisplay(type1,type2,type3,type4,ojIdJudge,ojId){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if(judge===type1||judge===type2||judge===type3||judge===type4){
+                document.getElementById(ojId).style.display="none";
+            }else {
+                document.getElementById(ojId).style.display="";
+            }
+        }
+
+        function InfoBGC(type,ojIdJudge,ojId,color){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if(judge===type){
+                document.getElementById(ojId).style=color;
+            }
+
+        }
+
+
+
+        /**
+         * @return {string}
+         */
+
+
+        function stateColorChange(ojId,content,color) {
+            if( document.getElementById(ojId).innerText===content){
+                document.getElementById(ojId).style=color;
+            }
+        }
+
+        function OrderState(ojId){
+            if(document.getElementById(ojId).innerText==='已下单'||document.getElementById(ojId).innerText==='已到货'){
+                document.getElementById(ojId).style.color='green';
+            }else if(document.getElementById(ojId).innerText==='申请中'){
+                document.getElementById(ojId).style.color='orange';
+            }else if(document.getElementById(ojId).innerText==='已拒绝'||document.getElementById(ojId).innerText==='已取消'){
+                document.getElementById(ojId).style.color='red';
+            }else if(document.getElementById(ojId).innerText==='已完成'){
+                document.getElementById(ojId).style.color='gray';
+            }
+            else if(document.getElementById(ojId).innerText==='有退回'){
+                document.getElementById(ojId).style.color='#fe007b';
+            }
+        }
+
+        function noteState(ojId){
+            if(document.getElementById(ojId).innerText==='已下单'||document.getElementById(ojId).innerText==='已进仓'||document.getElementById(ojId).innerText==='已验收进仓'||document.getElementById(ojId).innerText==='已退还进仓'){
+                document.getElementById(ojId).style.color='green';
+            }else if(document.getElementById(ojId).innerText==='申请下单'||document.getElementById(ojId).innerText==='已临时进仓'||document.getElementById(ojId).innerText==='已退还进仓至临时仓库'||document.getElementById(ojId).innerText==='申请中'){
+                document.getElementById(ojId).style.color='orange';
+            }else if(document.getElementById(ojId).innerText==='已拒绝'||document.getElementById(ojId).innerText==='已取消'){
+                document.getElementById(ojId).style.color='red';
+            }else if(document.getElementById(ojId).innerText==='已完成'){
+                document.getElementById(ojId).style.color='gray';
+            }
+            else if(document.getElementById(ojId).innerText==='已退回'||document.getElementById(ojId).innerText==='已退回(首次检测)'||document.getElementById(ojId).innerText==='已从临时仓库退回'||document.getElementById(ojId).innerText==='已从临时仓库退回(首次检测)'){
+                document.getElementById(ojId).style.color='#fe007b';
+            }
+        }
+
+
+        function confirmAgain() {
+            if(document.getElementById('confirmButton1').style.display===''&&document.getElementById('refuseButton').style.display==='none'){
+                if (window.confirm("请确认采购信息，并且确认已经联系供货商订货?")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }else if (document.getElementById('confirmButton1').style.display==='none'&&document.getElementById('refuseButton').style.display===''){
+                if (window.confirm("请确认是否拒绝该订单?")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }else  if(document.getElementById('confirmButton2').style.display===''&&document.getElementById('refuseButton').style.display==='none'){
+                if (window.confirm("请确认编辑内容?")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }else  if(document.getElementById('cancelOrderButton').style.display===''&&document.getElementById('confirmButton2').style.display==='none'&&document.getElementById('pendingNum').innerText>0){
+                alert('请在取消订单前清空待检物料（进仓或退回待检数量）');
+                return false;
+            } else  if(document.getElementById('cancelOrderButton').style.display===''&&document.getElementById('confirmButton2').style.display==='none'&&document.getElementById('pendingNum').innerText<=0){
+                if (window.confirm("请确认是否取消该订单?")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+
+        }
+        
+        function overDate() {
+            if(document.getElementById('overDays').innerText>0){
+                document.getElementById('overDate').style.display='';
+            }else if(document.getElementById('overDays').innerText==='0'){
+                document.getElementById('overDate').style.display='';
+                document.getElementById('overDate').innerText='(今天应到货)'
+                document.getElementById('overDate').style.color='orange';
+            }
+        }
+        
+        function SendAll(ojId1,ojId2,ojId3,ojId4) {
+            if(document.getElementById(ojId1).innerText===document.getElementById(ojId2).innerText){
+                document.getElementById(ojId3).style.display="none";
+                document.getElementById(ojId4).style.display="none";
+
+            }
+        }
+
+        function loadTwice() {
+            var judgement=document.URL.split('=');
+            var reloadURL=document.URL.split('?');
+            var flashURL;
+
+            if(judgement.length===2){
+                flashURL=reloadURL[0]+'?'+reloadURL[1]+'&reload=true'
+                window.setTimeout(  location.href=flashURL,1000)
+            }
+        }
+
+
+        function Authority(type1,type2,type3,type4,ojIdJudge,ojId,role1,role2,role3,role4) {
+
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if((judge===type1||judge===type2||judge===type3||judge===type4)&&(document.getElementById('role').innerText===role1||document.getElementById('role').innerText===role2||document.getElementById('role').innerText===role3||document.getElementById('role').innerText===role4)){
+                document.getElementById(ojId).style.display="";
+            }else {
+                document.getElementById(ojId).style.display="none";
+            }
+            if(document.getElementById('role').innerText==='系统管理员'){
+                document.getElementById('authority').style.display='';
+            }else{
+                document.getElementById('authority').style.display='none';
+            }
+        }
+    </script>
+
+</head>
+<body onload=" loadTwice() " >
+
+
+<section class="functionBoard" >
+
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonLogin" onclick="location.href='/adminHome'">首页</button></li>
+                <li class="list-group"><button class="functionBoard-Button " type="button" id="buttonRegist" onclick="location.href='/adItemMan'">物料管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button" id="buttonRegist" onclick="location.href='/adOrderMan'">采购管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adBOMListMan'">BOM表</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
+            </u1>
+            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+        </div>
+
+
+
+
+
+    </div>
+    </div>
+
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        采购管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <form method="post"  onsubmit="return confirmAgain()" >
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
+                    <tr>
+                        <td >
+                            <div style="width: 450px">
+                                <div class="itemDetail">详细信息：</div>
+                                <div class="itemDetail">采购单号：<%=orderList[0].orderId%></div>
+                                <div class="itemDetail" >订单状态：<span id="orderState"><%=orderList[0].state%></span></div> <style onload="OrderState('orderState')"></style>
+                                <div class="itemDetail">申请日期：<%=orderList[0].applyDate.getFullYear()%>-<%=orderList[0].applyDate.getMonth()+1%>-<%=orderList[0].applyDate.getDate()%> &emsp;<%=orderList[0].applyDate.getHours()%>:<%=orderList[0].applyDate.getMinutes()%>:<%=orderList[0].applyDate.getSeconds()%> </div>
+                                <div class="itemDetail" id="orderDate">下单日期：<%=orderList[0].orderDate.getFullYear()%>-<%=orderList[0].orderDate.getMonth()+1%>-<%=orderList[0].orderDate.getDate()%> &emsp;<%=orderList[0].orderDate.getHours()%>:<%=orderList[0].orderDate.getMinutes()%>:<%=orderList[0].orderDate.getSeconds()%></div> <style onload="AntiInfoDisplay('申请中','已拒绝','已取消',false,'orderState','orderDate')"></style>
+                                <div class="itemDetail" id="arriveDate">到货预期：<input class="itemDetailsInput" name="arriveDateInput" id="arriveDateInput" type="date" value="<%=orderList[0].commingDate.getFullYear()%>-<%=orderList[0].commingDate.getMonth()+1%>-<%=orderList[0].commingDate.getDate()%>" style="display: none;width: 155px"  disabled=""><span id="arriveDateDisplay"><%=orderList[0].commingDate.getFullYear()%>-<%=orderList[0].commingDate.getMonth()+1%>-<%=orderList[0].commingDate.getDate()%></span><span id="overDate" style="color:red;display: none">(已逾期<a id="overDays"><%=parseInt((new Date()-orderList[0].commingDate)/ (1000 * 60 * 60 * 24))%></a>天)</span></div>
+                                <style onload="overDate()"></style>
+                                <style onload="AntiInfoDisplay('已完成','已拒绝','已取消',false,'orderState','arriveDate')"></style>
+                                <div class="itemDetail">供应商：<%=orderList[0].itemSupplier%></div>
+                                <div class="itemDetail">名称：<%=orderList[0].itemName%></div>
+                                <div class="itemDetail">物料编号：<%=orderList[0].itemId%></div>
+                                <div class="itemDetail">型号(图号)：<%=orderList[0].itemModel%></div>
+                                <div class="itemDetail" id="orderNum">下单数量：<input class="itemDetailsInput"  name="applyNum" id="applyNum" value="<%=orderList[0].totalNum%>" disabled="true" style="width: 50px; "><%=orderList[0].itemUnit%></div>
+                                <div class="itemDetail" id="orderPirce" style="">物料单价：<input class="itemDetailsInput"  name="purchasePrice" id="purchasePrice" value="<%=(orderList[0].price === 0 ? orderList[0].itemPrice : orderList[0].price )%>" disabled="true" style="width: 50px; ">元/<%=orderList[0].itemUnit%></div>
+                                <%console.log(orderList[0].itemPrice)%>
+                                <div class="itemDetail">申请人：<%=orderList[0].applier%></div>
+                                <div class="itemDetail" >申请备注：<input class="itemDetailsInput"  value="<%=orderList[0].applyNote%>" disabled="true" ></div>
+                                <div class="itemDetail" id="confirmNote" >审批备注：<input class="itemDetailsInput" name="confirmNoteInput" id="confirmNoteInput" value="<%=orderList[0].replyNote%>" disabled="true"></div>
+                                <style onload="AntiInfoDisplay('申请中','已拒绝','已取消',false,'orderState','confirmNote')"></style>
+                                <style onload="InfoDisplay('申请中','已拒绝','已取消',false,'orderState','orderNum')" ></style>
+                                <style onload="AntiInfoDisplay('仓库管理员','技术员','普通权限员',false,'role','orderPirce')"></style>
+                            </div>
+                        </td>
+                        <td>
+
+                            <div style="width: 200px;" id="account"> <style onload="AntiInfoDisplay('申请中','已拒绝',false,false,'orderState','account')"></style>
+                                清点：
+                                <div class="itemDetail" >应收总数量：<span id="totalNum" style="color: red"><%=orderList[0].totalNum%></span><%=orderList[0].itemUnit%></div>
+                                <div class="itemDetail" >到货总数量：<span id="arriveNum" style="color: blue"><%=orderList[0].getNum+orderList[0].pendingNum%></span><%=orderList[0].itemUnit%></div>
+                            <div class="itemDetail" >进仓数量：<span  style="color: green"><%=orderList[0].getNum%></span><%=orderList[0].itemUnit%></div>
+                            <div class="itemDetail">待检数量：<span id="pendingNum" style="color: orange"><%=orderList[0].pendingNum%></span><%=orderList[0].itemUnit%></div>
+                            <div class="itemDetail" >退回数量：<span id="returnNum" style="color: #fe007b"><%=orderList[0].returnNum%></span><%=orderList[0].itemUnit%></div>
+                            </div>
+                                <button class="btn btn-block btn-submit button button--primary " type="button"  onclick="location.href='/adItem?itemId=<%=orderList[0].itemId%>&returnSql='+document.URL.split('sql=')[1]"  style="width: 200px;margin-top: 60px;background-color: #fe007b!important;height: 50px;">物料详情</button>
+
+
+                                <div style="width: 200px;" id="accountButtons"> <style onload="AntiInfoDisplay('申请中','已拒绝','已完成','已取消','orderState','accountButtons')"></style>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="directlyExit" onclick="location.href='/adOrderFix?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>'" style="background-color: red!important;height: 50px;width: 200px;">退回</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="temEnter" onclick="location.href='/adItemTemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].supplier%>'" style="background-color: orange!important;height: 50px;">临时进仓</button>
+                            </div>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div id="operationButtons" >  <style onload="AntiInfoDisplay('已取消','已拒绝',false,false,'orderState','operationButtons')"></style>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="agreeButton" style="background-color: mediumseagreen!important;height: 50px; width: 120px" onclick="editable()" >同意采购</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="changeDateButton" style="display: none;background-color: orange!important;height: 50px; width: 120px;font-size: 1rem; padding-left: 10px" onclick="editableSingle()" >更改到货预期</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="submit" id="cancelOrderButton" name="cancelOrderButton" value="true" style="display: none;background-color: red!important;margin-left: 10px;height: 50px;width: 120px;font-size: 1rem"  >取消订单</button>
+
+                                <style onload="Authority('已下单','有退回','已到货',false,'orderState','cancelOrderButton','系统管理员',false,false,false)"></style>
+                                <style onload="Authority('已下单','有退回','已到货',false,'orderState','changeDateButton','系统管理员','仓库管理员',false,false)"></style>
+                                <style onload="SendAll('totalNum','arriveNum','changeDateButton','arriveDate')"></style>
+                                <style onload="Authority(false,'申请中',false,false,'orderState','agreeButton','系统管理员',false,false,false)"></style>
+                                <button class="btn btn-block btn-submit button button--primary " type="submit" name="approveButton" value="true"  id="confirmButton1"  style="display: none;background-color: mediumseagreen!important;height: 50px; width: 120px" >确认已下单</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="submit" name="confirmButton" value="true"  id="confirmButton2"  style="display: none;background-color: mediumseagreen!important;height: 50px; width: 120px" >确定</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="submit" name="refuseButton" value="true"  id="refuseButton" style="background-color: red!important;margin-left: 10px;height: 50px;width: 120px" >拒绝采购</button>
+                                <style onload="Authority(false,'申请中',false,false,'orderState','refuseButton','系统管理员',false,false,false)"></style>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="cancelButton" style="display: none;background-color: red!important;margin-left: 10px;height: 50px;width: 120px" onclick="Uneditable() " >取消</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="cancelChangeButton" style="display: none;background-color: red!important;margin-left: 10px;height: 50px;width: 120px" onclick="UneditableSingle() " >取消</button>
+
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-block btn-submit button button--primary " id="enter" type="button"  onclick="location.href='/adItemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].supplier%>'" style="display:none;background-color: mediumseagreen!important;height: 50px;margin-top: 0px;width: 200px">进仓</button>
+                            <style onload="Authority('已下单','已到货','有退回',false,'orderState','enter','系统管理员','仓库管理员',false,false)"></style>
+                        </td>
+                    </tr>
+
+                    <style onload="AntiInfoDisplay(false,'技术员','普通权限员',false,'role','directlyExit')"></style>
+                    <style onload="AntiInfoDisplay(false,'技术员','普通权限员',false,'role','temEnter')"></style>
+
+
+
+
+
+
+
+                </table>
+
+
+                <div class="pageCard" style="border-top: 0.1rem solid #404142;">
+                    <div class="pageTitle">
+                        <div style="margin-bottom: 15px;font-weight: bold">订单动态：</div>
+
+
+                    </div>
+                    <%for(let i = 0; i < notificationList.length ;i++) { %>
+                        <div style="margin-left: -50px;font-size: 1rem;margin-top: 5px">
+                            <div  class="noteButton" style="padding-left:200px; ">
+                                <div  style= "size: 1rem; height: 40px;">
+                                    <span style=" margin-left: -65px;font-size: 0.8rem"><%=notificationList[i].noteDate.getFullYear()%>-<%=notificationList[i].noteDate.getMonth()+1%>-<%=notificationList[i].noteDate.getDate()%> &emsp;<%=notificationList[i].noteDate.getHours()%>:<%=notificationList[i].noteDate.getMinutes()%>:<%=notificationList[i].noteDate.getSeconds()%> </span>
+                                    <span style="margin-left: 30px;"><img src='images/RecentPoint.png' height="40px" width="35px"></span>
+                                    <span style="margin-left: 30px;"><%=notificationList[i].noteType%></span>
+                                </div>
+                                <div style="margin-left: 120px;height: 18px">
+                                    <span style="line-height: 10px;"><img src='images/timeLine.png' height="100%" width="10px"></span>
+                                </div>
+                                <div style="height: 18.5px">
+                                    <span style="margin-left: 120px"><img src='images/timeLine.png' height="100%" width="10px"></span>
+                                    <span style="font-size: 0.8rem;padding-top: 10px;margin-left: 45px;line-height: 10%;"><span id="stateRecord">该订单<span id="noteState<%=i%>" style="font-weight: bold"><%=notificationList[i].noteState%></span><%=notificationList[i].noteNum%><%=notificationList[i].noteContent%><span id="unite<%=i%>"><%=orderList[0].itemUnit%></span></span></span>
+                                    <style onload="noteState('noteState<%=i%>')"></style>
+                                    <style onload="AntiInfoDisplay('已拒绝','已取消','已完成',false,'noteState<%=i%>','unite<%=i%>')"></style>
+                                </div>
+                                <div style="height: 19px">
+                                    <span style="margin-left: 120px;"><img src='images/timeLine.png' height="100%" width="10px"></span>
+                                </div>
+
+                            </div>
+                        </div>
+                    <% } %>
+                    <a style="margin-left: 264.5px"><img src='images/timeLineEnd.png' height="20px" width="20px"></a>
+
+                </div>
+            </form>
+
+
+
+
+        </main>
+    </div>
+</section>
+
+
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+
+
+</body>
+
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta  content="yes"  name="apple-mobile-web-app-capable">
+    <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
+    <title>Register</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+</head>
+<body>
+<script language="javascript">
+    function TipsDisplay() {
+        if(document.getElementById('tips').innerText===''){
+            document.getElementById('tipsBox').style.display='none';
+        }
+    }
+</script>
+
+
+<section class="functionBoard">
+
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonLogin" onclick="location.href='/login'">登录</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button" id="buttonRegist" onclick="location.href='/register'">注册</button></li>
+            </u1>
+        </div>
+    </div>
+    </div>
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        物料管理系统
+                    </div>
+                </div>
+            </header>
+
+
+            <div id="content" class="row">
+
+
+                <div class="col-md">
+                    <div class="card">
+                        <div class="card-header text-center">
+                            <h2>账号注册</h2>
+                        </div>
+                        <div class="card-body">
+                            <form  method="post" id="fm1" >
+
+                                <section class="form-group">
+                                    <div style="color: red;" id="tipsBox">提示:<span id="tips"><%=tips%></span></div>
+                                    <style onload="TipsDisplay()"></style>
+                                    <h3>请输入你的详细信息：</h3>
+
+                                    <label for="username">工号：</label>
+
+                                    <div>
+                                        <input class="form-control required" id="userName" size="25" tabindex="1" type="text" accesskey="n" autocomplete="off" name="userId" value=""  required>
+                                    </div>
+                                </section>
+
+
+                                <section class="form-group">
+                                    <label for="username">姓名:</label>
+                                    <div>
+                                        <input class="form-control required"  size="25" tabindex="1" type="text" accesskey="n" autocomplete="off" name="userName" value="" required>
+                                    </div>
+                                </section>
+
+                                <section class="form-group">
+                                    <label for="username">出生日期:</label>
+                                    <div>
+                                        <input class="form-control required" size="25" tabindex="1" type="date" accesskey="n" autocomplete="off" name="DoB" value="" required>
+                                    </div>
+                                </section>
+
+                                <section class="form-group">
+                                    <label for="username">联系方式:</label>
+                                    <div>
+                                        <input class="form-control required"  size="25" tabindex="1" type="text" accesskey="n" autocomplete="off" name="contact" value="" required>
+                                    </div>
+                                </section>
+
+
+
+
+                                <section class="form-group">
+                                    <label for="username">密码:</label>
+                                    <div>
+                                        <input class="form-control required"  size="25" tabindex="1" type="password" accesskey="n" autocomplete="off" name="password" value="" required>
+                                    </div>
+                                </section>
+
+                                <section class="form-group">
+                                    <label for="username">再次确认密码:</label>
+                                    <div>
+                                        <input class="form-control required" id="confirmPassword" size="25" tabindex="1" type="password" accesskey="n" autocomplete="off" name="confirmPassword" value="" required>
+                                    </div>
+                                </section>
+
+
+                                <input class="btn btn-block btn-submit button button--primary " name="submit" accesskey="l" tabindex="6" type="submit" value="注册" style="float: right;width: 150px;margin-top: 20px;height: 40px">
+                            </form>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md mt-3 mt-md-0"> </div>
+
+
+
+            </div>
+        </main>
+    </div>
+</section>
+
+
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+
+
+</body>
+
+</body>
+</html>

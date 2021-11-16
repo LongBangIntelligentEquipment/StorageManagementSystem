@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta  content="yes"  name="apple-mobile-web-app-capable">
+    <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
+    <title>隆邦ERP系统_物料管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+    <script language="javascript">
+        function display(ojId,hidenId){
+            if(document.getElementById(ojId).style.display===''){
+                document.getElementById(ojId).style.display='none';
+            }else{
+                document.getElementById(ojId).style.display=''
+                document.getElementById(hidenId).style.display='none';
+
+            }
+        }
+
+
+        function editable(){
+            if(document.getElementById('role').innerText==='仓库管理员'){
+                for(var i=0;i<4;i++){
+                    var id='detail'+(i+1);
+                    document.getElementById(id).disabled=true;
+                }
+                for(var i=4;i<7;i++){
+                    var id='detail'+(i+1);
+                    document.getElementById(id).disabled=false;
+                    document.getElementById(id).style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;";
+
+                }
+                document.getElementById('detail-1').disabled=false;
+                document.getElementById('detail-1').style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important; width:300px";
+                document.getElementById('fixUnit').style="display:''"
+                document.getElementById('detail8').style="display:''";
+
+            }else if(document.getElementById('role').innerText==='系统管理员'){
+                for(var i=-2;i<7;i++){
+                    var id='detail'+(i+1);
+                    document.getElementById(id).disabled=false;
+                    document.getElementById(id).style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important; width:300px";
+
+                }
+                document.getElementById('detail8').style="display:''";
+                document.getElementById('editButton').style="background-color:red!important";
+                document.getElementById('confirmButton1').style="display:'';margin-left: 10px";
+                document.getElementById('fixUnit').style="display:''"
+
+                document.getElementById('detail9').disabled=false;
+                document.getElementById('detail9').style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important; width:300px";
+
+            }else if(document.getElementById('role').innerText==='技术员'){
+                document.getElementById('detail1').disabled=false;
+                document.getElementById('detail1').style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important; width:300px";
+                document.getElementById('detail3').disabled=false;
+                document.getElementById('detail3').style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important; width:300px";
+                document.getElementById('detail7').disabled=false;
+                document.getElementById('detail7').style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important; width:300px";
+                document.getElementById('detail8').style="display:''";
+
+            }
+            document.getElementById('editButton').style="background-color:red!important";
+            document.getElementById('confirmButton1').style="display:'';margin-left: 10px";
+
+        }
+
+        function InfoDisplay(type1,type2,type3,type4,ojIdJudge,ojId){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if(judge===type1||judge===type2||judge===type3||judge===type4){
+                document.getElementById(ojId).style.display="";
+            }else {
+                document.getElementById(ojId).style.display="none";
+            }
+        }
+
+
+        function InfoBGC(type,ojIdJudge,ojId,color){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if(judge===type){
+                document.getElementById(ojId).style=color;
+            }
+
+        }
+
+
+        /**
+         * @return {string}
+         */
+        function JumpTo(ojId,orderId,isRent,itemState){
+            var result="asd";
+           if(document.getElementById(ojId).innerText==='临时进仓'){
+                result=location.href='/adOrder?orderId='+orderId;
+            }else if(document.getElementById(ojId).innerText==='进仓'&&orderId!=='无（直接进仓）'){
+               result=location.href='/adOrder?orderId='+orderId;
+           }else if(document.getElementById(ojId).innerText==='出仓'&&(isRent==='借用（需归还）'||isRent==='返工（需归还）')&&document.getElementById(itemState).innerText==='未处理'){
+                result=location.href='/adItemReturnSelect?itemId=<%=item[0].itemId%>&'+document.URL.split('&')[1]+'&'+document.URL.split('&')[2];
+            }
+            return result;
+        }
+
+        function stateColor(ojId){
+            if(document.getElementById(ojId).innerText==='无'){
+                document.getElementById(ojId).style.color='gray';
+            }else if(document.getElementById(ojId).innerText==='存在未检测'){
+                document.getElementById(ojId).style.color='orange';
+            }else if(document.getElementById(ojId).innerText==='少剩余'){
+                document.getElementById(ojId).style.color='red';
+            } else if(document.getElementById(ojId).innerText==='有订单未处理'){
+                document.getElementById(ojId).style.color='#fe007b';
+            } else if(document.getElementById(ojId).innerText==='需归还物料'){
+                document.getElementById(ojId).style.color='#80d5d7';
+            }
+        }
+
+        function confirmEnter() {
+            var isExistOrder=false;
+            var num=parseInt('<%=itemStateList[0].length%>');
+            for(var i=0;i<num;i++){
+                if(document.getElementById('itemState'+i).innerText==="有订单未处理"){
+                    isExistOrder=true;
+                    break;
+                }
+            }
+
+            if(isExistOrder){
+                if (window.confirm("该物料存在订单未处理，【直接入仓】将不会处理订单数据，是否继续【直接入仓】?")){
+                    window.location.href='/adItemEnter?itemId=<%=item[0].itemId%>&'+document.URL.split('&')[1]+'&'+document.URL.split('&')[2];
+                }
+            }else{
+                window.location.href='/adItemEnter?itemId=<%=item[0].itemId%>&'+document.URL.split('&')[1]+'&'+document.URL.split('&')[2];
+            }
+
+        }
+
+        function NumAlarm() {
+            var a=parseInt(document.getElementById('totalNum').innerText);
+            var b=parseInt(document.getElementById('detail5').value);
+
+            if(a<=b){
+                document.getElementById('totalNum').style.color='red';
+
+            }
+        }
+
+        function stateColorChange(ojId,content,color,ojDo) {
+            if( document.getElementById(ojId).innerText===content){
+                document.getElementById(ojDo).style=color;
+            }
+        }
+
+        function ExitState(ojId,doOjId,style) {
+            if(document.getElementById(ojId).innerText==='借用（需归还）'||document.getElementById(ojId).innerText==='返工（需归还）'){
+                document.getElementById(doOjId).style.display='';
+                document.getElementById(ojId).style='color:red';
+            }
+        }
+
+        function getDate(ojId,doOjId) {
+
+            if(document.getElementById(ojId).innerText==='已处理'){
+                document.getElementById(doOjId).style.display='none'
+            }
+        }
+
+        function loadTwice() {
+            var judgement=document.URL.split('&');
+            var reloadURL=document.URL.split('?');
+            var flashURL;
+
+
+
+            if(judgement.length===3){
+                flashURL=reloadURL[0]+'?'+reloadURL[1]+'&reload=true'
+                window.setTimeout(  location.href=flashURL,3000)
+            }else if(judgement.length===2){
+                flashURL=reloadURL[0]+'?'+reloadURL[1]+'&itemModel=<%=item[0].itemModel%>'+'&reload=true'
+                window.setTimeout(  location.href=flashURL,3000)
+            }else if(judgement.length===1){
+                flashURL=reloadURL[0]+'?'+reloadURL[1]+'&returnSql=undefined'+'&itemModel=<%=item[0].itemModel%>'+'&reload=true'
+                window.setTimeout(  location.href=flashURL,3000)
+            }
+
+        }
+
+        function Authority(role,ojId) {
+            if(document.getElementById('role').innerText===role){
+                document.getElementById(ojId).style.display='';
+            }
+            if(document.getElementById('role').innerText==='系统管理员'){
+                document.getElementById('authority').style.display='';
+            }else{
+                document.getElementById('authority').style.display='none';
+            }
+        }
+        
+        function backMan() {
+            var urlString=document.URL.split('&')[1]
+            if(urlString==='returnSql=undefined'){
+                location.href='/adItemMan'
+            }else {
+                location.href='/adItemMan?sql='+urlString.split('returnSql=')[1]
+            }
+        }
+
+
+
+    </script>
+
+</head>
+<body onload="loadTwice()" >
+
+
+<section class="functionBoard" >
+
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adminHome'">首页</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button"  onclick="backMan()">物料管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adOrderMan'">采购管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adBOMListMan'">BOM表</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
+            </u1>
+            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+        </div>
+
+
+    </div>
+    </div>
+
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        物料管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <form method="post" enctype="multipart/form-data">
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
+                    <tr>
+                        <td >
+                            <div style="width: 450px;margin-top: -10px">
+                                <div class="itemDetail">详细信息：</div>
+                                <div class="itemDetail">供应商：<input class="itemDetailsInput" name="updateSupplier" id="detail0" value="<%=item[0].itemSupplier%>" disabled ></div>
+                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="updateName" id="detail1" value="<%=item[0].itemName%>" disabled ></div>
+                                <div class="itemDetail">物料编号：<input class="itemDetailsInput" name="updateId" id="detail2" value="<%=item[0].itemId%>" placeholder="<%=item[0].itemId%>" disabled></div>
+                                <div class="itemDetail">型号（图号）：<input class="itemDetailsInput" name="updateModel" id="detail3" value="<%=item[0].itemModel%>" placeholder="<%=item[0].itemModel%>" disabled></div>
+                                <div class="itemDetail" >类型：<select class="itemDetailsInput" name="updateType" id="detail4" disabled style="width: 100px;color:black;">
+                                        <option value="<%=item[0].itemType%>"><%=item[0].itemType%></option>
+                                        <option value="光机类">变更为：光机类</option>
+                                        <option value="电气类">变更为：电气类</option>
+                                        <option value="钣金类">变更为：钣金类</option>
+                                        <option value="铸件类">变更为：铸件类</option>
+                                        <option value="其它类">变更为：其它类</option>
+                                    </select></div>
+                                <div class="itemDetail" >库存总数：<span id="totalNum"><%=item[0].itemNum%></span><%=item[0].itemUnit%></div>
+                                <div class="itemDetail">临时进仓总数：<span style="color: orange"><%=item[0].itemTemNum%></span><%=item[0].itemUnit%></div>
+                                <div id="fixUnit" style="display:  none" ><span>修改单位为：<input class="itemDetailsInput" name="updateUnit" id="detail-1" value="<%=item[0].itemUnit%>" disabled style="width: 50px" ></span></div>
+                                <div class="itemDetail">区域：<input class="itemDetailsInput" name="updateArea" id="detail5" value="<%=item[0].itemArea%>" disabled></div>
+                                <div class="itemDetail">购入价：<input class="itemDetailsInput" name="updatePrice" id="detail9" type="number" min="0" step="0.01" value="<%=item[0].itemPrice%>" disabled></div>
+
+                                <% var avgPrice
+                                var totalPrice = 0;
+                                var count = 0;
+                                for (let i = 0; i < recordList.length; i++) {
+                                    if (recordList[i].price !== 0) {
+                                        totalPrice = totalPrice + (recordList[i].price * recordList[i].num);
+                                        count += recordList[i].num;
+                                    }
+                                }
+                                if (count !== 0){avgPrice = totalPrice / count}
+                                %>
+
+                                <div class="itemDetail">平均购入价：<input class="itemDetailsInput" name="updatePrice" id="detail10" value="<%= avgPrice===undefined ? "未录入":avgPrice.toFixed(2) %>" disabled style="width: 300px"></div>
+
+                                <div class="itemDetail">数量预警：<input class="itemDetailsInput" name="updateAlarmSetting" id="detail6" value="<%=item[0].itemAlarmSetting%>" disabled style="width: 300px"></div>
+                                <style onload="NumAlarm()"></style>
+                                <div class="itemDetail">报警：
+                                    <%for(let j=0;j<itemStateList[0].length;j++){%>
+
+                                    <a style="font-weight:bold;" id="itemState<%=j%>" onload="stateColor(this.id)" ><%=itemStateList[0][j]%></a>&emsp;
+                                    <style onload="stateColor('itemState<%=j%>')"></style>
+                                    <% }%>
+                                </div>
+                                <div class="itemDetail" >备注：<input  class="itemDetailsInput" name="updateNote" id="detail7" value="<%=item[0].itemNote%>" disabled="false" style="color: red" ></div>
+                                <div class="itemDetail" id="detail8" style="display: none">重新上传图片：<input type="file"  name="updateFileName" id="updateFileName" value=""  style="width: 310px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" ><a style="color: red">请上传图片格式文件</a></div>
+
+
+                            </div>
+                        </td>
+                        <td>
+                            <div style="margin-left: -35px;margin-top: -30px">
+                            <img src="uploads/<%=item[0].itemFileName%>" height="320px" width="320px">
+                            </div>
+                            <div>
+                                <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.open('uploads/<%=item[0].itemFileName%>')"  style="background-color: gold!important; ">查看图片</button>
+                                <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.open('/qrCodePrint?itemId=<%=item[0].itemId%>')"  style=" padding-left: 10px;  margin-left: 70px;background-color: mediumseagreen!important;">打印二维码</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        </td>
+                        <td >
+                            <button class="btn btn-block btn-submit button button--primary smaller" type="button"  onclick="location.href='/adItemOrderEnter?itemId=<%=item[0].itemId%>'" style="padding-left: 10px;margin-left: 60px;background-color: #bf4bfe!important;" >订单编辑</button>
+                            <button class="btn btn-block btn-submit button button--primary smaller" type="button"  onclick="location.href='/adItemOrder?itemId=<%=item[0].itemId%>'" style="padding-left: 10px;margin-left: 10px;background-color: #fe5ccf!important;"  >申请采购</button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="editable()" style="display: none" >编辑</button>
+                            <style onload="Authority('系统管理员','editButton')"></style>
+                            <style onload="Authority('仓库管理员','editButton')"></style>
+                            <style onload="Authority('技术员','editButton')"></style>
+
+
+                            <button class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" id="confirmButton1"  style="display:none ; margin-top: 15px; margin-left: 10px">确定</button>
+                            <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="itemExit" onclick="location.href='/adItemExit?itemId=<%=item[0].itemId%>&'+document.URL.split('&')[1]+'&'+document.URL.split('&')[2]" style="display: none;float: right;margin-right: -50px;background-color: red!important;">出仓</button>
+                            <style onload="Authority('系统管理员','itemExit')"></style>
+                            <style onload="Authority('仓库管理员','itemExit')"></style>
+
+                        </td>
+                        <td>
+                            <button class="btn btn-block btn-submit button button--primary smaller" id="itemEnter" type="button"  onclick="confirmEnter()"  style="display:none;padding-left: 10px;margin-left: 60px;background-color: #95ff03!important;">直接进仓</button>
+                            <style onload="Authority('系统管理员','itemEnter')"></style>
+                            <style onload="Authority('仓库管理员','itemEnter')"></style>
+                            <button class="btn btn-block btn-submit button button--primary smaller" id="itemReturn" type="button"  onclick="location.href='/adItemReturnSelect?itemId=<%=item[0].itemId%>&'+document.URL.split('&')[1]+'&'+document.URL.split('&')[2]" style="display:none;margin-left: 10px;background-color: #22f2fa!important;">归还进仓</button>
+                            <style onload="Authority('系统管理员','itemReturn')"></style>
+                            <style onload="Authority('仓库管理员','itemReturn')"></style>
+                        </td>
+                    </tr>
+
+
+
+                </table>
+
+
+                <div class="pageCard" style="border-top: 0.1rem solid #404142;">
+                    <div class="pageTitle">
+                        <div style="margin-bottom: 15px;font-weight: bold">进出仓记录：</div>
+                        <a class="typeFilter">
+                            <button class="filterButton" type="button" onclick="display('typeOption1','typeOption2')"> —记录—<span style="float: right;margin-right: 4px">▼</span></button>
+                        </a>
+
+                        <input class="indexOf" name="date" type="date" style="margin-left: 4px; width: 130px;border-top-right-radius: 0;border-bottom-right-radius: 0" placeholder="根据日期搜索" >
+                        <button class="searchInputBoxButton" name="dateButton" value=true type="submit" style="margin-left: 132px">搜&emsp;索</button>
+                        <div class="filterBox" id="typeOption1" style="display: none">
+                            <button  class="filterButton filterOption" name="type" value="0" type="submit"> 全部</button>
+                            <button  class="filterButton filterOption" name="type" value="1" type="submit"> 进仓</button>
+                            <button  class="filterButton filterOption" name="type" value="2" type="submit"> 出仓</button>
+                            <button  class="filterButton filterOption" name="type" value="3" type="submit"> 临时进仓</button>
+                            <button  class="filterButton filterOption" name="type" value="4" type="submit"style="border-bottom-left-radius: 0.3rem;border-bottom-right-radius: 0.3rem" > 归还进仓</button>
+                        </div>
+
+
+                    </div>
+                    <%for(let i = 0 ; i < recordList.length ; i++) { %>
+                    <% var test=["进仓","临时进仓","出仓","进仓","归还进仓","出仓","归还进仓","临时进仓"]%>
+                        <style onload="InfoDisplay('进仓','临时进仓',false,false,'infoState<%=i%>','temInfo<%=i%>3')"></style>
+                        <style onload="InfoDisplay(false,'临时进仓',false,false,'infoState<%=i%>','temInfo<%=i%>1')"></style>
+                        <style onload="InfoDisplay(false,'出仓',false,false,'infoState<%=i%>','outInfo<%=i%>1')"></style>
+                        <style onload="InfoDisplay('进仓','临时进仓',false,false,'infoState<%=i%>','inInfo<%=i%>3')"></style>
+                        <style onload="InfoDisplay('出仓',false,false,false,'infoState<%=i%>','outInfo<%=i%>2')"></style>
+                        <style onload="InfoDisplay('归还进仓',false,false,false,'infoState<%=i%>','return<%=i%>2')"></style>
+                        <style onload="InfoDisplay('归还进仓',false,false,false,'infoState<%=i%>','returnExit<%=i%>')"></style>
+                        <style onload="InfoDisplay('进仓',false,false,false,'infoState<%=i%>','inInfo<%=i%>4')"></style>
+                        <style onload="InfoBGC('进仓','infoState<%=i%>','inFoBackground<%=i%>','display:width: 100%;font-size: 1rem;height: 100%;background-color: #effae4!important;')"></style>
+                        <style onload="InfoBGC('出仓','infoState<%=i%>','inFoBackground<%=i%>','display:width: 100%;font-size: 1rem;height: 100%;background-color: #faf1f7!important;')"></style>
+                        <style onload="InfoBGC('临时进仓','infoState<%=i%>','inFoBackground<%=i%>','display:width: 100%;font-size: 1rem;height: 100%;background-color: #fafae0!important;')"></style>
+                        <style onload="InfoBGC('归还进仓','infoState<%=i%>','inFoBackground<%=i%>','display:width: 100%;font-size: 1rem;height: 100%;background-color: #DDF2FA!important;')"></style>
+
+
+
+                        <table class="noteButton" id="inFoBackground<%=i%>" style="width: 100%;font-size: 1rem;height: 100%;" cellpadding="0" cellspacing="0">
+                        <tr >
+                            <td style="width: 87%;">
+                                <button class="noteButton" onclick="JumpTo('infoState<%=i%>','<%=recordList[i].orderId%>','<%=recordList[i].reason%>','temInfo<%=i%>2')" style="padding-left: 80px;" type="button">
+                                    <div  style= "font-size: 0.7rem; height: 30px; ">
+                                        <span class="itemInfo" id="infoState<%=i%>" style=" font-size: 1rem;margin-left: -50px;color: #0050fa;   "><%=recordList[i].type%></span>
+                                        <b style="margin-left: 50px">
+                                            <span class="itemInfo">数量：<a style="font-weight: normal;color: #0050fa;"><%=recordList[i].num%></a></span>
+                                            <span class="itemInfo" style="margin-left: 130px">日期：<a style="font-weight:normal;color: #0050fa; "><%=recordList[i].date.getFullYear()%>-<%=recordList[i].date.getMonth()+1%>-<%=recordList[i].date.getDate()%> &emsp;<%=recordList[i].date.getHours()%>:<%=recordList[i].date.getMinutes()%>:<%=recordList[i].date.getSeconds()%></a></span>
+                                            <span class="itemInfo" style="margin-left: 350px">经办人：<a style="font-weight:normal;color: #0050fa; "><%=recordList[i].manager%></a></span>
+                                            <span class="itemInfo" id="temInfo<%=i%>3"  style="margin-left: 480px;"  >来自订单：<span id="orderIdContent<%=i%>"  style="font-weight:normal;color: #0050fa;  "><%=recordList[i].orderId%></span></span>
+                                            <span class="itemInfo" id="outInfo<%=i%>1" style="margin-left: 480px" >出仓原因：<a id="reason<%=i%>" style="font-weight:normal;color: #0050fa; "><%=recordList[i].reason%><span id="overDate<%=i%>" style="display: none">(已出仓<%=parseInt((new Date()-recordList[i].date)/ (1000 * 60 * 60 * 24))%>天)</span></a></span>
+                                            <span class="itemInfo" id="returnExit<%=i%>" style="margin-left: 480px" >出仓日期：<a style="font-weight:normal;color: #0050fa; "><%=recordList[i].exitDate.getFullYear()%>-<%=recordList[i].exitDate.getMonth()+1%>-<%=recordList[i].exitDate.getDate()%> &emsp;<%=recordList[i].exitDate.getHours()%>:<%=recordList[i].exitDate.getMinutes()%>:<%=recordList[i].exitDate.getSeconds()%></a></span>
+
+                                        </b>
+                                    </div>
+                                    <div id="returnInfo<%=i%>"  style= "font-size: 0.7rem; height: 30px; ">
+                                        <b style="margin-left: 50px">
+                                            <span class="itemInfo" id="inInfo<%=i%>3" style="margin-left: 350px">送货方式：<a style="font-weight:normal;color: #0050fa; "><%=recordList[i].deliver%></a></span>
+                                            <span class="itemInfo" id="inInfo<%=i%>4"  style="margin-left: 480px;"  >进仓价格：<span id="orderIdContent<%=i%>"  style="font-weight:normal;color: #0050fa;  "><%=recordList[i].price%></span></span>
+                                            <span class="itemInfo" id="outInfo<%=i%>2" style="margin-left: 350px">申请人：<a style="font-weight:normal;color: #0050fa; "><%=recordList[i].applicant%></a></span>
+                                            <span class="itemInfo" id="return<%=i%>2" style="margin-left: 350px">归还人：<a style="font-weight:normal;color: #0050fa; "><%=recordList[i].returnee%></a></span>
+
+                                            <span class="itemInfo" id="temInfo<%=i%>1" style="margin-left: 500px">状态：<a id="temInfo<%=i%>2" style="color: red; "><%=recordList[i].state%></a></span>
+
+                                            <style onload="stateColorChange('temInfo<%=i%>2','已处理','color:green','temInfo<%=i%>2')"></style>
+                                            <style onload="ExitState('reason<%=i%>','temInfo<%=i%>1')"></style>
+                                            <style onload="ExitState('reason<%=i%>','overDate<%=i%>')"></style>
+                                            <style onload="stateColorChange('temInfo<%=i%>2','已处理','color:green','reason<%=i%>')"></style>
+                                            <style onload="getDate('temInfo<%=i%>2','overDate<%=i%>')"></style>
+
+
+
+
+                                        </b>
+                                    </div>
+                                    <div style= "font-size: 0.7rem; height: 30px; margin-left: 50px">
+                                        <span class="itemInfo" >备注：<a style="font-weight: normal;color: #0050fa;"><%=recordList[i].note%></a></span>
+                                    </div>
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+
+
+                    <% } %>
+
+
+                </div>
+            </form>
+
+
+
+
+        </main>
+    </div>
+</section>
+
+
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+
+
+</body>
+
+</body>
+</html>
