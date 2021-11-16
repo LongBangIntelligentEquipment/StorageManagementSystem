@@ -50,8 +50,11 @@
             }
         }
 
-        function Authority() {
 
+        function Authority(role,ojId) {
+            if(document.getElementById('role').innerText===role){
+                document.getElementById(ojId).style.display='';
+            }
             if(document.getElementById('role').innerText==='系统管理员'){
                 document.getElementById('authority').style.display='';
             }else{
@@ -117,7 +120,8 @@
                                 <div class="itemDetail">临时进仓总数：<span style="color: orange"><%=itemList.itemTemNum%></span><%=itemList.itemUnit%></div>
                                 <div class="itemDetail">区域：<%=itemList.itemArea%></div>
 
-                                <div class="itemDetail">购入价：<%=orderPrice%></div>
+                                <div class="itemDetail" id="price" style="display: none">购入价：<%=orderPrice%></div>
+                                <style onload="Authority('系统管理员','price')"></style>
 
                                 <div class="itemDetail">数量预警：<input class="itemDetailsInput" id="detail5" value="<%=itemList.itemAlarmSetting%>" disabled="true" style="width: 300px"></div>
                                 <div class="itemDetail">报警：
