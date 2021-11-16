@@ -55,9 +55,9 @@
             <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
             <u1>
                 <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonLogin" onclick="location.href='/adminHome'">首页</button></li>
-                <li class="list-group"><button class="functionBoard-Button current" type="button" onclick="location.href='/adItemMan'">物料管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button " type="button" onclick="location.href='/adItemMan'">物料管理</button></li>
                 <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/adOrderMan'">采购管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/adBOMListMan'">BOM表</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
                 <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
             </u1>
             <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
@@ -140,7 +140,7 @@
                                     </div>
 
                                     <div  style= "font-size: 0.7rem; height: 30px;" id="BOMNote<%=i%>">
-                                        <span class="BOMInfo" >备注asa：<a style="font-weight: normal;color: red;"><%=BOMList[i].note%></a></span>
+                                        <span class="BOMInfo" >备注：<a style="font-weight: normal;color: red;"><%=BOMList[i].note%></a></span>
                                     </div>
                                 </button>
                             </td>
