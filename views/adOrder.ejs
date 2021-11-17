@@ -291,7 +291,7 @@
                                 <div class="itemDetail">物料编号：<%=orderList[0].itemId%></div>
                                 <div class="itemDetail">型号(图号)：<%=orderList[0].itemModel%></div>
                                 <div class="itemDetail" id="orderNum">下单数量：<input class="itemDetailsInput"  name="applyNum" id="applyNum" value="<%=orderList[0].totalNum%>" disabled="true" style="width: 50px; "><%=orderList[0].itemUnit%></div>
-                                <div class="itemDetail" id="orderPirce" style="">物料单价：<input class="itemDetailsInput"  name="purchasePrice" id="purchasePrice" value="<%=((orderList[0].price === 0 || orderList[0].price === null) ? orderList[0].itemPrice : orderList[0].price )%>" disabled="true" style="width: 50px; ">元/<%=orderList[0].itemUnit%></div>
+                                <div class="itemDetail" id="orderPirce" >物料单价：<input class="itemDetailsInput"  name="purchasePrice" id="purchasePrice" value="<%=((orderList[0].price === 0 || orderList[0].price === null) ? orderList[0].itemPrice : orderList[0].price )%>" disabled="true" style="width: 50px; ">元/<%=orderList[0].itemUnit%></div>
                                 <div class="itemDetail">申请人：<%=orderList[0].applier%></div>
                                 <div class="itemDetail" >申请备注：<input class="itemDetailsInput"  value="<%=orderList[0].applyNote%>" disabled="true" ></div>
                                 <div class="itemDetail" id="confirmNote" >审批备注：<input class="itemDetailsInput" name="confirmNoteInput" id="confirmNoteInput" value="<%=orderList[0].replyNote%>" disabled="true"></div>

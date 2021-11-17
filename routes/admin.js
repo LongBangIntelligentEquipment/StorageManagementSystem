@@ -672,7 +672,7 @@ router.post('/adItemAdd',upload.single('addFileName'), function(req, res, next) 
                 if(hadId){
 
                     var  addSql1 = 'INSERT INTO item(itemId,itemName,itemType,itemNum,itemTemNum,itemUnit,itemArea,itemAlarmSetting,itemNote,itemFileName,itemModel,itemSupplier,itemPrice) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)';
-                    console.log((req.body.addPrice === "" ? 0:1 ) )
+                   // console.log((req.body.addPrice === "" ? 0:1 ) )
 
                     var  addSqlParams1 = [itemIdFinal,req.body.addName+req.body.addSize,req.body.addType,0,0,req.body.addUnit,req.body.addArea,req.body.addAlarmSetting,req.body.addNote,fileName,addModelFinal,req.body.addSupplier,(req.body.addPrice === "" ? 0:req.body.addPrice) ];
                     var  addSql2 = 'INSERT INTO itemstate(itemId,hasOrder,lessRest,hasUncheck) VALUES(?,?,?,?)';
@@ -906,7 +906,7 @@ router.get('/adItemTemEnter', function(req, res, next) {
 router.post('/adItemTemEnter', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
 
-    var  addSql = 'INSERT INTO record(itemId,type,date,manager,deliver,note,orderId,state,reason,applicant,returnee,num,exitDate,returnNum,price) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+    var  addSql = 'INSERT INTO record(itemId,type,date,manager,deliver,note,orderId,state,reason,applicant,returnee,num,exitDate,returnNum) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     var  saveDate= new Date();
     var year= parseInt(saveDate.getFullYear()) ;
     var month=parseInt(saveDate.getMonth()+1);
@@ -987,7 +987,7 @@ router.post('/adItemTemEnter', function(req, res, next) {
         //
         //
         //
-        // var  addSqlParams = [url.itemId, '临时进仓',dateOutput, req.body.saveManager,req.body.saveDeliver,req.body.saveNote,url.orderId,'未处理','null','unll','null',req.body.saveNum,'1111-01-01 01:01:01',0,result[0].itemPrice];
+         var  addSqlParams = [url.itemId, '临时进仓',dateOutput, req.body.saveManager,req.body.saveDeliver,req.body.saveNote,url.orderId,'未处理','null','unll','null',req.body.saveNum,'1111-01-01 01:01:01',0];
 
         connection.query(addSql,addSqlParams,function (err, result) {
             if(err){
@@ -1484,7 +1484,7 @@ router.get('/adItemReturn', function(req, res, next) {
 router.post('/adItemReturn', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
 
-    var  addSql = 'INSERT INTO record(itemId,type,date,manager,deliver,note,orderId,state,reason,applicant,returnee,num,exitDate,returnNum,price) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+    var  addSql = 'INSERT INTO record(itemId,type,date,manager,deliver,note,orderId,state,reason,applicant,returnee,num,exitDate,returnNum) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     var  saveDate= new Date();
     var year= parseInt(saveDate.getFullYear()) ;
     var month=parseInt(saveDate.getMonth()+1);
@@ -1526,7 +1526,7 @@ router.post('/adItemReturn', function(req, res, next) {
             return  res.send('归还进仓失败：您所申请的归还物料数量大于需归还数量。')
         }else{
 
-            var  addSqlParams = [url.itemId, '归还进仓',dateOutput, req.body.manager,'null',req.body.note,'null','null','null','unll',req.body.returnee,req.body.num,new Date(urldateOutput),0,req.body.price];
+            var  addSqlParams = [url.itemId, '归还进仓',dateOutput, req.body.manager,'null',req.body.note,'null','null','null','unll',req.body.returnee,req.body.num,new Date(urldateOutput),0];
             connection.query(addSql,addSqlParams,function (err, result) {
                 if(err){
                     console.log('[INSERT ERROR] - ',err.message);
@@ -1705,7 +1705,7 @@ router.post('/adOrderMan', function(req, res, next) {
 
     if(req.body.indexOfButton){
 
-        sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND (orderlist.orderId Like' +indexOf+' OR item.itemName Like '+indexOf+' OR item.itemId Like '+indexOf+' OR item.itemSupplier Like '+indexOf+' OR orderlist.applyNote Like '+indexOf+' OR orderlist.replyNote Like '+indexOf+ 'OR orderlist.price Like '+indexOf+')';
+        sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND (orderlist.orderId Like' +indexOf+' OR item.itemName Like '+indexOf+' OR item.itemId Like '+indexOf+' OR item.itemSupplier Like '+indexOf+' OR orderlist.applyNote Like '+indexOf+' OR orderlist.replyNote Like '+indexOf+')';
     }
 
     switch (req.body.order) {
@@ -1949,7 +1949,7 @@ router.get('/adOrderFix', function(req, res, next) {
 router.post('/adOrderFix', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
 
-    var  addSql = 'INSERT INTO record(itemId,type,date,manager,deliver,price,note,orderId,state,reason,applicant,returnee,num,exitDate,returnNum) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+    var  addSql = 'INSERT INTO record(itemId,type,date,manager,deliver,note,orderId,state,reason,applicant,returnee,num,exitDate,returnNum) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
     var  saveDate= new Date();
     var year= parseInt(saveDate.getFullYear()) ;
     var month=parseInt(saveDate.getMonth()+1);
@@ -2189,7 +2189,7 @@ router.post('/adItemOrderEnter', function(req, res, next) {
 
     if(req.body.indexOfButton){
 
-        sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND item.itemId='+'\''+url.itemId+'\''+' AND (orderlist.orderId Like' +indexOf+' OR item.itemName Like '+indexOf+' OR item.itemId Like '+indexOf+' OR orderlist.applyNote Like '+indexOf+' OR orderlist.replyNote Like '+indexOf+' OR orderlist.price Like '+indexOf+')';
+        sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND item.itemId='+'\''+url.itemId+'\''+' AND (orderlist.orderId Like' +indexOf+' OR item.itemName Like '+indexOf+' OR item.itemId Like '+indexOf+' OR orderlist.applyNote Like '+indexOf+' OR orderlist.replyNote Like '+indexOf+')';
     }
     switch (req.body.order) {
         case '0':sql=undefined;break
@@ -2263,8 +2263,8 @@ router.post('/adItemOrder', function(req, res, next) {
         }
         //console.log(orderId)
 
-        var  addSql = 'INSERT INTO orderlist(orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,getNum,pendingNum,returnNum,price) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-        var  addSqlParams = [orderId,'申请中',dateOutput,dateOutput,req.body.commingDate,url.itemId,req.body.applyNote,'',req.body.applier,req.body.num,0,0,0,req.body.purchasePrice];
+        var  addSql = 'INSERT INTO orderlist(orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,getNum,pendingNum,returnNum) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)';
+        var  addSqlParams = [orderId,'申请中',dateOutput,dateOutput,req.body.commingDate,url.itemId,req.body.applyNote,'',req.body.applier,req.body.num,0,0,0];
         connection.query(addSql,addSqlParams,function (err, result) {
             if(err){
                 console.log('[INSERT ERROR] - ',err.message);
