@@ -21,6 +21,12 @@ var connection = mysql.createConnection({
     // connectTimeout:false
 });
 
+const { createHash } = require('crypto');
+
+function hash(string) {
+    return createHash('sha256').update(string).digest('hex');
+}
+
 
 router.get('/login', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
@@ -35,7 +41,8 @@ router.post('/login', function(req, res, next) {
 
 
     var userId=req.body.userId;
-    var password=req.body.password;
+    var hashedPassword=hash(req.body.password);
+
     var sql='SELECT * FROM user WHERE userId=\''+userId+'\'';
     connection.query(sql,function (err, result) {
         if (err) {
@@ -46,7 +53,7 @@ router.post('/login', function(req, res, next) {
         if(result.length===0){
             return  res.render('login', {tips:'您所输入的账号未被注册，请再次确认后重试。'  });
         }else{
-            if( result[0].password===password ){
+            if( result[0].password===hashedPassword ){
                 if(result[0].role!=='未授权'){
                     req.session.user=result[0];
                    return  res.redirect('adminHome');
@@ -78,8 +85,8 @@ router.post('/register', function(req, res, next) {
     var joinedDate=req.body.joinedDate;
     var contact=req.body.contact;
     var DoB=req.body.DoB;
-    var password=req.body.password;
-    var confirmPassword=req.body.confirmPassword;
+    var password=hash(req.body.password);
+    var confirmPassword=hash(req.body.confirmPassword);
 
     var sql='SELECT * FROM user WHERE userId=\''+userId+'\'';
 

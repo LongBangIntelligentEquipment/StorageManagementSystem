@@ -586,7 +586,19 @@ footer {
   border-bottom-left-radius: 0rem;
   padding-left: 20px;
   padding-right: 20px;
+}
 
+.searchBarButton{
+  border: 1.6rem;
+  height: 40px;
+  outline: none;
+  margin-left: 10px;
+  font-size: 0.8rem;
+  border-bottom-left-radius: 0.3rem;
+  border-top-left-radius: 0.3rem;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: #00cb46!important;
 }
 
 .typeFilter{

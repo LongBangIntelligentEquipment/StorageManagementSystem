@@ -2368,26 +2368,26 @@ router.post('/adUser', function(req, res, next) {
 
 /* GET adBOMListMan*/
 router.get('/adBOMListMan', function(req, res, next) {
-    // var statesCounter;
-    // var states=[];
-    // var statesList=[];
     var sql;
     var url=URL.parse(req.url,true).query;
     console.log(url)
     if(url.sql===undefined){
 
-        sql='SELECT * FROM bomlist';
+        sql='SELECT componentId, componentName, itemName\n' +
+            'FROM component \n' +
+            'INNER JOIN user \n' +
+            'ON component.userId = user.userId \n' +
+            'INNER JOIN component_has_item\n' +
+            'ON component_has_item.component_componentId = component.componentId\n' +
+            'INNER JOIN item\n' +
+            'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel';
     }else {
         sql=url.sql;
     }
-    console.log(sql)
     connection.query( sql,function (err, result) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
         }
-
-        console.log(result);
-
         res.render('adBOMListMan', {
             BOMList:result,
             user:req.session.user
@@ -2404,7 +2404,6 @@ router.post('/adBOMListMan', function(req, res,){
     if(req.body.indexOfButton){
         sql='sql=SELECT *\n' +
             'FROM bomlist\n' +
-            // 'WHERE itemstate.itemId=item.itemId AND (item.itemName Like' +indexOf+' OR item.itemId Like '+indexOf+' OR item.itemModel Like '+indexOf+' OR item.itemSupplier Like '+indexOf+' OR item.itemArea Like '+indexOf+' OR item.itemNote Like '+indexOf+')' +
             'WHERE bomlist.componentName Like' +indexOf+' OR bomlist.applicableModels Like '+indexOf+'';
 
         //sql='sql=SELECT * FROM item,itemstate WHERE item.itemId=itemstate.itemId AND (item.itemName Like' +indexOf+' OR item.itemId Like '+indexOf+' OR item.itemNote Like '+indexOf+')';
@@ -2412,6 +2411,36 @@ router.post('/adBOMListMan', function(req, res,){
 
     var returnURL = '/adBOMListMan?' +sql ;
     res.redirect(returnURL)
+});
+
+
+// Add Component
+router.post('/adBOMListMan', function(req, res, next) {
+    var url = URL.parse(req.url, true).query;
+    var  saveDate= Date.now();
+
+    var addSql = 'INSERT INTO component(componentId,componentName,updateTime,state,note,userId,categoryId) VALUES(?,?,?,?,?,?,?)';
+    var  addSqlParams = [];
+    connection.query(addSql,addSqlParams,   function  (err, result) {
+        if(err){
+            console.log('[INSERT ERROR] - ',err.message);
+            return;
+        }
+        connection.query(addSql2,addSqlParams2,function(err, result) {
+            if(err){
+                console.log('[INSERT ERROR] - ',err.message);
+                return;
+            }
+            console.log(req.file.filename);
+            if(req.file!==undefined){
+                fileName=req.file.filename;
+            }
+
+            addNote('物料事件更新',req.body.addName+req.body.addSize,itemIdFinal,'添加新物料');
+            console.log(fileName)
+        });
+
+    });
 
 });
 
