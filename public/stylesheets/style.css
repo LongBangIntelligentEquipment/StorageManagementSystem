@@ -548,6 +548,18 @@ footer {
   background-color: aliceblue!important;
 }
 
+.noteButton2{
+  background-color: transparent!important;
+  color: #666!important;
+  border: 0;
+  text-align: left;
+  width: 101%;
+}
+
+.noteButton2:hover{
+  background-color: #fff4fb !important;
+}
+
 .indexOf{
   position: absolute;
   width: 330px;
@@ -715,6 +727,7 @@ input::-webkit-inner-spin-button {
 .BOMInfo{
   position: absolute;
   font-weight: bold;
+  font-size: x-large;
 }
 
 

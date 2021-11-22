@@ -42,26 +42,23 @@
                 document.getElementById('authority').style.display='none';
             }
         }
-    </script>
+
+        function componentDisplay(machineOrder,componentOrder) {
 
 
-    <script>
+            if(document.getElementById('component'+machineOrder+0).style.display===''){
+                for(let i=0;i<componentOrder;i++){
+                    document.getElementById('component'+machineOrder+i).style.display='none';
+                }
 
-        // Importing 'crypto' module
-        const crypto = require('crypto'),
+            }else{
 
-            // Returns the names of supported hash algorithms
-            // such as SHA1,MD5
-            hash = crypto.getHashes();
+                for(let i=0;i<componentOrder;i++){
+                    document.getElementById('component'+machineOrder+i).style.display='';
+                }
 
-        // Create hash of SHA1 type
-        x = "Geek"
-
-        // 'digest' is the output of hash function containing
-        // only hexadecimal digits
-        hashPwd = crypto.createHash('sha1').update(x).digest('hex');
-
-        console.log(hashPwd);
+            }
+        }
     </script>
 
 </head>
@@ -94,7 +91,7 @@
             <header role="banner">
                 <div class="headcontainer">
                     <div class="page-title">
-                        BOM 表
+                        BOM表管理
                     </div>
                     <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
                 </div>
@@ -137,35 +134,32 @@
 <!--                            <button  class="filterButton filterOption" name="alarm" value="5" type="submit"> 需归还物料</button>-->
 <!--                        </div>-->
                     </div>
-                    <div  style="margin-left: 30px;color: #0050fa; font-weight: bold; font-size: small; ">物料数量：<%=BOMList.length%></div>
 
 
                     <%for(let i = 0 ; i < BOMList.length ; i++) { %>
 
-                    <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%">
+
+                    <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%;">
                         <tr >
                             <td style="width: 87%;">
-                                <button class="noteButton" style="padding-left: 80px;" type="button" onclick="location.href='/BOMList?BOMListId=<%=BOMList[i].BOMListId%>&returnSql='+document.URL.split('sql=')[1]">
-                                    <div  style= "font-size: 0.7rem; height: 30px; ">
-                                        <span class="BOMInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i+1%></span>
-                                        <span class="BOMInfo" >部件：<a style="font-weight: normal;color: #0050fa;"><%=BOMList[i].componentName%></a></span>
-                                        <span class="BOMInfo" style="margin-left: 260px">适用机型：<a style="font-weight:normal;color: #0050fa; "><%=BOMList[i].modelName%></a></span>
-                                        <span class="BOMInfo" style="margin-left: 530px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=BOMList[i].updateTime%></a></span>
+                                <button class="noteButton" id="machine<%=i%>" style="margin-top: 15px;margin-bottom: 15px;padding-left: 80px;" type="button" onclick="componentDisplay('<%=i%>',10)">
+                                    <div  style= "font-size: 0.7rem; height: 40px; ">
+                                        <span class="BOMInfo" style="margin-left: -50px; color: #0050fa ">双主轴斜插补动力刀塔车铣复合中心</span>
+                                        <span class="BOMInfo" style="margin-left: 530px">更新日期：<a style="font-weight:normal;color: #0050fa; ">2021.11.22</a></span>
 
                                     </div>
-                                    <div  style= "font-size: 0.7rem; height: 30px; ">
-                                        <span class="BOMInfo">物料清单：
-                                            <%for(let j=0;j<BOMList[i].length;j++){%>
-
-                                            <% }%>
-                                        </span>
+                                    <div  style= "font-size: 0.7rem; height: 40px; ">
+                                        <span class="BOMInfo" style="margin-left: -50px;color: #0050fa">TW-52MYS<a style="font-weight:normal;color: #0050fa; "></a></span>
                                     </div>
 
-                                    <div  style= "font-size: 0.7rem; height: 30px;" id="BOMNote<%=i%>">
-                                        <span class="BOMInfo" >备注：<a style="font-weight: normal;color: red;"><%=BOMList[i].note%></a></span>
+                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                        <span class="BOMInfo" style="margin-left: -50px">备注： <a style="font-weight: normal;color: red;">标准机</a></span>
                                     </div>
                                 </button>
                             </td>
+
+
+
 
 
                             <td style="width: 13%">
@@ -183,13 +177,32 @@
                                 </table>
                             </td>
 
+                            <%for(let j = 0 ; j < 10 ; j++) { %>
+                        <tr id="component<%=i%><%=j%>" style="display: none;">
+                            <td style="width: 100%;">
+                                <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="">
+                                    <div  style= "font-size: 0.7rem; height: 30px; ">
+                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i%><%=j%></span>
+                                        <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>
+                                        <span class="itemInfo" style="margin-left: 260px">部件型号：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                        <span class="itemInfo" style="margin-left: 530px">更新日期：<a style="font-weight:normal;color: #0050fa; "></a></span>
 
+                                    </div>
+                                    <div  style= "font-size: 0.7rem; height: 30px; ">
+
+                                    </div>
+
+                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                        <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
+                                    </div>
+                                </button>
+                            </td>
                         </tr>
+
+                        <% } %>
+                        </tr>
+
                     </table>
-
-
-
-
 
                     <% } %>
 
