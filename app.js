@@ -33,7 +33,7 @@ app.get('*',function (req,res,next) {
     var user = req.session.user;
     var path=req.path
     //console.log(user)
-    if(path !='/login'&& path !='/register'){
+    if(path !='/login' && path !='/register' && path !='/resetPassword'){
         if(!user){
             res.redirect('/login')
         }

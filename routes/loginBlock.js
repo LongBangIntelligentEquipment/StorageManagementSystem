@@ -70,6 +70,42 @@ router.post('/login', function(req, res, next) {
 
 });
 
+router.get('/resetPassword', function (req, res, next) {
+    var userId = req.body.userId;
+    var sql = 'SELECT * FROM user WHERE userId=\'' + userId + '\'';
+    connection.query(sql, function (err, result) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            return;
+        }
+        if (userId === undefined) {
+            return res.render('resetPassword', {tips: ''});
+        } else if (result.length === 0) {
+            return res.render('resetPassword', {tips: '请输入正确工号！'});
+        } else {
+            var copyText = req.body.password;
+            copyText = hash(copyText);
+            copyText.select();
+            document.execCommand("copy");
+
+            // document.body.appendChild(copyText);
+            // copyText.value = hash(copyText);  // 这里表示想要复制的内容
+            // copyText.focus();
+            // copyText.select();
+            // if (document.execCommand('copy')) {
+            //     document.execCommand('copy');
+            // }
+            // copyText.blur();
+            // console.log('复制成功');
+            // document.body.removeChild(copyText);
+
+            return res.render('resetPassword', {tips: '复制成功！', hashText: copyText});
+        }
+
+    });
+});
+
+
 router.get('/logout',function (req,res,next) {
     req.session.user=null;
     res.redirect('login');
