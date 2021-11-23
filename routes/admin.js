@@ -2413,8 +2413,13 @@ router.post('/adBOMListMan', function(req, res,){
 });
 
 
+/* GET adBOMListAddComponent*/
+router.get('/adBOMListAddComponent', function(req, res, next) {
+    res.render('adBOMListAddComponent', {user:req.session.user });
+});
+
 // Add Component
-router.post('/adBOMListMan', function(req, res, next) {
+router.post('/adBOMListAddComponent', function(req, res, next) {
     var url = URL.parse(req.url, true).query;
     var  saveDate= Date.now();
 
@@ -2443,6 +2448,11 @@ router.post('/adBOMListMan', function(req, res, next) {
 
 });
 
+
+/* GET adBOMListAddMachine*/
+router.get('/adBOMListAddMachine', function(req, res, next) {
+    res.render('adBOMListAddMachine', {user:req.session.user });
+});
 
 /* GET adItemSupplierCheck
 router.get('/adItemSupplierCheck', function(req, res, next) {

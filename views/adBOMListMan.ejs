@@ -109,8 +109,8 @@
                         <a>-</a>
                         <input class="indexOf" name="indexOf" style="margin-left: 4px" placeholder="请输入关键字搜索BOM表">
                         <button class="searchInputBoxButton" name="indexOfButton" value=true type="submit">搜&emsp;索</button>
-                        <button class="searchBarButton" onclick="location.href=''"  type="button" id="addNewComponentButton" style="display: none;margin-left: 390px;">创建部件</button>
-                        <button class="searchBarButton" onclick="location.href=''"  type="button" id="addNewMachineButton">创建机械</button>
+                        <button class="searchBarButton" onclick="location.href='/adBOMListAddComponent'"  type="button" id="addNewComponentButton"  style="display: none;margin-left: 390px;">创建部件</button>
+                        <button class="searchBarButton" onclick="location.href='/adBOMListAddMachine'"  type="button" id="addNewMachineButton">创建设备</button>
                         <button class="searchBarButton" onclick="location.href=''"  type="button" id="manageCategoryButton" style="background-color: #0050fa!important">管理分类</button>
 
                         <style onload="Authority('系统管理员','addNewComponentButton')"></style>
@@ -142,14 +142,16 @@
                     <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%;">
                         <tr >
                             <td style="width: 87%;">
-                                <button class="noteButton" id="machine<%=i%>" style="margin-top: 15px;margin-bottom: 15px;padding-left: 80px;" type="button" onclick="componentDisplay('<%=i%>',10)">
-                                    <div  style= "font-size: 0.7rem; height: 40px; ">
+                                <button class="noteButton" id="machine<%=i%>" style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="componentDisplay('<%=i%>',10)">
+                                    <div  style= "font-size: 0.7rem; height: 35px; ">
                                         <span class="BOMInfo" style="margin-left: -50px; color: #0050fa ">双主轴斜插补动力刀塔车铣复合中心</span>
-                                        <span class="BOMInfo" style="margin-left: 530px">更新日期：<a style="font-weight:normal;color: #0050fa; ">2021.11.22</a></span>
+                                        <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; ">2021.11.22</a></span>
 
                                     </div>
-                                    <div  style= "font-size: 0.7rem; height: 40px; ">
+                                    <div  style= "font-size: 0.7rem; height: 35px; ">
                                         <span class="BOMInfo" style="margin-left: -50px;color: #0050fa">TW-52MYS<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                        <span class="BOMInfo" style="margin-left: 200px">设计：通通<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                        <span class="BOMInfo" style="margin-left: 430px">设备成本：200,000元<a style="font-weight:normal;color: #0050fa; "></a></span>
                                     </div>
 
                                     <div  style= "font-size: 0.7rem; height: 30px;" id="">
@@ -162,40 +164,37 @@
 
 
 
-                            <td style="width: 13%">
-                                <table style="width: 100%">
-                                    <tr >
-                                        <td>
-<!--                                            <button class="itemButton1" type="button" onclick="window.open('uploads/')"><img src='images/checkDrawing.png' height="30px" width="30px"></button>-->
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-<!--                                            <button class="itemButton2" type="button" onclick="window.open('/qrCodePrint?itemId=')"><img src='images/checkQRcode.png' height="23px" width="23px"></button>-->
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
 
                             <%for(let j = 0 ; j < 10 ; j++) { %>
                         <tr id="component<%=i%><%=j%>" style="display: none;">
-                            <td style="width: 100%;">
+                            <td style="width: 70%;">
                                 <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="">
                                     <div  style= "font-size: 0.7rem; height: 30px; ">
                                         <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i%><%=j%></span>
                                         <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>
-                                        <span class="itemInfo" style="margin-left: 260px">部件型号：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                        <span class="itemInfo" style="margin-left: 530px">更新日期：<a style="font-weight:normal;color: #0050fa; "></a></span>
-
+                                        <span class="itemInfo" style="margin-left: 200px">部件型号：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "></a></span>
                                     </div>
                                     <div  style= "font-size: 0.7rem; height: 30px; ">
-
+                                        <span class="itemInfo" >状态：<a style="font-weight: normal;color: red;"></a></span>
+                                        <span class="itemInfo" style="margin-left: 200px">制表人：Felix<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; "></a></span>
                                     </div>
 
                                     <div  style= "font-size: 0.7rem; height: 30px;" id="">
                                         <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
                                     </div>
                                 </button>
+                            </td>
+                            <td style="width: 30%!important;">
+                                <table cellspacing="0" cellpadding="0" style="width: 100%">
+                                    <tr >
+                                        <td>
+                                            <button class="itemButton3" type="button" onclick="window.open('uploads/')" ><img src='images/checkDrawing.png' height="50px" width="50px"></button>
+                                        </td>
+                                    </tr>
+
+                                </table>
                             </td>
                         </tr>
 
