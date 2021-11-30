@@ -2454,6 +2454,11 @@ router.get('/adBOMListAddMachine', function(req, res, next) {
     res.render('adBOMListAddMachine', {user:req.session.user });
 });
 
+/* GET adBOMList*/
+router.get('/adBOMList', function(req, res, next) {
+    res.render('adBOMList', {user:req.session.user });
+});
+
 /* GET adItemSupplierCheck
 router.get('/adItemSupplierCheck', function(req, res, next) {
     var url=URL.parse(req.url,true).query;

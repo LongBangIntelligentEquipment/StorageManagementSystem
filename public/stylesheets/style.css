@@ -669,6 +669,7 @@ footer {
   background-color: transparent!important;
   border: 0;
 }
+
 .itemButton1:hover{
   background-color: gold!important;
 }
@@ -741,4 +742,33 @@ input::-webkit-inner-spin-button {
   font-size: large;
 }
 
+/*---滑动按钮--*/
 
+.onoff::before{
+  content: "";
+  display: block;
+  width: 85px;
+  height: 20px;
+  border-radius: 25px;
+  margin-left: -23px;
+  margin-top: -45px;
+
+}
+.onoff::after{
+  content: "";
+  display: block;
+  width: 40px;
+  height: 40px;
+  background-color: #0050fa;
+  margin-left: -25px;
+  margin-top: -30px;
+  transition: margin 0.2s ease-in 0.2s;
+  border-radius: 25px;
+}
+.onoff:checked::after{
+  margin-left:25px;
+  background-color: #fa5000;
+}
+.sw1::before{
+  background-color: #bbbbbb;
+}
