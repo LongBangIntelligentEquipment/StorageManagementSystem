@@ -20,5 +20,22 @@
     "mysql": "^2.18.1",
     "pinyin": "^2.10.2",
     "qr-image": "^3.2.0"
-  }
+  },
+  "description": "",
+  "main": "app.js",
+  "bin": {
+    "storagemanagementsystem": "www.js"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LongBangIntelligentEquipment/StorageManagementSystem.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LongBangIntelligentEquipment/StorageManagementSystem/issues"
+  },
+  "homepage": "https://github.com/LongBangIntelligentEquipment/StorageManagementSystem#readme"
 }

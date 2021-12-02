@@ -21,12 +21,11 @@ var connection = mysql.createConnection({
     // connectTimeout:false
 });
 
+   // Hash Password
 const { createHash } = require('crypto');
-
 function hash(string) {
     return createHash('sha256').update(string).digest('hex');
 }
-
 
 router.get('/login', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
@@ -70,23 +69,34 @@ router.post('/login', function(req, res, next) {
 
 });
 
-router.get('/resetPassword', function (req, res, next) {
-    var userId = req.body.userId;
-    var sql = 'SELECT * FROM user WHERE userId=\'' + userId + '\'';
+router.all('/resetPassword', function (req, res, next) {
+    var url=URL.parse(req.url,true).query;
+    if(url.tips===''){
+        return  res.render('resetPassword', { tips:'' });
+    }    else{
+        return  res.render('resetPassword', { tips:url.tips });
+    }
+});
+
+router.all('/ajaxResetPassword', function(req, res, next) {
+    let userId = req.body.userId;
+    let resetPW = req.body.resetPW;
+    let sql = 'SELECT * FROM user WHERE userId=\'' + userId + '\'';
     connection.query(sql, function (err, result) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
             return;
         }
         if (userId === undefined) {
-            return res.render('resetPassword', {tips: ''});
+            return res.send('请输入正确工号!');
         } else if (result.length === 0) {
-            return res.render('resetPassword', {tips: '请输入正确工号！'});
+            return res.send('请输入正确工号!');
+        } else if (resetPW.length === 0){
+            return res.send('请输入重置密码!');
         } else {
-            var copyText = req.body.password;
-            copyText = hash(copyText);
-            copyText.select();
-            document.execCommand("copy");
+            let copyText = hash(resetPW);
+            // copyText.select();
+            // document.execCommand("copy");
 
             // document.body.appendChild(copyText);
             // copyText.value = hash(copyText);  // 这里表示想要复制的内容
@@ -99,7 +109,7 @@ router.get('/resetPassword', function (req, res, next) {
             // console.log('复制成功');
             // document.body.removeChild(copyText);
 
-            return res.render('resetPassword', {tips: '复制成功！', hashText: copyText});
+            return res.send(copyText);
         }
 
     });

@@ -5,6 +5,7 @@ var mysql=require('mysql');
 var pinyin = require("pinyin");
 const URL=require('url');
 var multer = require('multer');
+const {response} = require("express");
 var connection = mysql.createConnection({
     host     : '192.168.0.127',
     port     : '3306',
@@ -2366,20 +2367,13 @@ router.post('/adUser', function(req, res, next) {
 
 
 /* GET adBOMListMan*/
+
 router.get('/adBOMListMan', function(req, res, next) {
     var sql;
     var url=URL.parse(req.url,true).query;
-    console.log(url)
+    console.log(url);
     if(url.sql===undefined){
-
-        sql='SELECT componentId, componentName, itemName\n' +
-            'FROM component \n' +
-            'INNER JOIN user \n' +
-            'ON component.userId = user.userId \n' +
-            'INNER JOIN component_has_item\n' +
-            'ON component_has_item.component_componentId = component.componentId\n' +
-            'INNER JOIN item\n' +
-            'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel';
+        sql='SELECT * FROM machine';
     }else {
         sql=url.sql;
     }
@@ -2387,9 +2381,11 @@ router.get('/adBOMListMan', function(req, res, next) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
         }
+
         res.render('adBOMListMan', {
             BOMList:result,
-            user:req.session.user
+            user:req.session.user,
+            machine:result,
         });
 
     });
@@ -2410,6 +2406,33 @@ router.post('/adBOMListMan', function(req, res,){
 
     var returnURL = '/adBOMListMan?' +sql ;
     res.redirect(returnURL)
+});
+
+/* AJax get component List */
+router.get('/ajaxComponents', function(req, res, next) {
+    const machineId = req.query.machineId;
+    const sql = 'SELECT componentId, componentName, machineName, machineId\n' +
+        'FROM component \n' +
+        'RIGHT JOIN component_has_machine\n' +
+        'ON component_has_machine.component_componentId = component.componentId\n' +
+        'INNER JOIN machine\n' +
+        'ON component_has_machine.machine_machineId = machine.machineId\n' +
+        'INNER JOIN user \n' +
+        'ON component.userId = user.userId\n' +
+        'WHERE machineId = ' + '"' + req.query.machineId + '"'
+
+    connection.query( sql,function (err, result) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+        }
+
+        // res.render('adBOMListMan', {
+        //     components:result,
+        // });
+
+        res.send(result);
+
+    });
 });
 
 
