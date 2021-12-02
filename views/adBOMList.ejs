@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta  content="yes"  name="apple-mobile-web-app-capable">
+    <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
+    <title>隆邦ERP系统_物料管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+    <script language="javascript">
+
+
+
+        function detailEditable(){
+            if(document.getElementById('role').innerText==='系统管理员'||document.getElementById('role').innerText==='技术员'){
+                btnEdi('4','detail');
+            }
+        }
+
+        function InfoDisplay(rolejudgement,type1,type2,type3,type4,ojIdJudge,ojId){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if((judge===type1||judge===type2||judge===type3||judge===type4)&&rolejudgement){
+                document.getElementById(ojId).style.display="";
+            }else {
+                document.getElementById(ojId).style.display="none";
+            }
+        }
+
+
+        function InfoBGC(type,ojIdJudge,ojId,color){
+            var judge=document.getElementById(ojIdJudge).innerText;
+            if(judge===type){
+                document.getElementById(ojId).style=color;
+            }
+
+        }
+
+
+        /**
+         * @return {string}
+         */
+
+        function stateColor(ojId){
+            if(document.getElementById(ojId).innerText==='无'){
+                document.getElementById(ojId).style.color='gray';
+            }else if(document.getElementById(ojId).innerText==='存在未检测'){
+                document.getElementById(ojId).style.color='orange';
+            }else if(document.getElementById(ojId).innerText==='少剩余'){
+                document.getElementById(ojId).style.color='red';
+            } else if(document.getElementById(ojId).innerText==='有订单未处理'){
+                document.getElementById(ojId).style.color='#fe007b';
+            } else if(document.getElementById(ojId).innerText==='需归还物料'){
+                document.getElementById(ojId).style.color='#80d5d7';
+            }
+        }
+
+
+        function NumAlarm() {
+            var a=parseInt(document.getElementById('totalNum').innerText);
+            var b=parseInt(document.getElementById('detail5').value);
+
+            if(a<=b){
+                document.getElementById('totalNum').style.color='red';
+
+            }
+        }
+
+        function stateColorChange(ojId,content,color,ojDo) {
+            if( document.getElementById(ojId).innerText===content){
+                document.getElementById(ojDo).style=color;
+            }
+        }
+
+        function ExitState(ojId,doOjId,style) {
+            if(document.getElementById(ojId).innerText==='借用（需归还）'||document.getElementById(ojId).innerText==='返工（需归还）'){
+                document.getElementById(doOjId).style.display='';
+                document.getElementById(ojId).style='color:red';
+            }
+        }
+
+        function getDate(ojId,doOjId) {
+
+            if(document.getElementById(ojId).innerText==='已处理'){
+                document.getElementById(doOjId).style.display='none'
+            }
+        }
+
+
+        function Authority(role,ojId) {
+            if(document.getElementById('role').innerText===role){
+                document.getElementById(ojId).style.display='';
+            }
+            if(document.getElementById('role').innerText==='系统管理员'){
+                document.getElementById('authority').style.display='';
+            }else{
+                document.getElementById('authority').style.display='none';
+            }
+        }
+        
+        function backMan() {
+            var urlString=document.URL.split('&')[1]
+            if(urlString==='returnSql=undefined'){
+                location.href='/adItemMan'
+            }else {
+                location.href='/adItemMan?sql='+urlString.split('returnSql=')[1]
+            }
+        }
+
+        function slideSwitch() {
+            if(document.getElementById('checkboxswitch').checked){
+                document.getElementById('BomListDetail').style.display='none'
+                document.getElementById('BomListRecord').style.display=''
+            }else{
+                document.getElementById('BomListDetail').style.display=''
+                document.getElementById('BomListRecord').style.display='none'
+            }
+
+        }
+
+        function btnEdi(length,actId){
+            for(var i=0;i<length;i++){
+                if(document.getElementById(actId+i).style.display===''){
+                    document.getElementById(actId+i).style.display='none';
+                }else{
+                    document.getElementById(actId+i).style.display=''
+                }
+
+            }
+
+        }
+
+
+
+
+
+    </script>
+
+</head>
+<body onload="loadTwice()" >
+
+
+<section class="functionBoard" >
+
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adminHome'">首页</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adItemMan'">物料管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adOrderMan'">采购管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
+            </u1>
+            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+        </div>
+
+
+    </div>
+    </div>
+
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        BOM表管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <form method="post" enctype="multipart/form-data">
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
+                    <tr>
+                        <td >
+                            <div style="width: 450px;margin-top: -10px">
+                                <div class="itemDetail">详细信息：</div>
+                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="" disabled ></div>
+                                <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="item[0].itemModel" placeholder="=item[0].itemModel" disabled></div>
+                                <div class="itemDetail" >类型：<select class="itemDetailsInput addItemInfo" name="BomListType" id="detail2" required="required"  style="height: 35px;width: 130px;color:black;" >
+                                        <option value="光机类">光机类</option>
+                                        <option value="电气类">电气类</option>
+                                        <option value="钣金类">钣金类</option>
+                                        <option value="液压系统">液压系统</option>
+                                        <option value="水路系统">水路系统</option>
+                                        <option value="气动系统">气动系统</option>
+                                        <option value="其它类">其它类</option>
+                                    </select>
+                                </div>
+                                <div class="itemDetail">制表人：<input class="itemDetailsInput" name="BomListMaker" id="detail5" value="" disabled ></div>
+                                <div class="itemDetail" >更新日期：</div>
+                                <div class="itemDetail" id="detail6" style="">部件成本：</div>
+                                <div class="itemDetail">报警：
+                                </div>
+                                <div class="itemDetail" >备注：<input  class="itemDetailsInput" name="updateNote" id="detail3" value="" disabled="false" style="color: red" ></div>
+                                <div class="itemDetail" id="detail4" style="display: none">重新上传图片：<input type="file"  name="updateFileName" id="updateFileName" value=""  style="width: 310px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" ><a style="color: red">请上传图片格式文件</a></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="margin-left: -35px;margin-top: 0px">
+                                <button style="background-color: transparent!important;width: 320px;height: 320px;border: none" type="button" onclick="window.open('uploads/')"  ><img src="uploads/" height="320px" width="320px"></button>
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr>
+                        <td>
+                            <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: none" >编辑</button>
+                            <style onload="Authority('系统管理员','editButton')"></style>
+                            <style onload="Authority('仓库管理员','editButton')"></style>
+                            <style onload="Authority('技术员','editButton')"></style>
+
+
+                            <button class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" id="confirmButton1"  style="display:none ; margin-top: 15px; margin-left: 10px">确定</button>
+                            <style onload="Authority('系统管理员','itemExit')"></style>
+                            <style onload="Authority('仓库管理员','itemExit')"></style>
+
+                        </td>
+                    </tr>
+
+
+
+                </table>
+
+
+            </form>
+
+            <div class="pageCard" style="border-top: 0.1rem solid #404142;">
+                <div class="pageTitle">
+
+                    <div style="font-weight: bold;width: 340px;font-size: 1.3rem;color: #404143">
+                           BOM表详情/一键出仓记录:
+                    </div>
+                    <input  type="checkbox" id="checkboxswitch" onchange="slideSwitch()" class="onoff sw1" style="background-color: transparent!important;margin-left: 325px;"  >
+
+                </div>
+
+                <div id="BomListDetail" >
+                <table  style=";width: 100%;font-size: 1rem;">
+                    <div style="margin-top: -45px;margin-bottom: 30px;font-weight: bold;font-size: 1.3rem;margin-left: 30px">BOM表详情：</div>
+                    <div style="margin-left: -320px;margin-bottom: 70px;margin-top: 55px">
+                    <button class="searchInputBoxButton" type="button" onclick="btnEdi('10','deleBtn')"style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑&emsp;BOM表</button>
+                    <button class="searchInputBoxButton" type="button" onclick=""style="position: absolute!important; margin-top: -45px; margin-left: 800px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button>
+                    <button class="searchInputBoxButton" type="button" onclick=""style="position: absolute!important; margin-top: -45px; margin-left: 650px;background-color: mediumseagreen!important;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >打印&emsp;BOM表</button>
+                    <button class="searchInputBoxButton" type="button" onclick=""style="position: absolute!important; margin-top: -45px; margin-left: 950px;background-color: red!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >&emsp;一键出仓&emsp;</button>
+                    </div>
+                    <%for(let j = 0 ; j < 10 ; j++) { %>
+                    <tr id="component<%=j%>" style=";">
+                        <td style="width: 87%!important;">
+                            <button class="noteButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
+                                <div  style= "font-size: 0.7rem; height: 30px; ">
+                                    <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=j+1%></span>
+                                    <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"></a></span>
+                                    <span class="itemInfo" style="margin-left: 260px">物料编号：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                    <span class="itemInfo" style="margin-left: 530px">单价：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                </div>
+                                <div  style= "font-size: 0.7rem; height: 30px; ">
+                                    <span class="itemInfo" >型号（图号）：<a style="font-weight: normal;color: red;"></a></span>
+                                    <span class="itemInfo" style="margin-left: 350px">报警：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                </div>
+
+                                <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                    <span class="itemInfo" >区域：<a style="font-weight: normal;color: red;"></a></span>
+                                    <span class="itemInfo" style="margin-left: 120px">所需数量：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                    <span class="itemInfo" style="margin-left: 350px">备注：<a style="font-weight:normal;color: #0050fa; "></a></span>
+
+                                </div>
+                            </button>
+                        </td>
+                        <td style="width: 13%!important;">
+                            <table cellspacing="0" cellpadding="0" style="width: 100%">
+                                <tr >
+                                    <td>
+                                        <button class="itemButton3" type="button" id="deleBtn<%=j%>" onclick=""style="background-color: red!important;color: white!important;display: none" >删除物料</button>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </td>
+                    </tr>
+
+                    <% } %>
+                    </tr>
+                </table>
+                </div>
+                <div id="BomListRecord" style="display: none">
+                <table  style=";width: 100%;font-size: 1rem; background-color:rgb(250, 241, 247)!important; ">
+                    <div style="margin-top: -45px;margin-bottom: 30px;font-weight: bold;font-size: 1.3rem;margin-left: 30px">一键出仓记录：</div>
+
+                    <%for(let j = 0 ; j < 10 ; j++) { %>
+                    <tr id="component<%=j%>"  >
+                        <td style="width: 87%!important;">
+                            <button class="noteButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList' ">
+                                <span class="itemInfo"  style=" font-size: 1rem;margin-left: -50px;color: #0050fa;   ">一键出仓</span>
+                                <div style="margin-left: 50px">
+                                <div  style= "font-size: 0.7rem; height: 30px; ">
+                                    <span class="itemInfo" >日期：<a style="font-weight: normal;color: #0050fa;"></a></span>
+                                    <span class="itemInfo" style="margin-left: 260px">申请人：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                    <span class="itemInfo" style="margin-left: 530px">经办人：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                </div>
+                                <div  style= "font-size: 0.7rem; height: 30px; ">
+                                    <span class="itemInfo" >报警：<a style="font-weight: normal;color: red;"></a></span>
+                                </div>
+
+                                <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                    <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
+
+                                </div>
+                                </div>
+                            </button>
+                        </td>
+
+                    </tr>
+                    <% } %>
+
+                </table>
+                </div>
+
+            </div>
+
+
+        </main>
+    </div>
+</section>
+
+
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+
+
+</body>
+
+</body>
+</html>
