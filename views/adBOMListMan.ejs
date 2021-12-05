@@ -176,91 +176,57 @@
                     <% for(let i = 0 ; i < machine.length ; i++) { %>
 
                     <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%;">
-                        <tr>
+                        <tr >
                             <td style="width: 87%;">
-                                <button name="machineBtn" class="noteButton" id="machineBtn<%= i %>"
-                                        style="margin-top: 15px;margin-bottom: 15px;padding-left: 80px;" type="button"
-                                        onclick="componentDisplay('<%= i %>',10)">
-                                    <div style="font-size: 0.7rem; height: 40px; ">
-                                        <span class="BOMInfo"
-                                              style="margin-left: -50px; color: #0050fa "><%= machine[i].machineName %></span>
-                                        <span class="BOMInfo" style="margin-left: 530px">更新日期：<a
-                                                    style="font-weight:normal;color: #0050fa; "><%= machine[i].updateTime %></a></span>
+                                <button class="noteButton" id="machine<%=i%>" style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="componentDisplay('<%=i%>',10)">
+                                    <div  style= "font-size: 0.7rem; height: 35px; ">
+                                        <span class="BOMInfo" style="margin-left: -50px; color: #0050fa ">双主轴斜插补动力刀塔车铣复合中心</span>
+                                        <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; ">2021.11.22</a></span>
 
                                     </div>
-                                    <div style="font-size: 0.7rem; height: 40px; ">
-                                        <span class="BOMInfo"
-                                              style="margin-left: -50px;color: #0050fa"><%= machine[i].machineId %><a
-                                                    style="font-weight:normal;color: #0050fa; "></a></span>
+                                    <div  style= "font-size: 0.7rem; height: 35px; ">
+                                        <span class="BOMInfo" style="margin-left: -50px;color: #0050fa">TW-52MYS<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                        <span class="BOMInfo" style="margin-left: 200px">设计：通通<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                        <span class="BOMInfo" style="margin-left: 430px">设备成本：200,000元<a style="font-weight:normal;color: #0050fa; "></a></span>
                                     </div>
 
-                                    <div style="font-size: 0.7rem; height: 30px;" id="">
-                                        <span class="BOMInfo" style="margin-left: -50px">备注： <a
-                                                    style="font-weight: normal;color: red;"><%= machine[i].note %></a></span>
+                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                        <span class="BOMInfo" style="margin-left: -50px">备注： <a style="font-weight: normal;color: red;">标准机</a></span>
                                     </div>
                                 </button>
                             </td>
 
-                            <script>
-                                var sendRequest = false;
-                                $("#machineBtn<%= i %>").click(function () {
-                                    sendRequest = !sendRequest
-                                    if (sendRequest){
-                                        console.log('Clicked <%= i %>')
-                                        $.ajax({
-                                            url: './ajaxComponents',
-                                            data: {'machineId': '<%= machine[i].machineId %>'},
-                                            type: 'GET',
-                                            dataType: 'json',
-                                            success: function (data) {
-                                                console.log(data);
-                                                aJaxResult.innerText = data[0].componentName;
 
-                                            },
-                                            error: function (jqXHR, textStatus, errorThrown) {
-                                                alert('error ' + textStatus + " " + errorThrown);
-                                            }
-                                        })
-                                    }
-                                });
-                            </script>
 
-                            <% for(let j = 0 ; j < 10 ; j++) { %>
 
-                        <tr id="component<%= i %><%= j %>" style="display: none;">
+
+
+                            <%for(let j = 0 ; j < 10 ; j++) { %>
+                        <tr id="component<%=i%><%=j%>" style="display: none;">
                             <td style="width: 70%;">
-                                <button class="noteButton2" style="padding-left: 80px;" type="button" onclick="">
-                                    <div style="font-size: 0.7rem; height: 30px; ">
-                                        <span class="itemInfo"
-                                              style="margin-left: -50px;color: #0050fa;">#<%= i %><%= j %></span>
-                                        <span class="itemInfo">部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>
-                                        <span class="itemInfo" style="margin-left: 200px">部件型号：<a
-                                                    style="font-weight:normal;color: #0050fa; "></a></span>
-                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a
-                                                    style="font-weight:normal;color: #0050fa; "></a></span>
+                                <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
+                                    <div  style= "font-size: 0.7rem; height: 30px; ">
+                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i%><%=j%></span>
+                                        <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>
+                                        <span class="itemInfo" style="margin-left: 200px">部件型号：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "></a></span>
                                     </div>
-                                    <div style="font-size: 0.7rem; height: 30px; ">
-                                        <span class="itemInfo">状态：<a style="font-weight: normal;color: red;"></a></span>
-                                        <span class="itemInfo" style="margin-left: 200px">制表人：Felix<a
-                                                    style="font-weight:normal;color: #0050fa; "></a></span>
-                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a
-                                                    style="font-weight:normal;color: #0050fa; "></a></span>
+                                    <div  style= "font-size: 0.7rem; height: 30px; ">
+                                        <span class="itemInfo" >状态：<a style="font-weight: normal;color: red;"></a></span>
+                                        <span class="itemInfo" style="margin-left: 200px">制表人：Felix<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; "></a></span>
                                     </div>
 
-                                    <div style="font-size: 0.7rem; height: 30px;" id="">
-                                        <span class="itemInfo">备注：<a style="font-weight: normal;color: red;"></a></span>
+                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                        <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
                                     </div>
                                 </button>
-
-
-
                             </td>
                             <td style="width: 30%!important;">
                                 <table cellspacing="0" cellpadding="0" style="width: 100%">
-                                    <tr>
+                                    <tr >
                                         <td>
-                                            <button class="itemButton3" type="button" onclick="window.open('uploads/')">
-                                                <img src='images/checkDrawing.png' height="50px" width="50px"></button>
+                                            <button class="itemButton3" type="button" onclick="window.open('uploads/')" ><img src='images/checkDrawing.png' height="50px" width="50px"></button>
                                         </td>
                                     </tr>
 
@@ -272,7 +238,6 @@
                         </tr>
 
                     </table>
-
                     <% } %>
 
                 </div>
