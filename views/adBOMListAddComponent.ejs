@@ -74,7 +74,7 @@
                             <div class="itemDetailsPage" >
                                 <div class="itemDetail">创建新部件：</div>
                                 <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="detail1" required="required"  style="width: 500px" placeholder="请输入部件名称" ></div>
-                                <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentNameModel" class="itemDetailsInput addItemInfo" id="detail2.1"    style="width: 500px" placeholder="请输入部件图号" ></div>
+                                <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentNameModel" class="itemDetailsInput addItemInfo" id="detail2"    style="width: 500px" placeholder="请输入部件图号" ></div>
                                 <div class="itemDetail" >类型<a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addComponentNameType" id="detail3" required="required"  style="height: 35px;width: 130px;color:black;" >
                                         <option value="光机类">光机类</option>
                                         <option value="电气类">电气类</option>
@@ -83,11 +83,13 @@
                                         <option value="水路系统">水路系统</option>
                                         <option value="气动系统">气动系统</option>
                                         <option value="其它类">其它类</option>
-
-                                    </select></div>
+                                    </select>
+                                    <span>
+                                        <button class="searchBarButton" onclick="location.href='/adBOMListCategoryMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>
+                                    </span>
+                                </div>
                                 <div class="itemDetail" >备注：<input name="addComponentNameNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
-                                <div class="itemDetail" id="detail7" >上传图纸：<input name="addComponentNameFileName" class="itemDetailsInput addItemInfo" type="file"   style="width: 462px"></div>
-
+                                <div class="itemDetail" id="detail7" >上传图纸：<input name="addComponentNameFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
                             </div>
 
 

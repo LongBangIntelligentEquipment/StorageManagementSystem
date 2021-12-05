@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta  content="yes"  name="apple-mobile-web-app-capable">
+    <meta  name="viewport"  content="maximum-scale=1.0,user-scalable=no">
+    <title>隆邦ERP系统_BOM表分类管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script language="javascript">
+
+
+        function confirmAgain(operation) {
+            if (window.confirm("确认执行【删除分类】操作?")) {
+                return location.href=operation;
+            } else {
+                return false;
+            }
+        }
+
+        // function Authority(role,ojId) {
+        //     if(document.getElementById('role').innerText===role){
+        //         document.getElementById(ojId).style.display='';
+        //     }
+        //     if(document.getElementById('role').innerText==='系统管理员'){
+        //         document.getElementById('authority').style.display='';
+        //     }else{
+        //         document.getElementById('authority').style.display='none';
+        //     }
+        // }
+    </script>
+
+</head>
+<body >
+
+
+<section class="functionBoard" >
+
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adminHome'">首页</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adItemMan'">物料管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adOrderMan'">采购管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button current" type="button"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
+                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="">权限管理</button></li>
+            </u1>
+            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+        </div>
+    </div>
+
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+            <form onsubmit="confirmAgain()">
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        BOM表分类管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <table style=";width: 100%;font-size: 1rem">
+                <tr>
+                    <td style="width: 87%;">
+                        <p style="margin-left: 30px;color: #0050fa; font-weight: bold">分类数量：<%=category.length%><p>
+                    </td>
+                    <td style="width: 13%">
+                        <button onclick="location.href='/adBOMListCategoryAdd'" type="button" id="addNewButton" style="background-color: #00cb46!important;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem; padding-left: 10px;padding-right: 10px">添加新分类</button>
+                    </td>
+                </tr>
+            </table>
+
+            <%for(let i = 0 ; i < category.length ; i++) { %>
+
+            <table class="noteButton" style=";width: 100%;font-size: 1rem" cellpadding="0" cellspacing="0">
+                <tr >
+                    <td style="width: 87%;">
+                        <button class="noteButton" style="padding-left: 80px;" type="button" onclick="location.href='/adBOMListCategoryMan?categoryId=<%=category[i].categoryId%>&returnSql='+document.URL.split('sql=')[1]">
+                            <div  style= "font-size: 0.7rem; height: 30px; ">
+                                <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i+1%></span>
+                                <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=category[i].categoryName%></a></span>
+                            </div>
+                        </button>
+                    </td>
+
+                    <td style="width: 13%">
+                        <table cellspacing="0" cellpadding="0" style="width: 100%">
+                            <tr >
+                                <td>
+                                    <button class="itemButton1" type="button" onclick="location.href=('/adBOMListCategoryEdit?categoryId=<%=category[i].categoryId%>&returnSql='+document.URL.split('sql=')[1])"><img src='images/edit-button.png' height="30px" width="30px"></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button class="itemButton4" type="button" onclick="confirmAgain('/adBOMListCategoryDelete?categoryId=<%=category[i].categoryId%>&returnSql='+document.URL.split('sql=')[1])" ><img src='images/bin.png' height="23px" width="23px"></button>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+
+                </tr>
+            </table>
+
+            <% } %>
+
+
+            </form>
+        </main>
+    </div>
+
+</section>
+
+
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+
+
+</body>
+
+</body>
+</html>

@@ -696,6 +696,17 @@ footer {
     background-color: gold!important;
 }
 
+.itemButton4{
+  width: 100%;
+  height: 45px;
+  color: #666!important;
+  background-color: transparent!important;
+  border: 0;
+}
+.itemButton4:hover{
+  background-color: red!important;
+}
+
 .itemDetailsPage{
   margin-top: 15px;
   margin-left: 30px;

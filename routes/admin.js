@@ -2477,9 +2477,209 @@ router.get('/adBOMListAddMachine', function(req, res, next) {
     res.render('adBOMListAddMachine', {user:req.session.user });
 });
 
+/* Add Machine */
+router.post('/adBOMListAddMachine',upload.single('addFileName'), function(req, res, next) {
+    var hadId=true;
+    var  checkSql = 'SELECT * FROM machine';
+    var fileName='null';
+
+    connection.query(checkSql,function (err, result) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            return;
+        }
+        var pinstrName=req.body.addComponentName;
+        var fistzmName=pinyin(pinstrName,{style:pinyin.STYLE_FIRST_LETTER}).toString();
+        var componentNameFinal= fistzmName.replace(new RegExp(",",'g'),"").toUpperCase();
+        // var itemNameFinal= fistzmName.replace(new RegExp(",",'g'),"").toUpperCase();
+
+        var pinstrType=req.body.addType;
+        var fistzmType=pinyin(pinstrType,{style:pinyin.STYLE_FIRST_LETTER}).toString();
+        var itemTypeFinal= fistzmType.replace(new RegExp(",",'g'),"").substr(0,1).toUpperCase();
+
+
+        var pinstrSize=req.body.addSize;
+        var fistzmSize=pinyin(pinstrSize,{style:pinyin.STYLE_FIRST_LETTER}).toString();
+        var fistzmSizeFinal=fistzmSize.replace(new RegExp(",",'g'),"").toUpperCase();
+
+        var itemIdFinal=itemNameFinal+fistzmSizeFinal+'-'+itemTypeFinal+'-'+( "00000000" + (parseInt(result.length)+1) ).substr( -5 ) ;
+        var addModelFinal =req.body.addModel;
+        console.log('!!!!!'+fistzmSizeFinal,pinstrSize,fistzmSize)
+        if(addModelFinal===''){
+            addModelFinal = itemIdFinal;
+        }
+
+        var checkItemIdSQL='SELECT * FROM item WHERE itemName=\''+req.body.addName+req.body.addSize+'\''+'AND itemSupplier=\''+req.body.addSupplier+'\'';
+        var checkItemModelSQL='SELECT * FROM item WHERE itemModel=\''+addModelFinal+'\'';
+        connection.query(checkItemIdSQL,function (err, result1) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+                return;
+            }
+            connection.query(checkItemModelSQL,  function (err, result2) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                    return;
+                }
+                if(result1.length!==0){
+                    hadId=false;
+                    return  res.send('物料添加失败：您所添加的物料【物料编号】已存在于物料列表中。')
+                }else if(result2.length!==0){
+                    hadId=false;
+                    return  res.send('物料添加失败：您所添加的物料【型号(图号)】已存在于物料列表中。')
+                }else{
+                    // console.log(req.file!==undefined);
+                    //  console.log(req.file.filename);
+                    if(req.file!==undefined){
+                        fileName=req.file.filename;
+                    }
+                    //console.log(fileName);
+
+                    if(hadId){
+
+                        var  addSql1 = 'INSERT INTO item(itemId,itemName,itemType,itemNum,itemTemNum,itemUnit,itemArea,itemAlarmSetting,itemNote,itemFileName,itemModel,itemSupplier,itemPrice) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)';
+                        // console.log((req.body.addPrice === "" ? 0:1 ) )
+
+                        var  addSqlParams1 = [itemIdFinal,req.body.addName+req.body.addSize,req.body.addType,0,0,req.body.addUnit,req.body.addArea,req.body.addAlarmSetting,req.body.addNote,fileName,addModelFinal,req.body.addSupplier,(req.body.addPrice === "" ? 0:req.body.addPrice) ];
+                        var  addSql2 = 'INSERT INTO itemstate(itemId,hasOrder,lessRest,hasUncheck) VALUES(?,?,?,?)';
+                        var  addSqlParams2 = [itemIdFinal,0,1,0 ];
+                        connection.query(addSql1,addSqlParams1,   function  (err, result) {
+                            if(err){
+                                console.log('[INSERT ERROR] - ',err.message);
+                                return;
+                            }
+                            connection.query(addSql2,addSqlParams2,function(err) {
+                                if(err){
+                                    console.log('[INSERT ERROR] - ',err.message);
+                                    return;
+                                }
+                                // console.log(req.file!==undefined);
+                                //  console.log(req.file.filename);
+                                if(req.file!==undefined){
+                                    fileName=req.file.filename;
+                                }
+
+                                addNote('物料事件更新',req.body.addName+req.body.addSize,itemIdFinal,'添加新物料');
+                                //console.log(fileName)
+                            });
+
+                        });
+                        var flashUrl='aditem?itemId='+itemIdFinal+'&returnSql=undefined'+'&itemModel='+addModelFinal;
+                        return res.redirect('flash?url='+flashUrl)
+
+                    }
+
+                }
+
+            });
+        });
+
+    });
+
+
+});
+
 /* GET adBOMList*/
-router.get('/adBOMList', function(req, res, next) {
+router.get('/adBOMList', function(req, res) {
     res.render('adBOMList', {user:req.session.user });
+});
+
+
+
+/* GET adBOMListCategoryMan*/
+router.get('/adBOMListCategoryMan', function(req, res) {
+    let sql;
+    let url=URL.parse(req.url,true).query;
+    if(url.sql===undefined){
+        sql='SELECT * FROM category;';
+    }else {
+        sql=url.sql;
+    }
+    connection.query( sql,function (err, result) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+        }
+
+        res.render('adBOMListCategoryMan', {
+            user: req.session.user,
+            category: result
+        })
+    });
+});
+
+/* GET adBOMListCategoryAdd Page */
+router.get('/adBOMListCategoryAdd', function(req, res) {
+    res.render('adBOMListCategoryAdd', {user: req.session.user,})
+});
+
+
+/* POST adBOMListCategoryAdd Page */
+router.post('/adBOMListCategoryAdd', function (req, res, next) {
+    let unique = true;
+    let addCategoryName = req.body.addCategoryName
+    let checkCategoryNameSQL = 'SELECT * FROM category WHERE categoryName=\'' + addCategoryName + '\'';
+
+    connection.query(checkCategoryNameSQL, function (err, checkResult) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            return;
+        }
+        if (checkResult.length !== 0) {
+            unique = false;
+            return res.send('分类添加失败：您所添加的分类【分类名称】已存在于分类列表中。')
+        } else if (unique) {
+            let addSql = 'INSERT INTO category(categoryName) VALUES(?)';
+            let  addSqlParams = [addCategoryName];
+
+            connection.query(addSql,addSqlParams, function (err) {
+                if (err) {
+                    console.log('[INSERT ERROR] - ', err.message);
+                }
+            });
+
+        }
+        return res.redirect('/adBOMListCategoryMan')
+    });
+});
+
+/* GET adBOMListCategoryEdit Page */
+router.get('/adBOMListCategoryEdit', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    let sql = 'SELECT * FROM category WHERE categoryId = '+'\''+url.categoryId+'\'';
+    connection.query(sql,function (err,result) {
+        if(err){
+            console.log('[SELECT ERROR] - ',err.message);
+        }
+        res.render('adBOMListCategoryEdit', {
+            user: req.session.user,
+            category: result[0]
+        })
+    });
+});
+
+/* POST adBOMListCategoryEdit Page */
+router.post('/adBOMListCategoryEdit', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    let modSql = 'UPDATE category SET categoryName = ? WHERE categoryId = '+'\''+url.categoryId+'\'';
+    let modSqlParams = [req.body.editCategoryName];
+    connection.query(modSql,modSqlParams,function (err,result) {
+        if(err){
+            console.log('[UPDATE ERROR] - ',err.message);
+        }
+        res.redirect('/adBOMListCategoryMan')
+    });
+});
+
+/* GET adBOMListCategoryDelete Page */
+router.get('/adBOMListCategoryDelete', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    let delSql = 'DELETE FROM category WHERE categoryId = '+'\''+url.categoryId+'\'';
+    connection.query(delSql,function (err,result) {
+        if(err){
+            console.log('[UPDATE ERROR] - ',err.message);
+        }
+        res.redirect('/adBOMListCategoryMan')
+    });
 });
 
 /* GET adItemSupplierCheck
