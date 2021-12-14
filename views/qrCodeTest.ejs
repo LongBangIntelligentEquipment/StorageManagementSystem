@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("button").click(function(){
+                $("p").append( '                                    <button class="searchBarButton" onclick="deleSelectBox()" type="button" id="deleSelectBtn0" style="background-color: red!important;width: 100px;margin-left: 10px;">删除</button>\n' +
+                    '                                </div>');
+            });
+        });
+    </script>
 </head>
 <body>
-<h1><%= title %></h1>
-<img src="/create_qrcode?text=http://192.168.0.151:3000/login"/>
+<p>This is a paragraph.</p>
+<p>This is another paragraph.</p>
+<button>在每个 p 元素的结尾添加内容</button>
 </body>
 </html>

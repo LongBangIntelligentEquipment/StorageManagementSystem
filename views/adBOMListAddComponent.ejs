@@ -6,7 +6,8 @@
     <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
     <title>隆邦ERP系统_BOM表管理</title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
-    <script language="javascript">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" language="javascript">
 
 
         function confirmAgain() {
@@ -33,12 +34,12 @@
             var elementLength=document.getElementById('shellBox').children.length+1
             var element='belongMachine'+elementLength;
             var originalElement=document.getElementById('shellBox').innerHTML;
-            document.getElementById('shellBox').innerHTML=originalElement+'<div id="belongMachineBox'+elementLength+'" style="margin-bottom: 5px">\n' +
+            $('#shellBox').append('<div id="belongMachineBox'+elementLength+'" style="margin-bottom: 5px">\n' +
                 '                                <select class="itemDetailsInput addItemInfo" name="'+element+'"'+ 'id="'+element+'"'+ 'required="required"  style="height: 35px;width: 450px;color:black;margin-bottom: 3px" >\n' +
                 '                                    <option value="设备ID">双主轴斜插补动力刀塔车铣复合中心 TW-52MYS</option>\n' +
                 '                                </select>\n' +
                 '                                    <button class="searchBarButton" onclick="deleSelectBox()" type="button" id="deleSelectBtn0" style="background-color: red!important;width: 100px;margin-left: 10px;">删除</button>\n' +
-                '                                </div>'
+                '                                </div>')
 
         }
 
