@@ -8,11 +8,7 @@
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <script language="javascript">
         function confirmAgain() {
-            if (window.confirm("确认执行【修改新分类】操作?")) {
-                return true;
-            } else {
-                return false;
-            }
+            return window.confirm("确认执行【修改新分类】操作?");
         }
     </script>
 
@@ -53,7 +49,7 @@
                     <div class="itemDetail">修改分类：</div>
                     <div class="itemDetail" style="margin-top: 10px">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="editCategoryName" class="itemDetailsInput addItemInfo" required="required" value="<%=category.categoryName%>" style="width: 500px" placeholder="请输入分类名称" ></div>
                 </div>
-                <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">创建新部件</button>
+                <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">保存修改分类</button>
             </form>
         </main>
     </div>
@@ -67,9 +63,5 @@
         <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
     </div>
 </footer>
-
-
-</body>
-
 </body>
 </html>

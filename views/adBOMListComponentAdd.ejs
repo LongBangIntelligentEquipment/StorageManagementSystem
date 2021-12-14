@@ -11,12 +11,7 @@
 
 
         function confirmAgain() {
-
-            if (window.confirm("确认执行【添加新型物料】操作?")) {
-                return true;
-            } else {
-                return false;
-            }
+            return window.confirm("确认执行【添加新型物料】操作?");
         }
 
         function Authority(role,ojId) {
@@ -24,7 +19,7 @@
                 document.getElementById(ojId).style.display='';
             }
             if(document.getElementById('role').innerText==='系统管理员'){
-                document.getElementById('authority').style.display='';
+                // document.getElementById('authority').style.display='';
             }else{
                 document.getElementById('authority').style.display='none';
             }
@@ -34,19 +29,54 @@
             var elementLength=document.getElementById('shellBox').children.length+1
             var element='belongMachine'+elementLength;
             var originalElement=document.getElementById('shellBox').innerHTML;
-            $('#shellBox').append('<div id="belongMachineBox'+elementLength+'" style="margin-bottom: 5px">\n' +
-                '                                <select class="itemDetailsInput addItemInfo" name="'+element+'"'+ 'id="'+element+'"'+ 'required="required"  style="height: 35px;width: 450px;color:black;margin-bottom: 3px" >\n' +
-                '                                    <option value="设备ID">双主轴斜插补动力刀塔车铣复合中心 TW-52MYS</option>\n' +
-                '                                </select>\n' +
-                '                                    <button class="searchBarButton" onclick="deleSelectBox()" type="button" id="deleSelectBtn0" style="background-color: red!important;width: 100px;margin-left: 10px;">删除</button>\n' +
-                '                                </div>')
+            let html =                 '<div id="belongMachineBox'+elementLength+'" style="margin-bottom: 5px">\n' +
+                '                                <select class="itemDetailsInput addItemInfo" name="'+element+'"'+ 'id="'+element+'"'+ 'required="required"  style="height: 35px;width: 450px;color:black;margin-bottom: 3px" >\n';
+
+            <%for(let i=0;i<machine.length;i++){%>
+                html += '<option value="设备ID">';
+                html += '<%=machine[i].machineName%> <%= machine[i].machineId %>';
+                html += '</option>\n';
+            <%}%>
+
+            html += '                                </select>\n';
+            html += '                                    <button class="searchBarButton" onclick="deleSelectBox()" type="button" id="deleSelectBtn0" style="background-color: red!important;width: 100px;margin-left: 10px;">删除</button>\n';
+            html += '                                </div>';
+
+            $('#shellBox').append( html)
+
+            document.getElementById('shellBox').innerHTML = originalElement + html
 
         }
 
-        function deleSelectBox() {
-            var deleElementId='belongMachineBox'+document.getElementById('shellBox').children.length;
-            document.getElementById(deleElementId).remove()
+        function deleteSelectBox() {
+            let deleteElementId='belongMachineBox'+document.getElementById('shellBox').children.length;
+            document.getElementById(deleteElementId).remove()
         }
+
+        window.onload = function mySelectBox (){
+            const myParent = document.getElementById('shellBox2');
+
+            //Create array of options to be added
+            let myArray = [];
+            <%for (let i=0; i<machine.length; i++){%>
+            myArray.push("<%=machine[i].machineName%>-<%=machine[i].machineId%>");
+            <%}%>
+
+            //Create and append select list
+            let selectList = document.createElement("select");
+            selectList.id = "mySelect";
+            myParent.appendChild(selectList);
+
+            //Create and append the options
+            for (let i = 0; i < myArray.length; i++) {
+                let option = document.createElement("option");
+                option.value = myArray[i];
+                option.text = myArray[i];
+                selectList.appendChild(option);
+            }
+        }
+
+
     </script>
 
 </head>
@@ -93,15 +123,11 @@
                             <div  class="itemDetailsPage" style="width: 100%">
                                 <div class="itemDetail">创建新部件：</div>
                                 <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="detail1" required="required"  style="width: 500px" placeholder="请输入部件名称" ></div>
-                                <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentNameModel" class="itemDetailsInput addItemInfo" id="detail2"    style="width: 500px" placeholder="请输入部件图号" ></div>
-                                <div class="itemDetail" >类型<a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addComponentNameType" id="detail3" required="required"  style="height: 35px;width: 130px;color:black;" >
-                                        <option value="光机类">光机类</option>
-                                        <option value="电气类">电气类</option>
-                                        <option value="钣金类">钣金类</option>
-                                        <option value="液压系统">液压系统</option>
-                                        <option value="水路系统">水路系统</option>
-                                        <option value="气动系统">气动系统</option>
-                                        <option value="其它类">其它类</option>
+                                <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="detail2"    style="width: 500px" placeholder="请输入部件图号" ></div>
+                                <div class="itemDetail" >类型<a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addComponentType" id="detail3" required="required"  style="height: 35px;width: 130px;color:black;" >
+                                        <%for(let i = 0; i < categoryName.length; i++) { %>
+                                        <option value="<%=categoryName[i].categoryName%>"><%=categoryName[i].categoryName%></option>
+                                        <%}%>
                                     </select>
                                     <span>
                                         <button class="searchBarButton" onclick="location.href='/adBOMListCategoryMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>
@@ -113,34 +139,45 @@
                                     </span>
                                 </div>
                                 <div id="shellBox">
-
-                                <div style="margin-bottom: 5px">
-                                <select class="itemDetailsInput addItemInfo" name="belongMachine0" id="belongMachine0" required="required"  style="height: 35px;width: 450px;color:black;margin-bottom: 3px" >
-                                    <option value="设备ID">双主轴斜插补动力刀塔车铣复合中心 TW-52MYS</option>
-                                </select>
+                                    <div style="margin-bottom: 5px">
+                                        <select class="itemDetailsInput addItemInfo" name="belongMachine0"
+                                                id="belongMachine0" required="required"
+                                                style="height: 35px;width: 450px;color:black;margin-bottom: 3px">
+                                            <% for (let i = 0; i < machine.length; i++){ %>
+                                            html += '
+                                            <option value="设备ID"> <%= machine[i].machineName %> <%= machine[i].machineId %></option>
+                                            \n'
+                                            <% } %>
+                                        </select>
+                                    </div>
                                 </div>
-
-                                </div>
-
-
-
-
-
-                                <div class="itemDetail" >备注：<input name="addComponentNameNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
-                                <div class="itemDetail" id="detail7" >上传图纸：<input name="addComponentNameFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
                             </div>
+
+                                <table>
+                                    <%for (let i=0; i<machine.length; i++){%>
+                                    <td>
+                                        <input type="checkbox" name="machine<%=i%>" id="machine<%=i%>" value="<%=machine[i].machineId%>">
+                                        <label for="machine<%=i%>"><%=machine[i].machineName%> <%=machine[i].machineId%></label>
+                                    </td>
+                                    <br>
+                                    <%}%>
+                                    <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
+                                    <label for="vehicle1"> I have a bike</label><br>
+                                </table>
+
+                                <div id="shellBox2">
+                                    <div class="itemDetail" >备注：<input name="addComponentNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
+                                    <div class="itemDetail" id="detail7" >上传图纸：<input name="addComponentNameFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
+                                </div>
+
+
 
 
                             <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">创建新部件</button>
                 <style onload="Authority('系统管理员','confirmButton')"></style>
                 <style onload="Authority('仓库管理员','confirmButton')"></style>
 
-
-
-
             </form>
-
-
 
 
         </main>

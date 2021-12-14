@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta name="viewport" content="maximum-scale=1.0,user-scalable=no">
+    <title>隆邦ERP系统_BOM表管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <script language="javascript">
+        function confirmAgain() {
+            return window.confirm("确认执行【修改设备】操作?");
+        }
+
+        function Authority(role, ojId) {
+            if (document.getElementById('role').innerText === role) {
+                document.getElementById(ojId).style.display = '';
+            }
+            if (document.getElementById('role').innerText === '系统管理员') {
+                // document.getElementById('authority').style.display='';
+            } else {
+                document.getElementById('authority').style.display = 'none';
+            }
+        }
+    </script>
+</head>
+<body>
+
+
+<section class="functionBoard">
+    <div class="functionBoard left">
+        <div>
+            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+            <u1>
+                <li class="list-group">
+                    <button class="functionBoard-Button" type="button" onclick="location.href='/adminHome'">首页</button>
+                </li>
+                <li class="list-group">
+                    <button class="functionBoard-Button" type="button" onclick="location.href='/adItemMan'">物料管理
+                    </button>
+                </li>
+                <li class="list-group">
+                    <button class="functionBoard-Button" type="button" onclick="location.href='/adOrderMan'">采购管理
+                    </button>
+                </li>
+                <li class="list-group">
+                    <button class="functionBoard-Button current" type="button" onclick="location.href='/adBOMListMan'">
+                        BOM表管理
+                    </button>
+                </li>
+                <li class="list-group">
+                    <button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="">
+                        权限管理
+                    </button>
+                </li>
+            </u1>
+            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'"
+                    style="position: fixed;bottom: 6%;">退出登录
+            </button>
+        </div>
+    </div>
+    </div>
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+            <header role="banner">
+                <div class="headcontainer">
+                    <div class="page-title">
+                        BOM表管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%= user.role %></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%= user.userName %></span>
+                </div>
+            </header>
+
+            <form onsubmit="return confirmAgain()" method="post">
+                <div class="itemDetailsPage">
+                    <div class="itemDetail">编辑设备：</div>
+                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="editMachineName" class="itemDetailsInput addItemInfo" id="detail1" style="width: 500px" placeholder="请输入设备名称" value="<%=machine.machineName%>"></div>
+                    <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="editMachineModel" class="itemDetailsInput addItemInfo" id="detail2" style="width: 500px" placeholder="请输入设备图号" value="<%=machine.machineId%>"></div>
+                    <div class="itemDetail">设计工程师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="editMachineDesigner" id="detail3" required="required" style="height: 35px;width: 130px;color:black;">
+                            <option selected = "<%=machine.designer%>"><%=machine.designer%></option>
+                            <% for(let i = 0; i < users.length; i++) { %>
+                                <% if (users[i].role === '技术员' || users[i].role === '系统管理员') { %>
+                                    <option value="<%= users[i].userName %>"><%= users[i].userName %></option>
+                            <% }} %>
+                        </select>
+                    </div>
+                    <div class="itemDetail">备注：<input name="editMachineNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" value="<%=machine.note%>"></div>
+                </div>
+
+                <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton" style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">
+                    修改设备
+                </button>
+
+                <style onload="Authority('系统管理员','confirmButton')"></style>
+                <style onload="Authority('仓库管理员','confirmButton')"></style>
+            </form>
+
+        </main>
+    </div>
+</section>
+
+
+<footer class="footer" role="contentinfo">
+    <div class="container">
+        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
+    </div>
+</footer>
+</body>
+</html>

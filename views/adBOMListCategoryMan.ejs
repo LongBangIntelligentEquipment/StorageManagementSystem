@@ -7,8 +7,6 @@
     <title>隆邦ERP系统_BOM表分类管理</title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <script language="javascript">
-
-
         function confirmAgain(operation) {
             if (window.confirm("确认执行【删除分类】操作?")) {
                 return location.href=operation;
@@ -78,11 +76,9 @@
             <table class="noteButton" style=";width: 100%;font-size: 1rem" cellpadding="0" cellspacing="0">
                 <tr >
                     <td style="width: 87%;">
-                        <button class="noteButton" style="padding-left: 80px;" type="button" onclick="location.href='/adBOMListCategoryMan?categoryId=<%=category[i].categoryId%>&returnSql='+document.URL.split('sql=')[1]">
-                            <div  style= "font-size: 0.7rem; height: 30px; ">
-                                <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i+1%></span>
-                                <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=category[i].categoryName%></a></span>
-                            </div>
+                        <button class="noteButton" style="padding-left: 80px;" type="button" onclick="location.href='/adBOMListCategoryEdit?categoryId=<%=category[i].categoryId%>&returnSql='+document.URL.split('sql=')[1]">
+                            <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i+1%></span>
+                            <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=category[i].categoryName%></a></span>
                         </button>
                     </td>
 
@@ -121,9 +117,5 @@
         <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
     </div>
 </footer>
-
-
-</body>
-
 </body>
 </html>
