@@ -11,10 +11,16 @@
 
 
         function confirmAgain() {
+            var elementLength=document.getElementById('shellBox').children.length;
+
+            for(var i=0;i<elementLength;i++){
+                var elementLengthInt=parseInt(elementLength)-i-1
+                var oldElementId='#belongMachine'+elementLengthInt
+                $(oldElementId).removeAttr("disabled","disabled")
+            }
             return window.confirm("确认执行【添加新型物料】操作?");
         }
-
-        function Authority(role,ojId) {
+        function Authority(role ,ojId) {
             if(document.getElementById('role').innerText===role){
                 document.getElementById(ojId).style.display='';
             }
@@ -26,55 +32,65 @@
         }
 
         function addSelectBox() {
-            var elementLength=document.getElementById('shellBox').children.length+1
-            var element='belongMachine'+elementLength;
-            var originalElement=document.getElementById('shellBox').innerHTML;
-            let html =                 '<div id="belongMachineBox'+elementLength+'" style="margin-bottom: 5px">\n' +
-                '                                <select class="itemDetailsInput addItemInfo" name="'+element+'"'+ 'id="'+element+'"'+ 'required="required"  style="height: 35px;width: 450px;color:black;margin-bottom: 3px" >\n';
+            var elementLength=document.getElementById('shellBox').children.length;
+            var loadMachineLength=<%=machine.length%>-document.getElementById('shellBox').children.length;
+            var belongMachineList=[];
+            var saveMachineNum=[];
 
-            <%for(let i=0;i<machine.length;i++){%>
-                html += '<option value="设备ID">';
-                html += '<%=machine[i].machineName%> <%= machine[i].machineId %>';
-                html += '</option>\n';
-            <%}%>
+            if(loadMachineLength>0){
+                var elementLengthInt=parseInt(elementLength)-1
+                var oldElementId='#belongMachine'+elementLengthInt
+                $(oldElementId).attr("disabled","disabled")
 
-            html += '                                </select>\n';
-            html += '                                    <button class="searchBarButton" onclick="deleSelectBox()" type="button" id="deleSelectBtn0" style="background-color: red!important;width: 100px;margin-left: 10px;">删除</button>\n';
-            html += '                                </div>';
+                for(var i=0;i<document.getElementById('shellBox').children.length;i++){
+                    var elementId='#belongMachine'+i
+                    belongMachineList.push($(elementId).find("option:selected").text())
+                }
+                <%for(var i=0;i<machine.length;i++){%>
+                 saveMachineNum.push('<%=machine[i].machineName%> <%= machine[i].machineId %>')
+                <%}%>
 
-            $('#shellBox').append( html)
+                <%for(var i=0;i<machine.length;i++){%>
+                    var judgePra1='<%=machine[i].machineName%> <%= machine[i].machineId %>'
+                    for(var j=0;j<belongMachineList.length;j++){
+                        var judgePra2=belongMachineList[j]
+                        var asd=judgePra1.toString()!==judgePra2.toString().toString()
+                        if(judgePra1.toString()===judgePra2.toString()){
+                              saveMachineNum.splice(saveMachineNum.indexOf('<%=machine[i].machineName%> <%= machine[i].machineId %>'),1)
 
-            document.getElementById('shellBox').innerHTML = originalElement + html
+                        }
+                    }
+               <% }%>
+
+
+                var element='belongMachine'+elementLength;
+                let html =                 '<div id="belongMachineBox'+elementLength+'" style="margin-bottom: 5px">\n' +
+                    '                                <select class="itemDetailsInput addItemInfo" name="'+element+'"'+ 'id="'+element+'"'+ 'required="required"  style="height: 35px;width: 450px;color:black;margin-bottom: 3px" >\n';
+
+                for(var i=0;i<saveMachineNum.length;i++){
+                    html += '<option value="'+saveMachineNum[i].split(' ')[1]+'">';
+                    html += ''+saveMachineNum[i]+'';
+                    html += '</option>\n';
+                }
+
+                html += '                                </select>\n';
+                html += '                                    <button class="searchBarButton" onclick="deleteSelectBox(\'belongMachineBox'+elementLength+'\')" type="button"  style="background-color: red!important;width: 100px;margin-left: 10px;">删除</button>\n';
+                html += '                                </div>';
+
+                $('#shellBox').append( html)
+            }else {
+                alert("没有更多的机型可选择")
+            }
 
         }
 
-        function deleteSelectBox() {
-            let deleteElementId='belongMachineBox'+document.getElementById('shellBox').children.length;
+        function deleteSelectBox(deleteElementId) {
             document.getElementById(deleteElementId).remove()
         }
+        
 
-        window.onload = function mySelectBox (){
-            const myParent = document.getElementById('shellBox2');
 
-            //Create array of options to be added
-            let myArray = [];
-            <%for (let i=0; i<machine.length; i++){%>
-            myArray.push("<%=machine[i].machineName%>-<%=machine[i].machineId%>");
-            <%}%>
 
-            //Create and append select list
-            let selectList = document.createElement("select");
-            selectList.id = "mySelect";
-            myParent.appendChild(selectList);
-
-            //Create and append the options
-            for (let i = 0; i < myArray.length; i++) {
-                let option = document.createElement("option");
-                option.value = myArray[i];
-                option.text = myArray[i];
-                selectList.appendChild(option);
-            }
-        }
 
 
     </script>
@@ -118,7 +134,7 @@
                 </div>
             </header>
 
-            <form onsubmit="return confirmAgain()" method="post"  enctype="multipart/form-data">
+            <form onsubmit="return confirmAgain()" method="post"  >
 
                             <div  class="itemDetailsPage" style="width: 100%">
                                 <div class="itemDetail">创建新部件：</div>
@@ -138,42 +154,31 @@
                                         <button class="searchBarButton" onclick="addSelectBox()" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 150px;margin-left:-10px;margin-bottom: 3px;background-color: #00cb46!important;">添加所属机型</button>
                                     </span>
                                 </div>
-                                <div id="shellBox">
+                                <div id="shellBox" >
                                     <div style="margin-bottom: 5px">
                                         <select class="itemDetailsInput addItemInfo" name="belongMachine0"
                                                 id="belongMachine0" required="required"
-                                                style="height: 35px;width: 450px;color:black;margin-bottom: 3px">
+                                                style="height: 35px;width: 450px;color:black;margin-bottom: 3px" >
                                             <% for (let i = 0; i < machine.length; i++){ %>
                                             html += '
-                                            <option value="设备ID"> <%= machine[i].machineName %> <%= machine[i].machineId %></option>
+                                            <option value="<%= machine[i].machineId %>"><%= machine[i].machineName %> <%= machine[i].machineId %></option>
                                             \n'
                                             <% } %>
                                         </select>
                                     </div>
                                 </div>
-                            </div>
-
-                                <table>
-                                    <%for (let i=0; i<machine.length; i++){%>
-                                    <td>
-                                        <input type="checkbox" name="machine<%=i%>" id="machine<%=i%>" value="<%=machine[i].machineId%>">
-                                        <label for="machine<%=i%>"><%=machine[i].machineName%> <%=machine[i].machineId%></label>
-                                    </td>
-                                    <br>
-                                    <%}%>
-                                    <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike">
-                                    <label for="vehicle1"> I have a bike</label><br>
-                                </table>
-
                                 <div id="shellBox2">
                                     <div class="itemDetail" >备注：<input name="addComponentNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
                                     <div class="itemDetail" id="detail7" >上传图纸：<input name="addComponentNameFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
                                 </div>
+                            </div>
 
 
 
 
-                            <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">创建新部件</button>
+
+
+                            <button class="btn btn-block btn-submit button button--primary smaller" type="submit"   id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">创建新部件</button>
                 <style onload="Authority('系统管理员','confirmButton')"></style>
                 <style onload="Authority('仓库管理员','confirmButton')"></style>
 

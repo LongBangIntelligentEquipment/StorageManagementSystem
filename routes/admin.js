@@ -2768,6 +2768,12 @@ router.get('/adBOMListCategoryMan', function(req, res) {
     });
 });
 
+//   ---增加分类---
+/* GET adBOMList Page */
+router.get('/adBOMList', function(req, res) {
+    res.render('adBOMList', {user: req.session.user,})
+});
+
 
 /* GET adItemSupplierCheck
 router.get('/adItemSupplierCheck', function(req, res, next) {
