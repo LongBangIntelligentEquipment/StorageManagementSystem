@@ -2402,8 +2402,8 @@ router.get('/adBOMListComponentAdd', function(req, res) {
         });
     });
 });
-/* GET adBOMListComponentAdd*/
-router.post('/adBOMListComponentAdd', function (req, res) {
+/* POST adBOMListComponentAdd*/
+router.post('/adBOMListComponentAdd', upload.single('addComponentNameFileName'), function (req, res) {
     let saveDate = new Date();
     let year = saveDate.getFullYear();
     let month = saveDate.getMonth() + 1;
@@ -2415,37 +2415,32 @@ router.post('/adBOMListComponentAdd', function (req, res) {
 
     let addComponentName = req.body.addComponentName;
     let addComponentModel = req.body.addComponentModel;
-    let addComponentState = req.body.addComponentState;
+    // let addComponentState = req.body.addComponentState;
     let addComponentNote = req.body.addComponentNote;
-    let userName = req.session.user.userName;
-
-    let categorySql = 'SELECT * FROM category WHERE categoryName = addComponentType';
-    let userSql = 'SELECT userId FROM user WHERE userName =  \'' + userName + '\' ';
+    let addComponentType = req.body.addComponentType;
+    let designerId = req.session.user.userId;
+    let fileName='null';
+    if(req.file!==undefined){
+        fileName=req.file.filename;
+    }
+    let categorySql = 'SELECT * FROM category WHERE categoryName = ' + '"' + addComponentType + '"';
     connection.query(categorySql, function (err, category) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
             res.send(err);
             return;
         }
-        let categoryId = category[0].categroyId;
-        connection.query(userSql, function (err, designer) {
+        let categoryId = category[0].categoryId;
+        let addSql = 'INSERT INTO component(componentId,componentName,updateTime,state,note,userId,categoryId,cost,fileName) VALUES(?,?,?,?,?,?,?,?,?)';
+        let addSqlParams = [addComponentModel, addComponentName, updateTime, "正常", addComponentNote, designerId, categoryId,0,fileName];
+        connection.query(addSql, addSqlParams, function (err) {
             if (err) {
-                console.log('[SELECT ERROR] - ', err.message);
+                console.log('[INSERT ERROR] - ', err.message);
                 res.send(err);
                 return;
             }
-            let designerId = designer.userId;
-            let addSql = 'INSERT INTO component(componentId,componentName,updateTime,state,note,userId,categoryId) VALUES(?,?,?,?,?,?,?)';
-            let addSqlParams = [addComponentModel, addComponentName, updateTime, addComponentState, addComponentNote, designerId, categoryId];
-            connection.query(addSql, addSqlParams, function (err) {
-                if (err) {
-                    console.log('[INSERT ERROR] - ', err.message);
-                    res.send(err);
-                    return;
-                }
-                addNote('物料事件更新', addComponentName, addComponentModel, '添加新部件');
-                res.redirect('./adBOMListComponentMan');
-            });
+            addNote('部件事件更新', addComponentName, addComponentModel, '添加新部件');
+            res.redirect('./adBOMListMan');
         });
     });
 });
@@ -2480,7 +2475,7 @@ router.get('/ajaxComponents', function(req, res, next) {
         'ON component_has_machine.machine_machineId = machine.machineId\n' +
         'INNER JOIN user \n' +
         'ON component.userId = user.userId\n' +
-        'WHERE machineId = ' + '"' + req.query.machineId + '"'
+        'WHERE machineId = ' + '"' + machineId + '"'
 
     connection.query( sql,function (err, result) {
         if (err) {
@@ -2515,7 +2510,7 @@ router.get('/adBOMListMachineAdd', function(req, res) {
     });
 });
 /* POST adBOMListMachineAdd */
-router.post('/adBOMListMachineAdd', upload.single('addFileName'), function (req, res) {
+router.post('/adBOMListMachineAdd', function (req, res) {
     let saveDate = new Date();
     let year = saveDate.getFullYear();
     let month = saveDate.getMonth() + 1;

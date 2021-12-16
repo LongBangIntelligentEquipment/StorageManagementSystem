@@ -158,21 +158,6 @@
                         <div id="aJaxResult" style="width: 200px; height: 100px; border: solid 1px #90b"></div>
                         <script>
                             const aJaxResult = document.getElementById('aJaxResult')
-                            $("#AjaxButton").click(function () {
-                                $.ajax({
-                                    url: './ajaxComponents',
-                                    data: {a: 100, b: 200},
-                                    type: 'GET',
-                                    dataType: 'json',
-                                    success: function (data) {
-                                        console.log(data);
-                                        aJaxResult.innerText = data[0].componentName
-                                    },
-                                    error: function (jqXHR, textStatus, errorThrown) {
-                                        alert('error ' + textStatus + " " + errorThrown);
-                                    }
-                                })
-                            });
                         </script>
 
                         <style onload="Authority('系统管理员','addNewComponentButton')"></style>
@@ -185,7 +170,7 @@
                     <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%;">
                         <tr >
                             <td style="width: 87%;">
-                                <button class="noteButton" id="machine<%=i%>" style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="componentDisplay('<%=i%>',10)">
+                                <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="componentDisplay('<%=i%>',10)">
                                     <div  style= "font-size: 0.7rem; height: 35px; ">
                                         <span class="BOMInfo" style="margin-left: -50px; color: #0050fa "><%=machine[i].machineName%></span>
                                         <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=machine[i].updateTime%></a></span>
@@ -202,6 +187,31 @@
                                     </div>
                                 </button>
                             </td>
+                            <script>
+                                var sendRequest = false;
+                                $("#machineBtn<%=i%>").click(function () {
+                                    sendRequest = !sendRequest
+                                    if (sendRequest){
+                                        console.log('Clicked <%= i %>')
+                                        $.ajax({
+                                            url: './ajaxComponents',
+                                            data: {'machineId': '<%= machine[i].machineId %>'},
+                                            type: 'GET',
+                                            dataType: 'json',
+                                            success: function (data) {
+                                                console.log(data);
+                                                if (data.length !==0){
+                                                    aJaxResult.innerText = data[0].componentName;
+                                                }
+                                                else {aJaxResult.innerText = "No component for this machine";}
+                                            },
+                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                alert('error ' + textStatus + " " + errorThrown);
+                                            }
+                                        })
+                                    }
+                                });
+                            </script>
 
                             <td style="width: 13%">
                                 <table cellspacing="0" cellpadding="0" style="width: 100%">

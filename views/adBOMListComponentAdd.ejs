@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta  content="yes"  name="apple-mobile-web-app-capable">
-    <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
+    <meta  name="viewport"  content="maximum-scale=1.0,user-scalable=no">
     <title>隆邦ERP系统_BOM表管理</title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -87,11 +87,6 @@
         function deleteSelectBox(deleteElementId) {
             document.getElementById(deleteElementId).remove()
         }
-        
-
-
-
-
 
     </script>
 
@@ -134,7 +129,7 @@
                 </div>
             </header>
 
-            <form onsubmit="return confirmAgain()" method="post"  >
+            <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data" >
 
                             <div  class="itemDetailsPage" style="width: 100%">
                                 <div class="itemDetail">创建新部件：</div>
