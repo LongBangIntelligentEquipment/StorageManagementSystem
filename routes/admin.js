@@ -2426,6 +2426,7 @@ router.post('/adBOMListComponentAdd', upload.single('addComponentNameFileName'),
     let addComponentNote = req.body.addComponentNote;
     let addComponentType = req.body.addComponentType;
     let designerId = req.session.user.userId;
+    let machineCount = req.body.machineCount;
     let fileName='null';
     if(req.file!==undefined){
         fileName=req.file.filename;
@@ -2446,7 +2447,18 @@ router.post('/adBOMListComponentAdd', upload.single('addComponentNameFileName'),
                 res.send(err);
                 return;
             }
-            addNote('部件事件更新', addComponentName, addComponentModel, '添加新部件');
+            // --添加事件更新到首页--
+            // addNote('部件事件更新', addComponentName, addComponentModel, '添加新部件');
+            // --添加部件到机械--
+            addToSql = 'INSERT INTO component_has_machine (component_componentId,machine_machineId) VALUE (?,?)';
+
+            console.log('reqLength: ' + req.body.length)
+            
+            for (let i=0; i<machineCount; i++){
+                // let belongMachine = req.body.('belongMachine' + i);
+                let belongMachine = req.body.belongMachine0;
+
+            }
             res.redirect('./adBOMListMan');
         });
     });
