@@ -277,11 +277,12 @@ input[type="submit"].btn-block, input[type="reset"].btn-block, input[type="butto
   width: 90px;
   float: left;
   font-size: 0.9rem;
+  background-color: #0050fa !important;
 }
 
 button, .button, input[type="button"], input[type="submit"] {
   color: #ffffff !important;
-  background-color: #0166b3 !important;
+  background-color: #0188ee !important;
 }
 
 input.button {
@@ -300,7 +301,7 @@ button, .button, input[type="button"], input[type="submit"] {
   font-size: 0.8rem;
   color: #ffffff;
   text-decoration: none;
-  background-color: #0166b3 !important;
+  background-color: #0188ee !important;
   border-radius: 5px;
 }
 
@@ -437,7 +438,7 @@ ol, ul, dl {
 .functionBoard.left{
   float: left;
   flex: none;
-  background-color: #0166b3;
+  background-color: #0188ee;
   word-break: break-all;
   margin-right: 0px;
   height: 100%;
@@ -465,12 +466,12 @@ ol, ul, dl {
   font-size: 1.2rem;
 }
 .functionBoard-Button:hover{
-  background-color: #0178c8 !important;
+  background-color: #41adff !important;
 
 }
 
 .functionBoard-Button.current{
-  background: #75c3e5!important;
+  background: #41c1ff !important;
   border-radius: 0px;
 }
 
@@ -671,7 +672,7 @@ footer {
 }
 
 .itemButton1:hover{
-  background-color: gold!important;
+  background-color: #ffff78 !important;
 }
 
 .itemButton2{
@@ -682,7 +683,7 @@ footer {
   border: 0;
 }
 .itemButton2:hover{
-  background-color: mediumseagreen!important;
+  background-color: #b4ffd7 !important;
 }
 
 .itemButton3{
@@ -693,7 +694,7 @@ footer {
     border: 0;
 }
 .itemButton3:hover{
-    background-color: gold!important;
+    background-color: #ffff78 !important;
 }
 
 .itemButton4{

@@ -6,23 +6,7 @@ var pinyin = require("pinyin");
 const URL=require('url');
 var multer = require('multer');
 const {response} = require("express");
-var connection = mysql.createConnection({
-    host     : '192.168.0.127',
-    port     : '3306',
-    user     : 'root',
-    password : 'LongBang***',
-    //database : 'storagedb',  //服务器数据库
-    database : 'dbfordevelop', //开发用数据库
-    multipleStatements: true,
-    connectTimeout:false
-    // host     : 'localhost',
-    // port     : '3306',
-    // user     : 'root',
-    // password : '123456',
-    // database : 'storagedb',
-    // multipleStatements: true,
-    // connectTimeout:false
-});
+var connection=require('../databaseConfig/config').connection();
 
 
 //文件上传参数=======
@@ -178,6 +162,10 @@ router.get('/adminHome', function(req, res, next) {
     })
 });
 
+router.get('/', function(req, res, next) {
+    res.redirect('/adminHome')
+});
+
 /* GET home itemManPage. */
 router.get('/adItemMan', function(req, res, next) {
     var statesCounter;
@@ -240,6 +228,8 @@ router.get('/adItemMan', function(req, res, next) {
 
     });
 });
+
+
 
 
 router.post('/adItemMan', function(req, res,){
@@ -2360,6 +2350,23 @@ router.post('/adUser', function(req, res, next) {
     res.redirect(flashUrl)
 });
 
+//   ---查找设备---
+/* GET adBOMListMan*/
+router.get('/adBOMListMan', function(req, res) {
+    let sql = 'SELECT * FROM machine;';
+    connection.query(sql,function (err,result) {
+        if(err){
+            console.log('[SELECT ERROR] - ',err.message);
+            res.send(err);
+            return;
+        }
+        res.render('adBOMListMan', {
+            user:req.session.user,
+            machine: result
+        });
+    });
+});
+
 router.post('/adBOMListMan', function(req, res,){
     var sql;
     let indexOf =  '\'\%%' + req.body.indexOf + '%\'';
@@ -2487,8 +2494,45 @@ router.get('/ajaxComponents', function(req, res, next) {
         // res.render('adBOMListMan', {
         //     components:result,
         // });
+        console.log(result.length)
 
-        res.send(result);
+        var HTMLtext='';
+        for(var j=0;j<result.length;j++){
+            HTMLtext += '                        <tr id="component'+j+'" >\n' +
+                '                            <td style="width: 85%;">\n' +
+                '                                <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adBOMList\'">\n' +
+                '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
+                '                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#'+parseInt(j+1)+'</span>\n' +
+                '                                        <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 200px">部件型号：<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
+                '                                    </div>\n' +
+                '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
+                '                                        <span class="itemInfo" >状态：<a style="font-weight: normal;color: red;"></a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 200px">制表人：Felix<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
+                '                                    </div>\n' +
+                '                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">\n' +
+                '                                        <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>\n' +
+                '                                    </div>\n' +
+                '                                </button>\n' +
+                '                            </td>\n' +
+                '                            <td style="width: 13%!important;">\n' +
+                '                                <table cellspacing="0" cellpadding="0" style="width: 100%">\n' +
+                '                                    <tr >\n' +
+                '                                        <td>\n' +
+                '                                            <button class="itemButton3" type="button" onclick="window.open(\'uploads/\')" ><img src=\'images/checkDrawing.png\' height="50px" width="50px"></button>\n' +
+                '                                        </td>\n' +
+                '                                    </tr>\n' +
+                '\n' +
+                '                                </table>\n' +
+                '                            </td>\n' +
+                '                        </tr>\n'
+        }
+        res.json({
+            component:result,
+            HTMLtext:HTMLtext
+        });
 
     });
 });
@@ -2638,22 +2682,6 @@ router.post('/adBOMListMachineEdit', function(req, res) {
     });
 });
 
-//   ---查找设备---
-/* GET adBOMListMan*/
-router.get('/adBOMListMan', function(req, res) {
-    let sql = 'SELECT * FROM machine;';
-    connection.query(sql,function (err,result) {
-        if(err){
-            console.log('[SELECT ERROR] - ',err.message);
-            res.send(err);
-            return;
-        }
-        res.render('adBOMListMan', {
-            user:req.session.user,
-            machine: result
-        });
-    });
-});
 
 //   ---增加分类---
 /* GET adBOMListCategoryAdd Page */
