@@ -13,6 +13,39 @@
 
 
 
+    <% for(let j = 0 ; j < 10 ; j++) { %>
+                            <tr id="component'+order+'<%= j %>" >
+                                    <td style="width: 70%;">
+                                           <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
+                                                    <div  style= "font-size: 0.7rem; height: 30px; ">
+                                                            <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#'+order+'<%= j %></span>
+                                                           <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>
+                                                           <span class="itemInfo" style="margin-left: 200px">部件型号：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                                            <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                                        </div>\n' +
+                                                    <div  style= "font-size: 0.7rem; height: 30px; ">
+                                                            <span class="itemInfo" >状态：<a style="font-weight: normal;color: red;"></a></span>
+                                                           <span class="itemInfo" style="margin-left: 200px">制表人：Felix<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                                           <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                                      </div>\n' +
+                                               <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                                            <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
+                                                        </div>
+                                                </button>
+                                       </td>
+                                    <td style="width: 30%!important;">
+                                            <table cellspacing="0" cellpadding="0" style="width: 100%">
+                                                                            <tr >
+                                                            <td>
+                                                                   <button class="itemButton3" type="button" onclick="window.open('uploads/')" ><img src=\'images/checkDrawing.png\' height="50px" width="50px"></button>
+                                                               </td>
+                                                       </tr>
+
+                                                </table>\n' +
+                                       </td>\n' +
+                                </tr>\n' +
+                       <% } %>'
+
 </head>
 <body>
 <p>This is a paragraph.</p>

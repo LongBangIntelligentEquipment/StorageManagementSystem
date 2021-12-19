@@ -9,6 +9,7 @@
     <!--    jQuery Ajax   -->
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+
     <script language="javascript">
         function display(ojId, hidenId) {
             if (document.getElementById(ojId).style.display === '') {
@@ -59,12 +60,55 @@
             }
         }
 
-        function confirmAgain(operation) {
-            if (window.confirm("确认执行【删除设备】操作?")) {
-                return location.href=operation;
-            } else {
-                return false;
+
+
+       var btnCounter=0
+
+
+        function showComponent(order,machineId) {
+
+            btnCounter++
+
+
+            if(btnCounter%2===0){
+                var componentBox='componentBox'+order
+
+
+                for(var i=document.getElementById(componentBox).children.length-1;i>=0;i--){
+                    var componentId='component'+i
+                    document.getElementById(componentId).remove()
+                }
+
+
+            }else{
+                var sendRequest = false;
+                sendRequest = !sendRequest
+                if (sendRequest){
+                    console.log('Clicked '+order)
+                    $.ajax({
+                        url: './ajaxComponents',
+                        data: {'machineId':machineId },
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            var componentBox;
+                            if (data.component.length !==0){
+                                var componentBox='#componentBox'+order
+                                $(componentBox).append(data.HTMLtext)
+
+                            }
+                            else {
+                                componentBox='#componentBox'+order
+                                $(componentBox).append('<div id=\'component0\'>此设备暂无设置所属部件</div>')
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('error ' + textStatus + " " + errorThrown);
+                        }
+                    })
+                }
             }
+
         }
     </script>
 
@@ -110,7 +154,6 @@
 
 
     </div>
-    </div>
 
 
     <div class="functionBoard right">
@@ -139,7 +182,7 @@
                         <!--                        <a class="typeFilter">-->
                         <!--                            <button class="filterButton" type="button" onclick="display('typeOption2','typeOption1')">—报警— <span style="float: right;margin-right: 4px">▼</span></button>-->
                         <!--                        </a>-->
-                        <a>-</a>
+
                         <input class="indexOf" name="indexOf" style="margin-left: 4px" placeholder="请输入关键字搜索BOM表">
                         <button class="searchInputBoxButton" name="indexOfButton" value=true type="submit">搜&emsp;索
                         </button>
@@ -150,15 +193,9 @@
                                 id="addNewMachineButton">创建设备
                         </button>
 
-                        <button class="searchBarButton" type="button" id="AjaxButton"
-                                style="background-color: #0050fa!important">Ajax
-                        </button>
 
 
-                        <div id="aJaxResult" style="width: 200px; height: 100px; border: solid 1px #90b"></div>
-                        <script>
-                            const aJaxResult = document.getElementById('aJaxResult')
-                        </script>
+
 
                         <style onload="Authority('系统管理员','addNewComponentButton')"></style>
                         <style onload="Authority('仓库管理员','addNewComponentButton')"></style>
@@ -170,7 +207,7 @@
                     <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%;">
                         <tr >
                             <td style="width: 87%;">
-                                <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="componentDisplay('<%=i%>',10)">
+                                <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponent('<%=i%>','<%=machine[i].machineId%>')">
                                     <div  style= "font-size: 0.7rem; height: 35px; ">
                                         <span class="BOMInfo" style="margin-left: -50px; color: #0050fa "><%=machine[i].machineName%></span>
                                         <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=machine[i].updateTime%></a></span>
@@ -187,83 +224,35 @@
                                     </div>
                                 </button>
                             </td>
-                            <script>
-                                var sendRequest = false;
-                                $("#machineBtn<%=i%>").click(function () {
-                                    sendRequest = !sendRequest
-                                    if (sendRequest){
-                                        console.log('Clicked <%= i %>')
-                                        $.ajax({
-                                            url: './ajaxComponents',
-                                            data: {'machineId': '<%= machine[i].machineId %>'},
-                                            type: 'GET',
-                                            dataType: 'json',
 
-                                            success: function (data) {
-                                                console.log(data);
-                                                if (data.length !==0){
-                                                    aJaxResult.innerText = data[0].componentName;
-                                                }
-                                                else {aJaxResult.innerText = "No component for this machine";}
-                                            },
-                                            error: function (jqXHR, textStatus, errorThrown) {
-                                                alert('error ' + textStatus + " " + errorThrown);
-                                            }
-                                        })
-                                    }
-                                });
-                            </script>
 
                             <td style="width: 13%">
                                 <table cellspacing="0" cellpadding="0" style="width: 100%">
                                     <tr >
                                         <td>
-                                            <button class="itemButton1" type="button" onclick="location.href=('/adBOMListMachineEdit?machineId=<%=machine[i].machineId%>&returnSql='+document.URL.split('sql=')[1])"><img src='images/edit-button.png' height="30px" width="30px"></button>
+                                            <button class="itemButton1" style="height: 90px;border: 0px" type="button" onclick="location.href=('/adBOMListMachineEdit?machineId=<%=machine[i].machineId%>&returnSql='+document.URL.split('sql=')[1])"><img src='images/edit-button.png' height="30px" width="30px"></button>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>
-                                            <button class="itemButton4" type="button" onclick="confirmAgain('/adBOMListMachineDelete?machineId=<%=machine[i].machineId%>&returnSql='+document.URL.split('sql=')[1])" ><img src='images/bin.png' height="23px" width="23px"></button>
-                                        </td>
-                                    </tr>
+                                    <!--<tr>-->
+                                    <!--    <td>-->
+                                    <!--        <button class="itemButton4" type="button" onclick="confirmAgain('/adBOMListMachineDelete?machineId=<%=machine[i].machineId%>&returnSql='+document.URL.split('sql=')[1])" ><img src='images/bin.png' height="23px" width="23px"></button>-->
+                                    <!--    </td>-->
+                                    <!--</tr>-->
                                 </table>
                             </td>
 
-                            <%for(let j = 0 ; j < 10 ; j++) { %>
-                        <tr id="component<%=i%><%=j%>" style="display: none;">
-                            <td style="width: 70%;">
-                                <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
-                                    <div  style= "font-size: 0.7rem; height: 30px; ">
-                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i%><%=j%></span>
-                                        <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>
-                                        <span class="itemInfo" style="margin-left: 200px">部件型号：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                    </div>
-                                    <div  style= "font-size: 0.7rem; height: 30px; ">
-                                        <span class="itemInfo" >状态：<a style="font-weight: normal;color: red;"></a></span>
-                                        <span class="itemInfo" style="margin-left: 200px">制表人：Felix<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                    </div>
 
-                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                        <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
-                                    </div>
-                                </button>
-                            </td>
-                            <td style="width: 30%!important;">
-                                <table cellspacing="0" cellpadding="0" style="width: 100%">
-                                    <tr >
-                                        <td>
-                                            <button class="itemButton3" type="button" onclick="window.open('uploads/')" ><img src='images/checkDrawing.png' height="50px" width="50px"></button>
-                                        </td>
-                                    </tr>
 
-                                </table>
-                            </td>
+
+
+
+
+
                         </tr>
 
-                        <% } %>
-                        </tr>
+                        <table id="componentBox<%=i%>" style="width: 100%">
+
+                        </table>
 
                     </table>
                     <% } %>
@@ -286,5 +275,4 @@
 
 </body>
 
-</body>
 </html>
