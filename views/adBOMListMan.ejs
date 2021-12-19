@@ -62,21 +62,20 @@
 
 
 
-       var btnCounter=0
+
 
 
         function showComponent(order,machineId) {
 
-            btnCounter++
-
+            var componentBox;
+            var machineBtn='machineBtn'+order
+            var btnCounter=(String(document.getElementById(machineBtn).value+=1).match(/1/g)||[]).length
 
             if(btnCounter%2===0){
-                var componentBox='componentBox'+order
+                 componentBox='componentBox'+order
 
-
-                for(var i=document.getElementById(componentBox).children.length-1;i>=0;i--){
-                    var componentId='component'+i
-                    document.getElementById(componentId).remove()
+                while (document.getElementById(componentBox).children.length>0) {
+                    document.getElementById(componentBox).lastChild.remove()
                 }
 
 
@@ -91,14 +90,12 @@
                         type: 'GET',
                         dataType: 'json',
                         success: function (data) {
-                            var componentBox;
+                            componentBox='#componentBox'+order
                             if (data.component.length !==0){
-                                var componentBox='#componentBox'+order
                                 $(componentBox).append(data.HTMLtext)
 
                             }
                             else {
-                                componentBox='#componentBox'+order
                                 $(componentBox).append('<div id=\'component0\'>此设备暂无设置所属部件</div>')
                             }
                         },
@@ -207,7 +204,7 @@
                     <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%;">
                         <tr >
                             <td style="width: 87%;">
-                                <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponent('<%=i%>','<%=machine[i].machineId%>')">
+                                <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponent('<%=i%>','<%=machine[i].machineId%>')">
                                     <div  style= "font-size: 0.7rem; height: 35px; ">
                                         <span class="BOMInfo" style="margin-left: -50px; color: #0050fa "><%=machine[i].machineName%></span>
                                         <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=machine[i].updateTime%></a></span>

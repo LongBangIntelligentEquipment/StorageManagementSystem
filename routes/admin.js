@@ -2452,7 +2452,6 @@ router.post('/adBOMListComponentAdd', upload.single('addComponentNameFileName'),
             // --添加部件到机械--
             addToSql = 'INSERT INTO component_has_machine (component_componentId,machine_machineId) VALUE (?,?)';
 
-            console.log('reqLength: ' + req.body.length)
             
             for (let i=0; i<machineCount; i++){
                 // let belongMachine = req.body.('belongMachine' + i);
@@ -2503,10 +2502,6 @@ router.get('/ajaxComponents', function(req, res, next) {
             return;
         }
 
-        // res.render('adBOMListMan', {
-        //     components:result,
-        // });
-
         var HTMLtext='';
         for(var j=0;j<result.length;j++){
             HTMLtext += '                        <tr id="component'+j+'" >\n' +
@@ -2514,8 +2509,8 @@ router.get('/ajaxComponents', function(req, res, next) {
                 '                                <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adBOMList\'">\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#'+parseInt(j+1)+'</span>\n' +
-                '                                        <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 200px">部件型号：<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
+                '                                        <span class="itemInfo" >部件名称：'+result[j].componentName+'<a style="font-weight: normal;color: #0050fa;"></a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 200px">部件型号：'+result[j].componentName+'<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
