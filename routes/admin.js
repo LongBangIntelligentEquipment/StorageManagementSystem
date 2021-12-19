@@ -2449,7 +2449,7 @@ router.post('/adBOMListComponentAdd', upload.single('addComponentNameFileName'),
             
             for (let i=0; i<machineCount; i++){
                 // let belongMachine = req.body.('belongMachine' + i);
-                let belongMachine = req.body.belongMachine0;
+                // let belongMachine = req.body.belongMachine;
 
             }
             res.redirect('./adBOMListMan');
@@ -2475,10 +2475,11 @@ router.get('/adBOMListComponentDelete', function(req, res) {
 //   ---修改部件---
 
 
-//   ---查找部件---
+//   ---查找设备部件---
 /* AJax get component List */
-router.get('/ajaxComponents', function(req, res, next) {
+router.get('/ajaxComponents', function(req, res) {
     const machineId = req.query.machineId;
+    console.log(machineId)
     const sql = 'SELECT componentId, componentName, machineName, machineId\n' +
         'FROM component \n' +
         'RIGHT JOIN component_has_machine\n' +
@@ -2501,9 +2502,48 @@ router.get('/ajaxComponents', function(req, res, next) {
         // });
 
         res.send(result);
-
     });
 });
+
+//   ---查找部件物料--- 详细页
+/* GET adBOMList*/
+router.get('/adBOMList', function (req, res) {
+    let url = URL.parse(req.url, true).query;
+    let sql = 'SELECT componentId, componentName, updateTime, component.state, note, component.userId, category.categoryName, cost, fileName, itemId, itemName, itemPrice, itemModel, itemArea, itemNote, itemQuantity\n' +
+        'FROM component \n' +
+        'RIGHT JOIN component_has_item\n' +
+        'ON component_has_item.component_componentId = component.componentId\n' +
+        'INNER JOIN item\n' +
+        'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
+        'INNER JOIN category\n' +
+        'ON component.categoryId = category.categoryId\n' +
+        'INNER JOIN user\n' +
+        'ON component.userId = user.userId\n' +
+        'WHERE componentId =' + '\'' + url.componentId + '\'';
+    let categorySql = 'SELECT * FROM category;';
+
+    connection.query(sql, function (err, component) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send(err);
+            return;
+        }
+        connection.query(categorySql, function (err, category) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+                res.send(err);
+                return;
+            }
+            res.render('adBOMList', {
+                user:req.session.user,
+                category: category,
+                component: component
+            });
+
+        });
+    });
+});
+
 
 //   ---增加设备---
 /* GET adBOMListMachineAdd */
@@ -2521,6 +2561,7 @@ router.get('/adBOMListMachineAdd', function(req, res) {
         });
     });
 });
+
 /* POST adBOMListMachineAdd */
 router.post('/adBOMListMachineAdd', function (req, res) {
     let saveDate = new Date();
