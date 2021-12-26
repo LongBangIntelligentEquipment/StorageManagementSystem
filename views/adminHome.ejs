@@ -18,7 +18,7 @@
 
     function StateColorChange(state,stateOj) {
 
-        if(state==='少剩余'||state==='已拒绝'||state==='已取消'){
+        if(state==='少剩余'||state==='已拒绝'||state==='已取消'    || state==='删除部件' || state==='删除设备'){
             document.getElementById(stateOj).style.color='red';
         }
         else if(state==='有订单未处理'||state==='有退回'){
@@ -33,9 +33,9 @@
         else if(state==='无'||state==='已完成'){
             document.getElementById(stateOj).style.color='gray';
         }
-        else if(state==='已下单'||state==='已到货'){
+        else if(state==='已下单'||state==='已到货'    || state==='修改部件' || state==='修改设备'){
             document.getElementById(stateOj).style.color='green';
-        } else if(state==='添加新物料'){
+        } else if(state==='添加新物料'    || state==='添加新部件' || state==='添加新设备'){
             document.getElementById(stateOj).style.color='#00cb46';
         }
 

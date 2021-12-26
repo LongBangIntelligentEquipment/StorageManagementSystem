@@ -185,6 +185,7 @@
                                     window.onload=function (){
                                         document.getElementById('typeLabel').hidden = false;
                                         document.getElementById('typeSelect').hidden = false;
+                                        document.getElementById('detail0').disabled = false;
                                     }
                                 </script>
                                 <div class="itemDetail" id="typeSelect" hidden>类型：<select class="itemDetailsInput addItemInfo" name="BomListType" id="detail2" required="required" style="height: 35px;width: 130px;color:black;" >
@@ -256,6 +257,7 @@
                     <button class="searchInputBoxButton" type="button" onclick=""style="position: absolute!important; margin-top: -45px; margin-left: 650px;background-color: mediumseagreen!important;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >打印&emsp;BOM表</button>
                     <button class="searchInputBoxButton" type="button" onclick=""style="position: absolute!important; margin-top: -45px; margin-left: 950px;background-color: red!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >&emsp;一键出仓&emsp;</button>
                     </div>
+                    <%if (component[0].itemId !== undefined){%>
                     <%for(let j = 0 ; j < component.length ; j++) { %>
                     <tr id="component<%=j%>" style=";">
                         <td style="width: 87%!important;">
@@ -290,7 +292,9 @@
                         </td>
                     </tr>
 
-                    <% } %>
+                    <% }} else {%>
+                        此部件未添加物料
+                    <%}%>
                     </tr>
                 </table>
                 </div>

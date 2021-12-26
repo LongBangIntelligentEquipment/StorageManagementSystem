@@ -708,6 +708,17 @@ footer {
   background-color: red!important;
 }
 
+.itemButton5{
+  width: 100%;
+  height: 45px;
+  color: #666!important;
+  background-color: transparent!important;
+  border: 0;
+}
+.itemButton5:hover{
+  background-color: green!important;
+}
+
 .itemDetailsPage{
   margin-top: 15px;
   margin-left: 30px;
@@ -749,6 +760,26 @@ input::-webkit-inner-spin-button {
 
 
 .BOMInfo{
+  position: absolute;
+  font-weight: bold;
+  font-size: large;
+}
+.categoryName{
+  position: absolute;
+  font-weight: bold;
+  font-size: large;
+}
+.componentName{
+  position: absolute;
+  font-weight: bold;
+  font-size: large;
+}
+.componentId{
+  position: absolute;
+  font-weight: bold;
+  font-size: large;
+}
+.componentNote{
   position: absolute;
   font-weight: bold;
   font-size: large;

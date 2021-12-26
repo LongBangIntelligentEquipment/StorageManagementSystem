@@ -855,7 +855,7 @@ router.post('/adItemExit', function(req, res, next) {
         var flashUrl='adItem?itemId='+url.itemId+'&returnSql='+url.returnSql+'&itemModel='+url.itemModel;
         res.redirect(flashUrl)
     });
-    
+
 
 
 
@@ -2426,8 +2426,8 @@ router.post('/adBOMListComponentAdd', upload.single('addComponentNameFileName'),
     let addComponentNote = req.body.addComponentNote;
     let addComponentType = req.body.addComponentType;
     let designerId = req.session.user.userId;
-    let machineCount = req.body.machineCount;
     let fileName='null';
+    let addComponentToMachines = req.body.belongMachine;
     if(req.file!==undefined){
         fileName=req.file.filename;
     }
@@ -2448,16 +2448,19 @@ router.post('/adBOMListComponentAdd', upload.single('addComponentNameFileName'),
                 return;
             }
             // --添加事件更新到首页--
-            // addNote('部件事件更新', addComponentName, addComponentModel, '添加新部件');
+            addNote('部件事件更新', addComponentName, addComponentModel, '添加新部件');
             // --添加部件到机械--
             addToSql = 'INSERT INTO component_has_machine (component_componentId,machine_machineId) VALUE (?,?)';
-
-            
-            for (let i=0; i<machineCount; i++){
-                // let belongMachine = req.body.('belongMachine' + i);
-                // let belongMachine = req.body.belongMachine;
-
+            for (let i=0; i<addComponentToMachines.length; i++){
+                addToParams = [addComponentModel, addComponentToMachines[i]]
+                connection.query(addToSql, addToParams, function (err) {
+                    if (err) {
+                        console.log('[INSERT ERROR] - ', err.message);
+                        res.send(err);
+                    }
+                });
             }
+
             res.redirect('./adBOMListMan');
         });
     });
@@ -2467,13 +2470,16 @@ router.post('/adBOMListComponentAdd', upload.single('addComponentNameFileName'),
 /* GET adBOMListComponentDelete Page */
 router.get('/adBOMListComponentDelete', function(req, res) {
     let url=URL.parse(req.url,true).query;
-    let delSql = 'DELETE FROM component WHERE componentId = '+'\''+url.componentId+'\'';
+    let componentId = url.componentId;
+    let delSql = 'DELETE FROM component WHERE componentId = '+'\''+componentId+'\'';
     connection.query(delSql,function (err) {
         if(err){
             console.log('[DELETE ERROR] - ',err.message);
             res.send(err);
             return;
         }
+        // --添加事件更新到首页--
+        addNote('部件事件更新', componentId, componentId, '删除部件');
         res.redirect('/adBOMListMan')
     });
 });
@@ -2485,7 +2491,7 @@ router.get('/adBOMListComponentDelete', function(req, res) {
 /* AJax get component List */
 router.get('/ajaxComponents', function(req, res, next) {
     const machineId = req.query.machineId;
-    const sql = 'SELECT componentId, componentName, machineName, machineId\n' +
+    const sql = 'SELECT componentId, componentName, component.updateTime, component.note AS cNote, cost, userName\n' +
         'FROM component \n' +
         'RIGHT JOIN component_has_machine\n' +
         'ON component_has_machine.component_componentId = component.componentId\n' +
@@ -2495,59 +2501,109 @@ router.get('/ajaxComponents', function(req, res, next) {
         'ON component.userId = user.userId\n' +
         'WHERE machineId = ' + '"' + machineId + '"'
 
-    connection.query( sql,function (err, result) {
+    connection.query( sql,function (err, component) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
             res.send(err);
             return;
         }
 
+        // res.render('adBOMListMan', {
+        //     components:result,
+        // });
+
         var HTMLtext='';
-        for(var j=0;j<result.length;j++){
+        for(var j=0;j<component.length;j++){
             HTMLtext += '                        <tr id="component'+j+'" >\n' +
-                '                            <td style="width: 85%;">\n' +
-                '                                <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adBOMList\'">\n' +
+                '                            <td style="width: 80%;">\n' +
+                '                                <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adBOMList?componentId=' + component[j].componentId + '\'">\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#'+parseInt(j+1)+'</span>\n' +
-                '                                        <span class="itemInfo" >部件名称：'+result[j].componentName+'<a style="font-weight: normal;color: #0050fa;"></a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 200px">部件型号：'+result[j].componentName+'<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: -20px">部件名称：<a style="font-weight: normal;color: #0050fa;">' + component[j].componentName + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 200px">制表人：<a style="font-weight:normal;color: #0050fa; ">' + component[j].userName + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; ">' + component[j].updateTime + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
-                '                                        <span class="itemInfo" >状态：<a style="font-weight: normal;color: red;"></a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 200px">制表人：Felix<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; "></a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: -20px">部件型号：<a style="font-weight:normal;color: #0050fa; ">' + component[j].componentId + '</a></span>\n' +
+
+                '                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + component[j].cost + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">\n' +
-                '                                        <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: -20px" >备注：<a style="font-weight: normal;color: red;">' + component[j].cNote + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                </button>\n' +
                 '                            </td>\n' +
-                '                            <td style="width: 13%!important;">\n' +
+                '                            <td style="width: 20%!important;">\n' +
                 '                                <table cellspacing="0" cellpadding="0" style="width: 100%">\n' +
                 '                                    <tr >\n' +
                 '                                        <td>\n' +
                 '                                            <button class="itemButton3" type="button" onclick="window.open(\'uploads/\')" ><img src=\'images/checkDrawing.png\' height="50px" width="50px"></button>\n' +
                 '                                        </td>\n' +
+                '                                        <td>\n' +
+                '                                            <button class="itemButton4" type="button" onclick="location.href=\'/removeComponentFromMachine?componentId=' + component[j].componentId + '&machineId=' + machineId + '\'" >从设备中移除</button>\n' +
+                '                                        </td>\n' +
                 '                                    </tr>\n' +
-                '\n' +
                 '                                </table>\n' +
                 '                            </td>\n' +
                 '                        </tr>\n'
         }
         res.json({
-            component:result,
+            component:component,
             HTMLtext:HTMLtext
         });
 
     });
 });
 
+//   ---搜索BOM表---
+/* POST adBOMListComponentSearch */
+router.post('/adBOMListComponentSearch', function (req, res) {
+    let categorySql = 'SELECT categoryName FROM category;';
+    let machineSql = 'SELECT machineName, machineId FROM machine;';
+    let searchText = req.body.searchText;
+    let searchSql = 'SELECT componentId, componentName, updateTime, component.state, note, userName, categoryName, cost, fileName\n' +
+        'FROM component\n' +
+        'INNER JOIN user\n' +
+        'ON user.userId = component.userId\n' +
+        'INNER JOIN category\n' +
+        'ON category.categoryId = component.categoryId\n' +
+        'WHERE componentName LIKE \'%' + searchText + '%\' OR componentID LIKE \'%' + searchText + '%\' OR note LIKE \'%' + searchText + '%\';';
+    connection.query(categorySql, function (err, categoryName) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send(err);
+            return;
+        }
+        connection.query(machineSql, function (err, machine) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+                res.send(err);
+                return;
+            }
+            connection.query(searchSql, function (err, component) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                    res.send(err);
+                    return;
+                }
+                res.render('adBOMListComponentSearch', {
+                    user: req.session.user,
+                    categoryName: categoryName,
+                    machine: machine,
+                    component: component
+                });
+            });
+        });
+    });
+});
+
+
 //   ---查找部件物料--- 详细页
-/* GET adBOMList*/
+/* GET adBOMList */
 router.get('/adBOMList', function (req, res) {
     let url = URL.parse(req.url, true).query;
-    let sql = 'SELECT componentId, componentName, updateTime, component.state, note, component.userId, category.categoryName, cost, fileName, itemId, itemName, itemPrice, itemModel, itemArea, itemNote, itemQuantity\n' +
+    // 部件有物料
+    let componentItemSql = 'SELECT componentId, componentName, updateTime, component.state, note, category.categoryName, cost, fileName, userName, itemId, itemName, itemPrice, itemModel, itemArea, itemNote, itemQuantity\n' +
         'FROM component \n' +
         'RIGHT JOIN component_has_item\n' +
         'ON component_has_item.component_componentId = component.componentId\n' +
@@ -2558,26 +2614,54 @@ router.get('/adBOMList', function (req, res) {
         'INNER JOIN user\n' +
         'ON component.userId = user.userId\n' +
         'WHERE componentId =' + '\'' + url.componentId + '\'';
+    // 部件无物料
+    let componentSql = 'SELECT componentId, componentName, updateTime, component.state, note, category.categoryName, cost, fileName, userName\n' +
+        'FROM component\n' +
+        'LEFT JOIN category\n' +
+        'ON component.categoryId = category.categoryId\n' +
+        'INNER JOIN user\n' +
+        'ON component.userId = user.userId\n' +
+        'WHERE componentId =' + '\'' + url.componentId + '\'';
     let categorySql = 'SELECT * FROM category;';
 
-    connection.query(sql, function (err, component) {
+    console.log(componentSql);
+
+    connection.query(categorySql, function (err, category) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
             res.send(err);
             return;
         }
-        connection.query(categorySql, function (err, category) {
+        connection.query(componentItemSql, function (err, componentItem) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
                 res.send(err);
                 return;
             }
-            res.render('adBOMList', {
-                user:req.session.user,
-                category: category,
-                component: component
-            });
 
+            console.log('component3: ' + componentItem);
+
+            if (componentItem.length === 0){
+                connection.query(componentSql, function (err, component) {
+                    if (err) {
+                        console.log('[SELECT ERROR] - ', err.message);
+                        res.send(err);
+                        return;
+                    }
+                    res.render('adBOMList', {
+                        user: req.session.user,
+                        category: category,
+                        component: component
+                    });
+                });
+            }
+            else {
+                res.render('adBOMList', {
+                    user: req.session.user,
+                    category: category,
+                    component: componentItem
+                });
+            }
         });
     });
 });
@@ -2650,6 +2734,8 @@ router.post('/adBOMListMachineAdd', function (req, res) {
                         res.send(err);
                         return;
                     }
+                    // --添加事件更新到首页--
+                    addNote('设备事件更新', adMachineName, addMachineModel, '添加新设备');
                     res.redirect('/adBOMListMan');
                 });
             }
@@ -2661,13 +2747,16 @@ router.post('/adBOMListMachineAdd', function (req, res) {
 /* GET adBOMListMachineDelete Page */
 router.get('/adBOMListMachineDelete', function(req, res) {
     let url=URL.parse(req.url,true).query;
-    let delSql = 'DELETE FROM machine WHERE machineId = '+'\''+url.machineId+'\'';
+    let machineId = url.machineId;
+    let delSql = 'DELETE FROM machine WHERE machineId = '+'\''+machineId+'\'';
     connection.query(delSql,function (err) {
         if(err){
             console.log('[DELETE ERROR] - ',err.message);
             res.send(err);
             return;
         }
+        // --添加事件更新到首页--
+        addNote('设备事件更新', machineId, machineId, '删除设备');
         res.redirect('/adBOMListMan')
     });
 });
@@ -2708,6 +2797,7 @@ router.post('/adBOMListMachineEdit', function(req, res) {
     let min=saveDate.getMinutes();
     let sec=saveDate.getSeconds();
     let updateTime= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
+    console.log('updateTime: ' + updateTime);
 
     let editMachineModel = req.body.editMachineModel;
     let editMachineName = req.body.editMachineName;
@@ -2725,9 +2815,70 @@ router.post('/adBOMListMachineEdit', function(req, res) {
             res.send(err);
             return;
         }
+        // --添加事件更新到首页--
+        addNote('设备事件更新', editMachineName, editMachineModel, '修改设备');
         res.redirect('/adBOMListMan');
     });
 });
+
+//   ---从部件中移除设备---
+/* GET removeComponentFromMachine */
+router.get('/removeComponentFromMachine', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    let componentId = url.componentId;
+    let machineId = url.machineId;
+    let delSql = 'DELETE FROM component_has_machine WHERE component_componentId = ' + '\'' + componentId + '\'' + ' AND machine_machineId = '+'\'' + machineId + '\'';
+    connection.query(delSql,function (err) {
+        if(err){
+            console.log('[DELETE ERROR] - ',err.message);
+            res.send(err);
+            return;
+        }
+        res.redirect('/adBOMListMan')
+    });
+});
+
+//   ---从部件中添加设备---
+function AddComponentToMachine (componentId, machineIdList){
+    let delSql = 'DELETE FROM component_has_machine WHERE component_componentId = ' + '\'' + componentId + '\'';
+    connection.query(delSql,function (err) {
+        if(err){
+            console.log('[DELETE ERROR] - ',err.message);
+            return err;
+        }
+        for (let i=0;i<machineIdList.length;i++){
+            let insertSql = 'INSERT INTO component_has_machine(componentId,' + machineIdList[i] + ') VALUES(?,?)';
+            console.log('insertSql: ' + insertSql);
+            connection.query(insertSql,function (err) {
+                if(err){
+                    console.log('[INSERT ERROR] - ',err.message);
+                    return err;
+                }
+            });
+        }
+    });
+}
+
+//   ---从部件中移除部件---
+function removeItemFromComponent(){
+    let delSql = 'DELETE FROM component_has_item WHERE component_componentId = ' + '\'' + componentId + '\'';
+    connection.query(delSql,function (err) {
+        if(err){
+            console.log('[DELETE ERROR] - ',err.message);
+            return err;
+        }
+        for (let i=0;i<machineIdList.length;i++){
+            let insertSql = 'INSERT INTO component_has_machine(componentId,' + machineIdList[i] + ') VALUES(?,?)';
+            console.log('insertSql: ' + insertSql);
+            connection.query(insertSql,function (err) {
+                if(err){
+                    console.log('[INSERT ERROR] - ',err.message);
+                    return err;
+                }
+            });
+        }
+    });
+}
 
 
 //   ---增加分类---
@@ -2739,7 +2890,7 @@ router.get('/adBOMListCategoryAdd', function(req, res) {
 router.post('/adBOMListCategoryAdd', function (req, res) {
     let unique = true;
     let addCategoryName = req.body.addCategoryName
-    let checkCategoryNameSQL = 'SELECT * FROM category WHERE categoryName=\'' + addCategoryName + '\'';
+    let checkCategoryNameSQL = 'SELECT * FROM category WHERE categoryName= '+'\''+ addCategoryName + '\'';
 
     connection.query(checkCategoryNameSQL, function (err, checkResult) {
         if (err) {
