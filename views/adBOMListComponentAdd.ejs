@@ -9,33 +9,10 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" language="javascript">
 
-
         function confirmAgain() {
-           /* var elementLength=document.getElementById('shellBox').children.length;
-
-            for(var i=0;i<elementLength;i++){
-                var elementLengthInt=parseInt(elementLength)-i-1
-                var oldElementId='#belongMachine'+elementLengthInt
-                $(oldElementId).removeAttr("disabled","disabled")
-            }*/
-
-           var checkOne=false;
-           var checkBox=$('input[name = belongMachine]')
-
-
-            for(var i=0;i<checkBox.length;i++){
-                if(checkBox[i].checked){
-                    checkOne=true;
-                }
-            }
-            if(checkOne){
-                return window.confirm("确认执行【添加新型物料】操作?");
-            }else{
-                alert('请至少选择一款【所属机型】')
-                return false
-            }
-
+            return window.confirm("确认执行【添加新型物料】操作?");
         }
+
         function Authority(role ,ojId) {
             if(document.getElementById('role').innerText===role){
                 document.getElementById(ojId).style.display='';
@@ -46,7 +23,6 @@
                 document.getElementById('authority').style.display='none';
             }
         }
-
 
     </script>
 
@@ -69,8 +45,6 @@
             <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
         </div>
     </div>
-    </div>
-
 
     <div class="functionBoard right">
         <main role="main" class="container mt-3 mb-3">
@@ -85,9 +59,9 @@
             </header>
 
             <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data" >
-
                             <div  class="itemDetailsPage" style="width: 100%">
-                                <div class="itemDetail">创建新部件：</div>
+                                <div class="itemDetail">创建新部件到：<%=machineId%> - <%=machineName%></div>
+                                <input name="addToMachineId" value="<%=machineId%>" type="hidden">
                                 <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="detail1" required="required"  style="width: 500px" placeholder="请输入部件名称" ></div>
                                 <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="detail2"  required="required"  style="width: 500px" placeholder="请输入部件图号" ></div>
                                 <div class="itemDetail" >类型<a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addComponentType" id="detail3" required="required"  style="height: 35px;width: 130px;color:black;" >
@@ -99,19 +73,10 @@
                                         <button class="searchBarButton" onclick="location.href='/adBOMListCategoryMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>
                                     </span>
                                 </div>
-                                <div class="itemDetail">所属机型<a style="color: red; font-size: x-large">*</a>：
-                                </div>
-                                <div id="shellBox" >
-                                    <% for (let i = 0; i < machine.length; i++){ %>
-                                    <div style="margin-bottom: 5px">
-                                            <input type="checkbox" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
-                                            <label for="<%=machine[i].machineId%>"><%=machine[i].machineName%><%=machine[i].machineId%></label>
-                                    </div>
-                                    <% } %>
-                                </div>
-                                <div id="shellBox2">
+
+                                <div id="shellBox">
                                     <div class="itemDetail" >备注：<input name="addComponentNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
-                                    <div class="itemDetail" id="detail7" >上传图纸：<input name="addComponentNameFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
+                                    <div class="itemDetail" id="detail7" >上传图纸：<input name="BomListFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
                                 </div>
                             </div>
 
@@ -121,7 +86,6 @@
                 <style onload="Authority('仓库管理员','confirmButton')"></style>
 
             </form>
-
 
         </main>
     </div>

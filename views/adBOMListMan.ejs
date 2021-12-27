@@ -52,19 +52,16 @@
             }
         }
 
-        function showComponent(order,machineId) {
-
+        function showComponents(order,machineId) {
             var componentBox;
             var machineBtn='machineBtn'+order
             var btnCounter=(String(document.getElementById(machineBtn).value+=1).match(/1/g)||[]).length
 
             if(btnCounter%2===0){
                  componentBox='componentBox'+order
-
                 while (document.getElementById(componentBox).children.length>0) {
                     document.getElementById(componentBox).lastChild.remove()
                 }
-
             }else{
                 var sendRequest = false;
                 sendRequest = !sendRequest
@@ -91,8 +88,46 @@
                     })
                 }
             }
-
         }
+
+        function showItems(order,componentId) {
+            var itemBox;
+            var componentBtn='componentBtn'+order
+            var btnCounter=(String(document.getElementById(componentBtn).value+=1).match(/1/g)||[]).length;
+
+            if(btnCounter%2===0){
+                itemBox='itemBox'+order
+                while (document.getElementById(itemBox).children.length>0) {
+                    document.getElementById(itemBox).lastChild.remove()
+                }
+            }else{
+                var sendRequest = false;
+                sendRequest = !sendRequest
+                if (sendRequest){
+                    console.log('Clicked '+order)
+                    $.ajax({
+                        url: './ajaxItems',
+                        data: {'componentId':componentId },
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            itemBox='#itemBox'+order
+                            if (data.item.length !==0){
+                                $(itemBox).append(data.HTMLtext)
+                            }
+                            else {
+                                $(itemBox).append('<div id=\'item0\'>此部件暂无设置所属物料</div>')
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            alert('error ' + textStatus + " " + errorThrown);
+                        }
+                    })
+                }
+            }
+        }
+
+
     </script>
 
 </head>
@@ -159,15 +194,15 @@
 
             <div class="pageCard">
                 <div class="pageTitle">
-                    <form method="post" action="/adBOMListComponentSearch">
+                    <form method="post" action="/adBOMListMan">
                         <input class="indexOf" name="searchText" style="margin-left: 4px" placeholder="根据部件名称/型号(图号)/备注搜索BOM表">
-                        <button class="searchInputBoxButton" name="indexOfButton" type="submit">搜&emsp;索</button>
+                        <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit">搜&emsp;索</button>
                     </form>
 
                     <button class="searchBarButton" onclick="location.href='/adBOMListComponentSearch'" type="button"
                             id="allComponentButton" style="margin-left: 390px;">管理所有部件
                     </button>
-                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentAdd'" type="button"
+                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentAdd?machineId=WWW'" type="button"
                             id="addNewComponentButton" style="display: none;">创建部件
                     </button>
                     <button class="searchBarButton" onclick="location.href='/adBOMListMachineAdd'" type="button"
@@ -183,7 +218,7 @@
                 <table class="noteButton" style="width: 100%;font-size: 1rem;">
                     <tr >
                         <td style="width: 80%;">
-                            <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponent('<%=i%>','<%=machine[i].machineId%>')">
+                            <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponents('<%=i%>','<%=machine[i].machineId%>')">
                                 <div  style= "font-size: 0.7rem; height: 35px; ">
                                     <span class="BOMInfo" style="margin-left: -50px; color: #0050fa "><%=machine[i].machineName%></span>
                                     <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=machine[i].updateTime%></a></span>
@@ -218,7 +253,8 @@
                     </tr>
 
                     <table id="componentBox<%=i%>" style="width: 100%">
-
+                        <table id="itemBox<%=i%>" style="width: 100%">
+                        </table>
                     </table>
 
                 </table>

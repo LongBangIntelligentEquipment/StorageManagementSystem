@@ -185,10 +185,10 @@
         }
 
         function Authority(role,ojId) {
-            if(document.getElementById('role').innerText===role){
+            if('<%=user.role%>'===role){
                 document.getElementById(ojId).style.display='';
             }
-            if(document.getElementById('role').innerText==='系统管理员'){
+            if('<%=user.role%>'==='系统管理员'){
                 document.getElementById('authority').style.display='';
             }else{
                 document.getElementById('authority').style.display='none';

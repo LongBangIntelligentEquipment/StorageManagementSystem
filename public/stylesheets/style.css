@@ -756,17 +756,12 @@ input::-webkit-inner-spin-button {
 }
 
 
-.BOMInfo{
+.BOMInfo, categoryName{
   position: absolute;
   font-weight: bold;
   font-size: large;
 }
 .categoryName{
-  position: absolute;
-  font-weight: bold;
-  font-size: large;
-}
-.componentName{
   position: absolute;
   font-weight: bold;
   font-size: large;
