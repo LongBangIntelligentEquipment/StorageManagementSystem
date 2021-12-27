@@ -66,7 +66,8 @@
                         <p style="margin-left: 30px;color: #0050fa; font-weight: bold">分类数量：<%=category.length%><p>
                     </td>
                     <td style="width: 13%">
-                        <button onclick="location.href='/adBOMListCategoryAdd'" type="button" id="addNewButton" style="background-color: #00cb46!important;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem; padding-left: 10px;padding-right: 10px">添加新分类</button>
+                        <button  class="searchBarButton" onclick="location.href='/adBOMListCategoryAdd'" type="button" id="addNewButton" style="width: 100px;margin-right: 30px" >添加新分类</button>
+
                     </td>
                 </tr>
             </table>
@@ -77,9 +78,13 @@
                 <tr >
                     <td style="width: 87%;">
                         <button class="noteButton" style="padding-left: 80px;" type="button" onclick="location.href='/adBOMListCategoryEdit?categoryId=<%=category[i].categoryId%>&returnSql='+document.URL.split('sql=')[1]">
-                            <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i+1%></span>
+                           <div style="margin-top: -40px!important;">
+                            <a class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i+1%></a>
                             <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=category[i].categoryName%></a></span>
+                           </div>
                         </button>
+
+
                     </td>
 
                     <td style="width: 13%">

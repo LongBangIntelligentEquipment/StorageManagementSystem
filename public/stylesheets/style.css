@@ -734,12 +734,9 @@ footer {
 }
 
 .itemDetailsInput{
-  width: 360px;
   font-weight: bold;
   background-color: transparent!important;
   border: 0;
-
-
 }
 
 .addItemInfo{
@@ -825,12 +822,7 @@ input::-webkit-inner-spin-button {
   height: 40%;
   background-color: white;
 }
-input[type="checkbox"]{
-  /* width: 40px; */
-  /* height: 40px; */
-  /* -webkit-border-radius: 50%; */
-  display: none;
-}
+
 input[type="checkbox"]+label {
   display: inline-block;
   width: 48%;

@@ -25,19 +25,7 @@
             }
         }
 
-        function stateColor(ojId) {
-            if (document.getElementById(ojId).innerText === '无') {
-                document.getElementById(ojId).style.color = 'green';
-            } else if (document.getElementById(ojId).innerText === '存在未检测') {
-                document.getElementById(ojId).style.color = 'orange';
-            } else if (document.getElementById(ojId).innerText === '少剩余') {
-                document.getElementById(ojId).style.color = 'red';
-            } else if (document.getElementById(ojId).innerText === '有订单未处理') {
-                document.getElementById(ojId).style.color = '#fe007b';
-            } else if (document.getElementById(ojId).innerText === '需归还物料') {
-                document.getElementById(ojId).style.color = '#80D5D7';
-            }
-        }
+
 
         function Authority(role, ojId) {
             if (document.getElementById('role').innerText === role) {
@@ -192,7 +180,7 @@
                 </div>
 
                 <% for(let i = 0 ; i < machine.length ; i++) { %>
-                <table class="noteButton" style=";width: 100%;font-size: 1rem;">
+                <table class="noteButton" style="width: 100%;font-size: 1rem;">
                     <tr >
                         <td style="width: 80%;">
                             <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponent('<%=i%>','<%=machine[i].machineId%>')">
