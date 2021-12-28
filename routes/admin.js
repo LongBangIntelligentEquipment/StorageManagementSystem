@@ -2899,26 +2899,23 @@ router.get('/adBOMListMachineEdit', function (req, res) {
 /* GET adBOMListMachineMan */
 router.get('/adBOMListMachineMan', function (req, res) {
     let url = URL.parse(req.url, true).query;
-    // 部件有物料
-    let componentItemSql = 'SELECT componentId, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName, itemId, itemName, itemPrice, itemModel, itemArea, itemNote, itemQuantity\n' +
-        'FROM component \n' +
-        'RIGHT JOIN component_has_item\n' +
-        'ON component_has_item.component_componentId = component.componentId\n' +
-        'INNER JOIN item\n' +
-        'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
+    let machineId = url.machineId;
+    // 设备有部件
+    let machineComponentSql = 'SELECT machine.machineId, machineName, machine.updateTime AS mUpdateTime, machine.note AS mNote, designer, componentName, component.updateTime AS cUpdateTime, component.note AS cNote, categoryName, cost\n' +
+        'FROM machine\n' +
+        'INNER JOIN component\n' +
+        'ON machine.machineId = component.machineId\n' +
         'INNER JOIN category\n' +
         'ON component.categoryId = category.categoryId\n' +
         'INNER JOIN user\n' +
         'ON component.userId = user.userId\n' +
-        'WHERE componentId =' + '\'' + url.componentId + '\'';
-    // 部件无物料
-    let componentSql = 'SELECT componentId, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName\n' +
-        'FROM component\n' +
-        'LEFT JOIN category\n' +
-        'ON component.categoryId = category.categoryId\n' +
+        'WHERE machine.machineId =' + '\'' + machineId + '\'';
+    // 设备无部件
+    let machineSql = 'SELECT *\n' +
+        'FROM machine\n' +
         'INNER JOIN user\n' +
-        'ON component.userId = user.userId\n' +
-        'WHERE componentId =' + '\'' + url.componentId + '\'';
+        'ON machine.designer = user.userName\n' +
+        'WHERE machine.machineId =' + '\'' + machineId + '\'';
     let categorySql = 'SELECT * FROM category;';
 
     connection.query(categorySql, function (err, category) {
@@ -2927,32 +2924,32 @@ router.get('/adBOMListMachineMan', function (req, res) {
             res.send(err);
             return;
         }
-        connection.query(componentItemSql, function (err, componentItem) {
+        connection.query(machineComponentSql, function (err, machineComponent) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
                 res.send(err);
                 return;
             }
 
-            if (componentItem.length === 0){
-                connection.query(componentSql, function (err, component) {
+            if (machineComponent.length === 0){
+                connection.query(machineSql, function (err, machine) {
                     if (err) {
                         console.log('[SELECT ERROR] - ', err.message);
                         res.send(err);
                         return;
                     }
-                    res.render('adBOMList', {
+                    res.render('adBOMListMachineMan', {
                         user: req.session.user,
                         category: category,
-                        component: component
+                        machine: machine
                     });
                 });
             }
             else {
-                res.render('adBOMList', {
+                res.render('adBOMListMachineMan', {
                     user: req.session.user,
                     category: category,
-                    component: componentItem
+                    machine: machineComponent
                 });
             }
         });

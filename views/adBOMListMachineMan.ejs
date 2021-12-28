@@ -91,7 +91,7 @@
                 <li class="list-group"><button class="functionBoard-Button current" type="button"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
                 <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
             </u1>
-            <button class="functionBoard-Button" type="button" id="buttonRegist" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+            <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
         </div>
 
 
@@ -116,27 +116,13 @@
                     <tr>
                         <td >
                             <div style="width: 450px;margin-top: -10px">
-                                <div class="itemDetail">详细信息：</div>
-                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="<%=component[0].componentName%>" disabled  ></div>
-                                <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=component[0].componentId%>" disabled></div>
-
-                                <div class="itemDetail" id="typeSelect">类型：<select class="itemDetailsInput" name="BomListType" id="detail2" required="required" disabled style="height: 35px;width: 130px;color:black;" >
-                                        <option value="<%=component[0].categoryId%>" selected><%=component[0].categoryName%></option>
-                                        <%for(let i = 0; i < category.length; i++) { %>
-                                        <% if (component[0].categoryName === category[i].categoryName){
-                                            if (i < category.length-1 ){
-                                                i++;
-                                            } else {break}
-                                        }%>
-                                        <option value="<%=category[i].categoryId%>"><%=category[i].categoryName%></option>
-                                        <%}%>
-                                    </select>
-                                </div>
-
-                                <div class="itemDetail">制表人：<input class="itemDetailsInput" name="BomListMaker"  value="<%=component[0].userName%>" disabled ></div>
-                                <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="BomListUpdateTime"  value="<%=component[0].updateTime%>" disabled ></div>
-                                <div class="itemDetail" >部件成本：<input class="itemDetailsInput" name="BomListCost" value="<%=component[0].cost%>" disabled ></div>
-                                <div class="itemDetail">备注：<input class="itemDetailsInput" name="BomListNote" id="detail3" value="<%=component[0].note%>" disabled ></div>
+                                <div class="itemDetail">设备详细信息：</div>
+                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="<%=machine[0].machineName%>" disabled  ></div>
+                                <div class="itemDetail">型号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=machine[0].machineId%>" disabled></div>
+                                <div class="itemDetail">设计师：<input class="itemDetailsInput" name="BomListMaker"  value="<%=machine[0].designer%>" disabled ></div>
+                                <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="BomListUpdateTime"  value="<%=machine[0].updateTime%>" disabled ></div>
+                                <div class="itemDetail" >设备成本：<input class="itemDetailsInput" name="BomListCost" value="200,000" disabled ></div>
+                                <div class="itemDetail">备注：<input class="itemDetailsInput" name="BomListNote" id="detail3" value="<%=machine[0].mNote%>" disabled ></div>
                                 <div class="itemDetail" id="updateFile" style="display: none">重新上传图片：<input type="file"  name="BomListFileName"  id="detail4" value=""  style="width: 310px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" >
                                     <div style="color: red">请上传图片格式文件</div>
                                 </div>
@@ -191,25 +177,25 @@
                         <a name="editItemBtn" hidden> <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: -45px; margin-left: 800px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;BOM表</button></a>
 
                     </div>
-                    <%if (component[0].itemId === undefined){%>
-                    <%for(let j = 0 ; j < component.length ; j++) { %>
-                    <tr id="component<%=j%>" style="width: 100%;">
+                    <%if (machine[0].componentId === undefined){%>
+                    <%for(let j = 0 ; j < machine.length ; j++) { %>
+                    <tr id="machine<%=j%>" style="width: 100%;">
                         <td style="width: 87%">
                             <button class="noteButton" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
                                     <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
-                                    <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=component[j].itemName%></a></span>
-                                    <span class="itemInfo" style="margin-left: 260px">物料编号：<a style="font-weight:normal;color: #0050fa; "><%=component[j].itemId%></a></span>
+                                    <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=machine[j].componentName%></a></span>
+                                    <span class="itemInfo" style="margin-left: 260px">物料编号：<a style="font-weight:normal;color: #0050fa; "><%=machine[j].componentId%></a></span>
                                 </div>
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
-                                    <span class="itemInfo" >型号（图号）：<a style="font-weight: normal;color: red;"><%=component[j].itemModel%></a></span>
+                                    <span class="itemInfo" >型号（图号）：<a style="font-weight: normal;color: red;"></a></span>
                                     <span class="itemInfo" style="margin-left: 350px">单价：<a style="font-weight:normal;color: #0050fa; "></a></span>
                                 </div>
 
                                 <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                    <span class="itemInfo" >类型：<a style="font-weight: normal;color: red;"><%=component[j].itemType%></a></span>
+                                    <span class="itemInfo" >类型：<a style="font-weight: normal;color: red;"><%=machine[j].categoryName%></a></span>
                                     <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" type="text" value="100" disabled style="width: 50px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"></a></span>
-                                    <span class="itemInfo" style="margin-left: 350px">备注：<a style="font-weight:normal;color: #0050fa; "><%=component[j].itemNote%></a></span>
+                                    <span class="itemInfo" style="margin-left: 350px">备注：<a style="font-weight:normal;color: #0050fa; "><%=machine[j].cNote%></a></span>
                                 </div>
                             </button>
                         </td>
@@ -237,7 +223,7 @@
                     <div style="margin-top: -45px;margin-bottom: 30px;font-weight: bold;font-size: 1.3rem;margin-left: 30px">一键出仓记录：</div>
 
                     <%for(let j = 0 ; j < 10 ; j++) { %>
-                    <tr id="component<%=j%>"  >
+                    <tr id="machine<%=j%>"  >
                         <td style="width: 87%!important;">
                             <button class="noteButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList' ">
                                 <span class="itemInfo"  style=" font-size: 1rem;margin-left: -50px;color: #0050fa;   ">一键出仓</span>
