@@ -2409,15 +2409,12 @@ router.get('/ajaxComponents', function(req, res, next) {
             return;
         }
 
-        // res.render('adBOMListMan', {
-        //     components:result,
-        // });
 
         var HTMLtext='';
         for(var j=0;j<component.length;j++){
-            HTMLtext += '                        <tr id="component'+j+'" >\n' +
+            HTMLtext += '                        <tr id="'+machineId+'component'+j+'" >\n' +
                 '                            <td style="width: 80%;">\n' +
-                '                                <button class="noteButton2" name="componentBtn" id="componentBtn'+j+'" value=0 style="padding-left: 80px;" type="button" onclick="showItems('+j+','+component[j].componentId+')">\n' +
+                '                                <button class="noteButton2" name="componentBtn" id="'+machineId+component[j].componentId+'" value=0 style="padding-left: 80px;" type="button" onclick="showItems('+j+','+'\''+machineId+'\''+','+component[j].componentId+')">\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#'+parseInt(j+1)+'</span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: -20px">部件名称：<a style="font-weight: normal;color: #0050fa;">' + component[j].componentName + '</a></span>\n' +
@@ -2426,11 +2423,12 @@ router.get('/ajaxComponents', function(req, res, next) {
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -20px">部件型号：<a style="font-weight:normal;color: #0050fa; ">' + component[j].componentId + '</a></span>\n' +
-
                 '                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + component[j].cost + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -20px" >备注：<a style="font-weight: normal;color: red;">' + component[j].cNote + '</a></span>\n' +
+                '                                    </div>\n' +
+                '                                    <div id="'+machineId+component[j].componentId+'itemBox'+'" >\n' +
                 '                                    </div>\n' +
                 '                                </button>\n' +
                 '                            </td>\n' +
@@ -2460,6 +2458,7 @@ router.get('/ajaxComponents', function(req, res, next) {
 /* AJax get item List */
 router.get('/ajaxItems', function(req, res, next) {
     const componentId = req.query.componentId;
+    const machineId = req.query.machineId;
     const sql = 'SELECT item.itemId, itemName, itemPrice, item.itemModel, itemArea, itemNote, itemQuantity, component.categoryId, itemType\n' +
         'FROM component\n' +
         'INNER JOIN component_has_item\n' +
@@ -2480,7 +2479,7 @@ router.get('/ajaxItems', function(req, res, next) {
         }
         var HTMLtext='';
         for(var j=0;j<item.length;j++){
-            HTMLtext += '                        <tr id="item'+j+'" >\n' +
+            HTMLtext += '                        <tr id="'+machineId+componentId+'item'+j+'" >\n' +
                 '                            <td style="width: 80%;">\n' +
                 '                                <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adItem?itemId=' + item[j].itemId + '\'">\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
@@ -2514,6 +2513,7 @@ router.get('/ajaxItems', function(req, res, next) {
                 '                            </td>\n' +
                 '                        </tr>\n'
         }
+
         res.json({
             item:item,
             HTMLtext:HTMLtext

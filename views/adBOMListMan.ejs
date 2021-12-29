@@ -60,7 +60,7 @@
                 var sendRequest = false;
                 sendRequest = !sendRequest
                 if (sendRequest){
-                    console.log('Clicked '+order)
+                    //console.log('Clicked '+order)
                     $.ajax({
                         url: './ajaxComponents',
                         data: {'machineId':machineId },
@@ -84,28 +84,30 @@
             }
         }
 
-        function showItems(order,componentId) {
+        function showItems(order,machineId,componentId) {
             var itemBox;
-            var componentBtn='componentBtn'+order
+            var componentBtn=machineId+componentId
+
             var btnCounter=(String(document.getElementById(componentBtn).value+=1).match(/1/g)||[]).length;
 
             if(btnCounter%2===0){
-                itemBox='itemBox'+order
+                itemBox=machineId+componentId+'itemBox'
                 while (document.getElementById(itemBox).children.length>0) {
                     document.getElementById(itemBox).lastChild.remove()
                 }
             }else{
+
                 var sendRequest = false;
                 sendRequest = !sendRequest
                 if (sendRequest){
                     console.log('Clicked '+order)
                     $.ajax({
                         url: './ajaxItems',
-                        data: {'componentId':componentId },
+                        data: {'componentId':componentId,'machineId':machineId},
                         type: 'GET',
                         dataType: 'json',
                         success: function (data) {
-                            itemBox='#itemBox'+order
+                            itemBox='#'+machineId+componentId+'itemBox'
                             if (data.item.length !==0){
                                 $(itemBox).append(data.HTMLtext)
                             }
@@ -244,8 +246,7 @@
                     </tr>
 
                     <table id="componentBox<%=i%>" style="width: 100%">
-                        <table id="itemBox<%=i%>" style="width: 100%">
-                        </table>
+
                     </table>
 
                 </table>
