@@ -11,10 +11,6 @@
 
 
     <script language="javascript">
-        function confirmAgainDelete() {
-            return window.confirm("确认执行【删除设备】操作?");
-        }
-
         function display(ojId, hidenId) {
             if (document.getElementById(ojId).style.display === '') {
                 document.getElementById(ojId).style.display = 'none';
@@ -24,8 +20,6 @@
 
             }
         }
-
-
 
         function Authority(role, ojId) {
             if (document.getElementById('role').innerText === role) {
@@ -127,7 +121,6 @@
             }
         }
 
-
     </script>
 
 </head>
@@ -195,19 +188,17 @@
             <div class="pageCard">
                 <div class="pageTitle">
                     <form method="post" action="/adBOMListMan">
-                        <input class="indexOf" name="searchText" style="margin-left: 4px" placeholder="根据部件名称/型号(图号)/备注搜索BOM表">
+                        <input class="indexOf" name="searchText" style="margin-left: 4px" placeholder="根据机械部件物料的名称/型号/备注搜索机械">
                         <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit">搜&emsp;索</button>
                     </form>
 
-                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentSearch'" type="button"
-                            id="allComponentButton" style="margin-left: 390px;">管理所有部件
-                    </button>
-                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentAdd?machineId=WWW'" type="button"
-                            id="addNewComponentButton" style="display: none;">创建部件
-                    </button>
-                    <button class="searchBarButton" onclick="location.href='/adBOMListMachineAdd'" type="button"
-                            id="addNewMachineButton">创建设备
-                    </button>
+<!--                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentSearch'" type="button"-->
+<!--                            id="allComponentButton" style="margin-left: 390px;">管理所有部件-->
+<!--                    </button>-->
+<!--                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentAdd?machineId=WWW'" type="button"-->
+<!--                            id="addNewComponentButton" style="display: none;">创建部件-->
+<!--                    </button>-->
+                    <button class="searchBarButton" onclick="location.href='/adBOMListMachineAdd'" type="button" style="margin-left: 390px;" id="addNewMachineButton">创建设备</button>
 
                     <style onload="Authority('系统管理员','addNewComponentButton')"></style>
                     <style onload="Authority('仓库管理员','addNewComponentButton')"></style>
@@ -240,13 +231,13 @@
                             <table cellspacing="0" cellpadding="0" style="width: 100%">
                                 <tr >
                                     <td>
-                                        <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/adBOMListMachineEdit?machineId=<%=machine[i].machineId%>&returnSql='+document.URL.split('sql=')[1])"><img src='images/edit-button.png' height="30px" width="30px"></button>
+                                        <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/adBOMListMachineMan?machineId=<%=machine[i].machineId%>')"><img src='images/view-details.png' height="30px" width="30px"></button>
                                     </td>
-                                    <td>
-                                        <form onsubmit="return confirmAgainDelete()" method="get">
-                                            <button class="itemButton4" style="height: 90px;border: 0" type="submit" onclick="location.href=('/adBOMListMachineDelete?machineId=<%=machine[i].machineId%>&returnSql='+document.URL.split('sql=')[1])" ><img src='images/bin.png' height="30px" width="30px"></button>
-                                        </form>
-                                    </td>
+<!--                                    <td>-->
+<!--                                        <form onsubmit="return confirmAgainDelete()" method="get">-->
+<!--                                            <button class="itemButton4" style="height: 90px;border: 0" type="submit" onclick="location.href=('/adBOMListMachineDelete?machineId=<%=machine[i].machineId%>')" ><img src='images/bin.png' height="30px" width="30px"></button>-->
+<!--                                        </form>-->
+<!--                                    </td>-->
                                 </tr>
                             </table>
                         </td>

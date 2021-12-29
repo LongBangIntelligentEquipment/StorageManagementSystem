@@ -9,6 +9,12 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script language="javascript">
 
+        function confirmAgainDelete() {
+            if (window.confirm("确认执行【删除部件 <%=component[0].componentName%>-<%=component[0].componentId%>】操作?")){
+                return location.href=('/adBOMListComponentDelete?componentId=<%=component[0].componentId%>')
+            }
+        }
+
         function detailEditable(){
             if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
                 btnEdi('5','detail');
@@ -36,7 +42,6 @@
                 document.getElementById('authority').style.display='none';
             }
         }
-
 
         function slideSwitch() {
             if(document.getElementById('checkboxswitch').checked){
@@ -114,7 +119,7 @@
                         <td >
                             <div style="width: 450px;margin-top: -10px">
                                 <div class="itemDetail">详细信息：</div>
-                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="<%=component[0].componentName%>" disabled  ></div>
+                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="<%=component[0].componentName%>" disabled></div>
                                 <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=component[0].componentId%>" disabled></div>
 
                                 <div class="itemDetail" id="typeSelect">类型：<select class="itemDetailsInput" name="BomListType" id="detail2" required="required" disabled style="height: 35px;width: 130px;color:black;" >
@@ -145,8 +150,6 @@
                             </div>
                         </td>
                     </tr>
-
-
                     <tr>
                         <td >
                             <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: none;" >编辑</button>
@@ -154,15 +157,11 @@
                             <style onload="Authority('仓库管理员','editButton')"></style>
                             <style onload="Authority('技术员','editButton')"></style>
 
+                            <button class="itemButton4" type="button" onclick=confirmAgainDelete() ><img src='images/bin.png' height="30px" width="30px"></button>
 
                             <a hidden id="confirmEditButton"> <button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit"     style="  margin-left: 10px">确定</button></a>
-
-
                         </td>
                     </tr>
-
-
-
                 </table>
 
 
@@ -186,9 +185,8 @@
                         <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>
                         <button class="searchInputBoxButton" type="button" onclick=""style="position: absolute!important; margin-top: -45px; margin-left: 480px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button>
                         <a name="editItemBtn" hidden> <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: -45px; margin-left: 800px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;BOM表</button></a>
-
                     </div>
-                    <%if (component[0].itemId === undefined){%>
+                    <%if (component[0].itemId){%>
                     <%for(let j = 0 ; j < component.length ; j++) { %>
                     <tr id="component<%=j%>" style="width: 100%;">
                         <td style="width: 87%">
@@ -199,14 +197,14 @@
                                     <span class="itemInfo" style="margin-left: 260px">物料编号：<a style="font-weight:normal;color: #0050fa; "><%=component[j].itemId%></a></span>
                                 </div>
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
-                                    <span class="itemInfo" >型号（图号）：<a style="font-weight: normal;color: red;"><%=component[j].itemModel%></a></span>
-                                    <span class="itemInfo" style="margin-left: 350px">单价：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                    <span class="itemInfo" >型号（图号）：<a style="font-weight: normal;color: #0050fa;"><%=component[j].itemModel%></a></span>
+                                    <span class="itemInfo" style="margin-left: 350px">单价：<a style="font-weight:normal;color: #0050fa; "><%=component[j].itemPrice%></a></span>
                                 </div>
 
                                 <div  style= "font-size: 0.7rem; height: 30px;" id="">
                                     <span class="itemInfo" >类型：<a style="font-weight: normal;color: red;"><%=component[j].itemType%></a></span>
-                                    <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" type="text" value="100" disabled style="width: 50px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"></a></span>
-                                    <span class="itemInfo" style="margin-left: 350px">备注：<a style="font-weight:normal;color: #0050fa; "><%=component[j].itemNote%></a></span>
+                                    <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" type="text" value="<%=component[j].itemQuantity%>" disabled style="width: 50px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"></a></span>
+                                    <span class="itemInfo" style="margin-left: 350px">备注：<a style="font-weight:normal;color: red; "><%=component[j].itemNote%></a></span>
                                 </div>
                             </button>
                         </td>
@@ -215,7 +213,7 @@
                                 <tr >
 
                                     <td>
-                                        <a name="editItemBtn" hidden><button class="itemButton4" style="height: 90px;border: 0" type="submit" onclick="" id="deleItemBtn<%=j%>" ><img src='images/bin.png' height="30px" width="30px"></button></a>
+                                        <a name="editItemBtn" hidden><button class="itemButton4" style="height: 90px;border: 0" type="submit" onclick="asdf" id="deleItemBtn<%=j%>" ><img src='images/bin.png' height="30px" width="30px"></button></a>
                                     </td>
                                 </tr>
 
@@ -236,7 +234,7 @@
                     <%for(let j = 0 ; j < 10 ; j++) { %>
                     <tr id="component<%=j%>"  >
                         <td style="width: 87%!important;">
-                            <button class="noteButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList' ">
+                            <button class="noteButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
                                 <span class="itemInfo"  style=" font-size: 1rem;margin-left: -50px;color: #0050fa;   ">一键出仓</span>
                                 <div style="margin-left: 50px">
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
@@ -250,7 +248,6 @@
 
                                 <div  style= "font-size: 0.7rem; height: 30px;" id="">
                                     <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
-
                                 </div>
                                 </div>
                             </button>

@@ -1,242 +1,242 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
 
-    <title>隆邦ERP系统_物料管理</title>
-    <link rel='stylesheet' href='/stylesheets/style.css'/>
+<!--    <title>隆邦ERP系统_物料管理</title>-->
+<!--    <link rel='stylesheet' href='/stylesheets/style.css'/>-->
 
-    <!--    jQuery Ajax   -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-
-    <script language="javascript">
-        function confirmAgainDelete() {
-            return window.confirm("确认执行【删除部件】操作?");
-        }
-        function confirmAgainAdd() {
-            return window.confirm("确认执行【添加部件到机械】操作?");
-        }
-
-        function display(ojId, hidenId) {
-            if (document.getElementById(ojId).style.display === '') {
-                document.getElementById(ojId).style.display = 'none';
-            } else {
-                document.getElementById(ojId).style.display = ''
-                document.getElementById(hidenId).style.display = 'none';
-
-            }
-        }
-
-        function Authority(role, ojId) {
-            if (document.getElementById('role').innerText === role) {
-                document.getElementById(ojId).style.display = '';
-            }
-            if (document.getElementById('role').innerText === '系统管理员') {
-                document.getElementById('authority').style.display = '';
-            } else {
-                document.getElementById('authority').style.display = 'none';
-            }
-        }
-
-        function filterFunction() {
-            var input, table, categoryName, i, tableLength;
-            input = document.getElementById("filterList").value;
-            table = document.getElementsByClassName("noteButton");
-            tableLength = table.length;
-            console.log('tableLength: ' + table.length);
-            for (i = 0; i < tableLength; i++){
-                table = document.getElementsByClassName("noteButton")[i*2];
-                categoryName = document.getElementsByClassName("categoryName")[i];
-                if (categoryName) {
-                    if (categoryName.innerText.indexOf(input) > -1 || input === "---") {
-                        table.style.display = "";
-                    } else {
-                        table.style.display = "none";
-                    }
-                }
-            }
-        }
-
-        function filterFunction2() {
-            var input, table, componentName, componentId, componentNote, i, tableLength;
-            input = document.getElementById("searchText").value.toUpperCase();
-            table = document.getElementsByClassName("noteButton");
-            tableLength = table.length;
-            console.log('tableLength: ' + table.length);
-            for (i = 0; i < tableLength; i++){
-                table = document.getElementsByClassName("noteButton")[i*2];
-                componentName = document.getElementsByClassName("componentName")[i];
-                componentId = document.getElementsByClassName("componentId")[i];
-                componentNote = document.getElementsByClassName("componentNote")[i];
-                if (componentName) {
-                    if (componentName.innerText.toUpperCase().indexOf(input) > -1 || componentId.innerText.toUpperCase().indexOf(input) > -1 || componentNote.innerText.toUpperCase().indexOf(input) > -1 ) {
-                        table.style.display = "";
-                    } else {
-                        table.style.display = "none";
-                    }
-                }
-            }
-        }
-
-        function showMachines(index){
-            let machineBox = document.getElementsByClassName('machineBox')[index]
-            if (machineBox){
-                machineBox.style.display = "";
-            }
-        }
-
-    </script>
-
-</head>
-<body>
+<!--    &lt;!&ndash;    jQuery Ajax   &ndash;&gt;-->
+<!--    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
 
 
-<section class="functionBoard">
+<!--    <script language="javascript">-->
+<!--        function confirmAgainDelete() {-->
+<!--            return window.confirm("确认执行【删除部件】操作?");-->
+<!--        }-->
+<!--        function confirmAgainAdd() {-->
+<!--            return window.confirm("确认执行【添加部件到机械】操作?");-->
+<!--        }-->
 
-    <div class="functionBoard left">
-        <div>
-            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
-            <u1>
-                <li class="list-group">
-                    <button class="functionBoard-Button" type="button" id="buttonLogin"
-                            onclick="location.href='/adminHome'">首页
-                    </button>
-                </li>
-                <li class="list-group">
-                    <button class="functionBoard-Button " type="button" onclick="location.href='/adItemMan'">物料管理
-                    </button>
-                </li>
-                <li class="list-group">
-                    <button class="functionBoard-Button" type="button" id="buttonRegister"
-                            onclick="location.href='/adOrderMan'">采购管理
-                    </button>
-                </li>
-                <li class="list-group">
-                    <button class="functionBoard-Button current" type="button" onclick="location.href='/adBOMListMan'">
-                        BOM表管理
-                    </button>
-                </li>
-                <li class="list-group">
-                    <button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style=""
-                            id="authority">权限管理
-                    </button>
-                </li>
-            </u1>
-            <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'"
-                    style="position: fixed;bottom: 6%;">退出登录
-            </button>
-        </div>
+<!--        function display(ojId, hidenId) {-->
+<!--            if (document.getElementById(ojId).style.display === '') {-->
+<!--                document.getElementById(ojId).style.display = 'none';-->
+<!--            } else {-->
+<!--                document.getElementById(ojId).style.display = ''-->
+<!--                document.getElementById(hidenId).style.display = 'none';-->
 
+<!--            }-->
+<!--        }-->
 
-    </div>
+<!--        function Authority(role, ojId) {-->
+<!--            if (document.getElementById('role').innerText === role) {-->
+<!--                document.getElementById(ojId).style.display = '';-->
+<!--            }-->
+<!--            if (document.getElementById('role').innerText === '系统管理员') {-->
+<!--                document.getElementById('authority').style.display = '';-->
+<!--            } else {-->
+<!--                document.getElementById('authority').style.display = 'none';-->
+<!--            }-->
+<!--        }-->
 
+<!--        function filterFunction() {-->
+<!--            var input, table, categoryName, i, tableLength;-->
+<!--            input = document.getElementById("filterList").value;-->
+<!--            table = document.getElementsByClassName("noteButton");-->
+<!--            tableLength = table.length;-->
+<!--            console.log('tableLength: ' + table.length);-->
+<!--            for (i = 0; i < tableLength; i++){-->
+<!--                table = document.getElementsByClassName("noteButton")[i*2];-->
+<!--                categoryName = document.getElementsByClassName("categoryName")[i];-->
+<!--                if (categoryName) {-->
+<!--                    if (categoryName.innerText.indexOf(input) > -1 || input === "-&#45;&#45;") {-->
+<!--                        table.style.display = "";-->
+<!--                    } else {-->
+<!--                        table.style.display = "none";-->
+<!--                    }-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
 
-    <div class="functionBoard right">
-        <main role="main" class="container mt-3 mb-3">
+<!--        function filterFunction2() {-->
+<!--            var input, table, componentName, componentId, componentNote, i, tableLength;-->
+<!--            input = document.getElementById("searchText").value.toUpperCase();-->
+<!--            table = document.getElementsByClassName("noteButton");-->
+<!--            tableLength = table.length;-->
+<!--            console.log('tableLength: ' + table.length);-->
+<!--            for (i = 0; i < tableLength; i++){-->
+<!--                table = document.getElementsByClassName("noteButton")[i*2];-->
+<!--                componentName = document.getElementsByClassName("componentName")[i];-->
+<!--                componentId = document.getElementsByClassName("componentId")[i];-->
+<!--                componentNote = document.getElementsByClassName("componentNote")[i];-->
+<!--                if (componentName) {-->
+<!--                    if (componentName.innerText.toUpperCase().indexOf(input) > -1 || componentId.innerText.toUpperCase().indexOf(input) > -1 || componentNote.innerText.toUpperCase().indexOf(input) > -1 ) {-->
+<!--                        table.style.display = "";-->
+<!--                    } else {-->
+<!--                        table.style.display = "none";-->
+<!--                    }-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
 
-            <header role="banner">
-                <div class="headcontainer">
-                    <div class="page-title">
-                        BOM表管理
-                    </div>
-                    <span class="page-title"
-                          style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span
-                            id="role" class="page-title"
-                            style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%= user.role %></span><span
-                            class="page-title"
-                            style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%= user.userName %></span>
-                </div>
-            </header>
+<!--        function showMachines(index){-->
+<!--            let machineBox = document.getElementsByClassName('machineBox')[index]-->
+<!--            if (machineBox){-->
+<!--                machineBox.style.display = "";-->
+<!--            }-->
+<!--        }-->
 
-            <form method="post" action="/adBOMListComponentSearch">
-                <div class="pageCard">
-                    <div class="pageTitle">
-                        <select id="filterList" onchange="filterFunction()">
-                            <option selected> --- </option>
-                            <%for(let i = 0; i < categoryName.length; i++) { %>
-                            <option value="<%=categoryName[i].categoryName%>"><%=categoryName[i].categoryName%></option>
-                            <%}%>
-                        </select>
+<!--    </script>-->
 
-                        <input class="indexOf" name="searchText" id="searchText" style="margin-left: 4px" placeholder="根据部件名称/型号(图号)/备注搜索BOM表" onkeyup="filterFunction2()">
-                        <button class="searchInputBoxButton" name="indexOfButton" type="submit">搜&emsp;索</button>
-                        <button class="searchBarButton" onclick="location.href='/adBOMListMan'" type="button" id="addNewMachineButton">返&emsp;回</button>
-                    </div>
-
-                    <% for(let i = 0 ; i < component.length ; i++) { %>
-                    <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%;">
-                        <tr>
-                            <td style="width: 80%;">
-                                <button class="noteButton" name="componentBtn" id="componentBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button">
-                                    <div  style= "font-size: 0.7rem; height: 35px; ">
-                                        <span class="componentName" style="margin-left: -50px; color: #0050fa "><%=component[i].componentName%></span>
-                                        <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=component[i].updateTime%></a></span>
-
-                                    </div>
-                                    <div  style= "font-size: 0.7rem; height: 35px; ">
-                                        <span class="componentId" style="margin-left: -50px;color: #0050fa"><%=component[i].componentId%><a style="font-weight:normal;color: #0050fa; "></a></span>
-                                        <span class="BOMInfo" style="margin-left: 200px">设计：<%=component[i].userName%><a style="font-weight:normal;color: #0050fa; "></a></span>
-                                        <span class="BOMInfo" style="margin-left: 430px">设备成本：<%=component[i].cost%>元<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                        <span class="categoryName" style="margin-left: 630px">类型：<%=component[i].categoryName%><a style="font-weight:normal;color: #0050fa; "></a></span>
-                                    </div>
-
-                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                        <span class="componentNote" style="margin-left: -50px">备注： <a style="font-weight: normal;color: red;"><%=component[i].note%></a></span>
-                                    </div>
-                                </button>
-                            </td>
-
-                            <td style="width: 20%">
-                                <table cellspacing="0" cellpadding="0" style="width: 100%">
-                                    <tr>
-                                        <td>
-                                            <form onsubmit="return confirmAgainAdd()" method="get">
-                                                <button class="itemButton4" style="height: 90px;border: 0" type="button" onclick="showMachines(<%=i%>)" ><img src='images/add.png' height="30px" width="30px"></button>
-                                            </form>
-                                        </td>
-                                        <td>
-                                            <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick=""><img src='images/edit-button.png' height="30px" width="30px"></button>
-                                        </td>
-                                        <td>
-                                            <form onsubmit="return confirmAgainDelete()" method="get">
-                                                <button class="itemButton4" style="height: 90px;border: 0" type="submit" onclick="" ><img src='images/bin.png' height="30px" width="30px"></button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
-
-                            <tr>
-                                <div class="machineBox" style="display: none">
-                                    <% for (let j = 0; j < machine.length; j++){ %>
-                                    <div style="margin-bottom: 5px">
-                                        <input type="checkbox" value="<%=machine[j].machineId%>" name="belongMachine" id="<%=machine[j].machineId%>">
-                                        <label for="<%=machine[j].machineId%>"><%=machine[j].machineName%><%=machine[j].machineId%></label>
-                                    </div>
-                                    <% } %>
-                                </div>
-                            </tr>
-                        </tr>
-                    </table>
-                    <% } %>
-
-                </div>
-            </form>
+<!--</head>-->
+<!--<body>-->
 
 
-        </main>
-    </div>
-</section>
+<!--<section class="functionBoard">-->
+
+<!--    <div class="functionBoard left">-->
+<!--        <div>-->
+<!--            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>-->
+<!--            <u1>-->
+<!--                <li class="list-group">-->
+<!--                    <button class="functionBoard-Button" type="button" id="buttonLogin"-->
+<!--                            onclick="location.href='/adminHome'">首页-->
+<!--                    </button>-->
+<!--                </li>-->
+<!--                <li class="list-group">-->
+<!--                    <button class="functionBoard-Button " type="button" onclick="location.href='/adItemMan'">物料管理-->
+<!--                    </button>-->
+<!--                </li>-->
+<!--                <li class="list-group">-->
+<!--                    <button class="functionBoard-Button" type="button" id="buttonRegister"-->
+<!--                            onclick="location.href='/adOrderMan'">采购管理-->
+<!--                    </button>-->
+<!--                </li>-->
+<!--                <li class="list-group">-->
+<!--                    <button class="functionBoard-Button current" type="button" onclick="location.href='/adBOMListMan'">-->
+<!--                        BOM表管理-->
+<!--                    </button>-->
+<!--                </li>-->
+<!--                <li class="list-group">-->
+<!--                    <button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style=""-->
+<!--                            id="authority">权限管理-->
+<!--                    </button>-->
+<!--                </li>-->
+<!--            </u1>-->
+<!--            <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'"-->
+<!--                    style="position: fixed;bottom: 6%;">退出登录-->
+<!--            </button>-->
+<!--        </div>-->
 
 
-<footer class="footer" role="contentinfo">
-    <div class="container">
-        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
-    </div>
-</footer>
+<!--    </div>-->
 
 
-</body>
+<!--    <div class="functionBoard right">-->
+<!--        <main role="main" class="container mt-3 mb-3">-->
 
-</html>
+<!--            <header role="banner">-->
+<!--                <div class="headcontainer">-->
+<!--                    <div class="page-title">-->
+<!--                        BOM表管理-->
+<!--                    </div>-->
+<!--                    <span class="page-title"-->
+<!--                          style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span-->
+<!--                            id="role" class="page-title"-->
+<!--                            style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%= user.role %></span><span-->
+<!--                            class="page-title"-->
+<!--                            style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%= user.userName %></span>-->
+<!--                </div>-->
+<!--            </header>-->
+
+<!--            <form method="post" action="/adBOMListComponentSearch">-->
+<!--                <div class="pageCard">-->
+<!--                    <div class="pageTitle">-->
+<!--                        <select id="filterList" onchange="filterFunction()">-->
+<!--                            <option selected> -&#45;&#45; </option>-->
+<!--                            <%for(let i = 0; i < categoryName.length; i++) { %>-->
+<!--                            <option value="<%=categoryName[i].categoryName%>"><%=categoryName[i].categoryName%></option>-->
+<!--                            <%}%>-->
+<!--                        </select>-->
+
+<!--                        <input class="indexOf" name="searchText" id="searchText" style="margin-left: 4px" placeholder="根据部件名称/型号(图号)/备注搜索BOM表" onkeyup="filterFunction2()">-->
+<!--                        <button class="searchInputBoxButton" name="indexOfButton" type="submit">搜&emsp;索</button>-->
+<!--                        <button class="searchBarButton" onclick="location.href='/adBOMListMan'" type="button" id="addNewMachineButton">返&emsp;回</button>-->
+<!--                    </div>-->
+
+<!--                    <% for(let i = 0 ; i < component.length ; i++) { %>-->
+<!--                    <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%;">-->
+<!--                        <tr>-->
+<!--                            <td style="width: 80%;">-->
+<!--                                <button class="noteButton" name="componentBtn" id="componentBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button">-->
+<!--                                    <div  style= "font-size: 0.7rem; height: 35px; ">-->
+<!--                                        <span class="componentName" style="margin-left: -50px; color: #0050fa "><%=component[i].componentName%></span>-->
+<!--                                        <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=component[i].updateTime%></a></span>-->
+
+<!--                                    </div>-->
+<!--                                    <div  style= "font-size: 0.7rem; height: 35px; ">-->
+<!--                                        <span class="componentId" style="margin-left: -50px;color: #0050fa"><%=component[i].componentId%><a style="font-weight:normal;color: #0050fa; "></a></span>-->
+<!--                                        <span class="BOMInfo" style="margin-left: 200px">设计：<%=component[i].userName%><a style="font-weight:normal;color: #0050fa; "></a></span>-->
+<!--                                        <span class="BOMInfo" style="margin-left: 430px">设备成本：<%=component[i].cost%>元<a style="font-weight:normal;color: #0050fa; "></a></span>-->
+<!--                                        <span class="categoryName" style="margin-left: 630px">类型：<%=component[i].categoryName%><a style="font-weight:normal;color: #0050fa; "></a></span>-->
+<!--                                    </div>-->
+
+<!--                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">-->
+<!--                                        <span class="componentNote" style="margin-left: -50px">备注： <a style="font-weight: normal;color: red;"><%=component[i].note%></a></span>-->
+<!--                                    </div>-->
+<!--                                </button>-->
+<!--                            </td>-->
+
+<!--                            <td style="width: 20%">-->
+<!--                                <table cellspacing="0" cellpadding="0" style="width: 100%">-->
+<!--                                    <tr>-->
+<!--                                        <td>-->
+<!--                                            <form onsubmit="return confirmAgainAdd()" method="get">-->
+<!--                                                <button class="itemButton4" style="height: 90px;border: 0" type="button" onclick="showMachines(<%=i%>)" ><img src='images/add.png' height="30px" width="30px"></button>-->
+<!--                                            </form>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick=""><img src='images/edit-button.png' height="30px" width="30px"></button>-->
+<!--                                        </td>-->
+<!--                                        <td>-->
+<!--                                            <form onsubmit="return confirmAgainDelete()" method="get">-->
+<!--                                                <button class="itemButton4" style="height: 90px;border: 0" type="submit" onclick="" ><img src='images/bin.png' height="30px" width="30px"></button>-->
+<!--                                            </form>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </table>-->
+<!--                            </td>-->
+
+<!--                            <tr>-->
+<!--                                <div class="machineBox" style="display: none">-->
+<!--                                    <% for (let j = 0; j < machine.length; j++){ %>-->
+<!--                                    <div style="margin-bottom: 5px">-->
+<!--                                        <input type="checkbox" value="<%=machine[j].machineId%>" name="belongMachine" id="<%=machine[j].machineId%>">-->
+<!--                                        <label for="<%=machine[j].machineId%>"><%=machine[j].machineName%><%=machine[j].machineId%></label>-->
+<!--                                    </div>-->
+<!--                                    <% } %>-->
+<!--                                </div>-->
+<!--                            </tr>-->
+<!--                        </tr>-->
+<!--                    </table>-->
+<!--                    <% } %>-->
+
+<!--                </div>-->
+<!--            </form>-->
+
+
+<!--        </main>-->
+<!--    </div>-->
+<!--</section>-->
+
+
+<!--<footer class="footer" role="contentinfo">-->
+<!--    <div class="container">-->
+<!--        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>-->
+<!--    </div>-->
+<!--</footer>-->
+
+
+<!--</body>-->
+
+<!--</html>-->
