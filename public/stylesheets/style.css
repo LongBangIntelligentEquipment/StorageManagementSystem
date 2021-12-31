@@ -547,6 +547,8 @@ footer {
 
 .noteButton:hover{
   background-color: aliceblue!important;
+  border-radius: 0px;
+  width: 115.5%;
 }
 
 .noteButton2{
@@ -572,6 +574,8 @@ footer {
   border-radius: 0.3rem;
   font-size: 0.7rem!important;
   padding-bottom: 3px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
 
 
 }

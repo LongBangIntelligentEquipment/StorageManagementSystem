@@ -2412,7 +2412,8 @@ router.get('/ajaxComponents', function(req, res, next) {
 
         var HTMLtext='';
         for(var j=0;j<component.length;j++){
-            HTMLtext += '                        <tr id="'+machineId+'component'+j+'" >\n' +
+            HTMLtext += '<table style="width: 100%;">\n'+
+                '                        <tr style="width: 100%;" id="'+machineId+'component'+j+'" >\n' +
                 '                            <td style="width: 80%;">\n' +
                 '                                <button class="noteButton2" name="componentBtn" id="'+machineId+component[j].componentId+'" value=0 style="padding-left: 80px;" type="button" onclick="showItems('+j+','+'\''+machineId+'\''+','+component[j].componentId+')">\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
@@ -2428,8 +2429,6 @@ router.get('/ajaxComponents', function(req, res, next) {
                 '                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -20px" >备注：<a style="font-weight: normal;color: red;">' + component[j].cNote + '</a></span>\n' +
                 '                                    </div>\n' +
-                '                                    <div id="'+machineId+component[j].componentId+'itemBox'+'" >\n' +
-                '                                    </div>\n' +
                 '                                </button>\n' +
                 '                            </td>\n' +
                 '                            <td style="width: 20%!important;">\n' +
@@ -2444,7 +2443,16 @@ router.get('/ajaxComponents', function(req, res, next) {
                 '                                    </tr>\n' +
                 '                                </table>\n' +
                 '                            </td>\n' +
-                '                        </tr>\n'
+                '                        </tr>\n'+
+                '<tr style="width: 100%;">' +
+                '<td style="width: 99.9%;">' +
+                '                                    <div id="'+machineId+component[j].componentId+'itemBox'+'" >\n' +
+                '                                    </div>\n' +
+                '</td>' +
+                '<td style="width: 0.01%;">' +
+                '</td>' +
+                '</tr>'+
+            '</table>'
         }
         res.json({
             component:component,
@@ -2480,7 +2488,7 @@ router.get('/ajaxItems', function(req, res, next) {
         var HTMLtext='';
         for(var j=0;j<item.length;j++){
             HTMLtext += '                        <tr id="'+machineId+componentId+'item'+j+'" >\n' +
-                '                            <td style="width: 80%;">\n' +
+                '                            <td style="width: 100%;">\n' +
                 '                                <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adItem?itemId=' + item[j].itemId + '\'">\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#'+parseInt(j+1)+'</span>\n' +
