@@ -78,7 +78,59 @@
             $(itemButton).removeAttr('disabled');
             $("#editBomBtn").removeAttr('hidden')
         }
-        
+
+        function packData(){
+            var row, itemBtn, itemNum, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
+            var itemArray = [], itemIdArray = [], itemModelArray = [], itemQtyArray = [];
+
+            row = $('#componentItemsTable tr td');
+            itemBtn = row.find('#itemBtn');
+            itemNum = itemBtn.length;
+            itemId = row.find('#itemId');
+            itemModel = row.find('#itemModel');
+            itemQty = row.find('#itemQty');
+
+            for (i=0;i<itemNum;i++){
+                itemIdText = itemId[i].innerText;
+                itemModelText = itemModel[i].innerText;
+                itemQtyText = itemQty[i].value;
+
+                itemIdArray.push(itemIdText);
+                itemModelArray.push(itemModelText);
+                itemQtyArray.push(itemQtyText);
+            }
+
+            itemArray.push(itemIdArray);
+            itemArray.push(itemModelArray);
+            itemArray.push(itemQtyArray);
+
+            return itemArray;
+        }
+
+        function saveBOMList(){
+            var items = packData();
+
+            console.log(items);
+
+            $.ajax({
+                url: './ajaxSaveBOMList',
+                data: {
+                    'items':items,
+                    'componentId': '<%=component[0].componentId%>'
+                },
+                type: 'GET',
+                // dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('error ' + textStatus + " " + errorThrown);
+                }
+            })
+
+        }
+
+
         function selectItem(checkItemBoxChildId,itemOperationBtn,requiredNum) {
 
             var reCheckItemBoxChildId="#"+checkItemBoxChildId
@@ -108,6 +160,37 @@
             $(deleId).remove()
             document.getElementById(revoverBtnId).setAttribute('style','display:display')
         }
+
+        function searchItems(){
+            var searchText = document.getElementById('searchText').value;
+
+            if (!searchText){
+                alert('请输入物料的名称/型号/备注进行搜索！');
+                return;
+            }
+
+            $.ajax({
+                url: './ajaxSearchItem',
+                data: {
+                    'searchText':searchText
+                },
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    if (data.item.length !==0){
+                        $(itemBox).append(data.HTMLtext)
+                    }
+                    else {
+                        $(itemBox).append('<div id=\'item0\'>此部件暂无设置所属物料</div>')
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('error ' + textStatus + " " + errorThrown);
+                }
+            })
+
+        }
+
     </script>
 
 </head>
@@ -209,7 +292,7 @@
                 <div style="margin-left: -320px;margin-top: 15px;margin-bottom: 40px">
                     <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑&emsp;BOM表</button></a>
                     <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>
-                    <button class="searchInputBoxButton" type="button" onclick=""style="position: absolute!important; margin-top: -45px; margin-left: 480px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button>
+                    <button class="searchInputBoxButton" type="button" onclick="" style="position: absolute!important; margin-top: -45px; margin-left: 480px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button>
 
                     <a name="editItemBtn" hidden> <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: -45px; margin-left: 800px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;BOM表</button></a>
 
@@ -219,8 +302,8 @@
                     <div  style="font-weight: bold;font-size: 1.3rem;margin-left: 30px;">物料添加框：</div>
 
                     <div id="itemSearchBox" style="margin-top: 10px;margin-left: 20px" >
-                        <input class="indexOf" name="searchText" style="margin-left: 4px;width: 45%" placeholder="根据机械部件物料的名称/型号/备注搜索机械">
-                        <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit" style="margin-left: 45.2%" >搜&emsp;索</button>
+                        <input class="indexOf" id="searchText" name="searchText" style="margin-left: 4px;width: 45%" placeholder="根据物料的名称/型号/备注搜索">
+                        <button class="searchInputBoxButton" value="1" name="indexOfButton" type="button" onclick="searchItems()" style="margin-left: 45.2%" >搜&emsp;索</button>
                     </div>
 
 
@@ -233,62 +316,8 @@
                                             <h2>搜索结果</h2>
                                         </div>
 
-                                        <div class="card-body" style="height: 400px;overflow:auto ;padding: 0px ">
-                                            <% for(var j=0;j<100;j++) {%>
-
-                                                <div id="itemSelectBox<%=j%>">
-                                                    <table id="itemId_Content<%=j%>" class="noteButton"  style="width: 100%;height: 90px!important;">
-                                                        <tr  style="width: 100%">
-                                                            <td style="width: 87%">
-                                                                <button  class="noteButton" name="itemButton"  style="padding-left: 10px; width: 100%" type="button" onclick="">
-                                                                    <table  style="width: 100%;padding: 0px">
-                                                                        <tr style="padding: 0px">
-                                                                            <td   style="padding: 0px">
-                                                                                <table  style="width: 100%;padding: 0px">
-                                                                                    <tr id="1" style="width: 100%;padding: 0px">
-                                                                                        <td style="padding: 0px" >
-                                                                                            <div  style= "font-size: 0.7rem; height: 30px;width: 100% ">
-                                                                                                <span class="itemInfo" style="color: #0050fa;position: relative">#<%=j+1%></span>
-                                                                                                <span class="itemInfo" style="position: relative">名称：<a style="font-weight: normal;color: #0050fa; position: relative">【大博量具】阿斯顿卢卡斯的啦苏联进口的啊</a></span>
-                                                                                            </div>
-                                                                                        </td>
-                                                                                        <td id="itemId_requiredNum<%=j%>" style="display: none" >
-                                                                                            <div style="margin-left: 10px;">
-                                                                                                <span style=" font-weight: bold;color: #28a745">所需数量：<input class="itemDetailsInput" name="itemId_Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" ></span>
-                                                                                            </div>
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                </table>
-                                                                                <table style="width: 100%;padding: 0px">
-                                                                                    <tr style="width: 100%;padding: 0px">
-                                                                                        <td style="padding: 0px" >
-                                                                                            <div  style= "font-size: 0.7rem; height: 30px; margin-left: 16px;width: 100%">
-                                                                                                <span class="itemInfo" style="position: relative;">物料编号：<a style="font-weight:normal;color: #0050fa; position: relative ">adasdasd</a></span>
-                                                                                            </div>
-                                                                                        </td>
-                                                                                        <td style="padding: 0px">
-                                                                                            <div  style= "font-size: 0.7rem; height: 30px; margin-left: 17px;width: 100%">
-                                                                                                <span class="itemInfo" style="position: relative;">型号（图号）：<a style="font-weight:normal;color: #0050fa; position: relative ">adasdasd</a></span>
-                                                                                            </div>
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                </table>
-                                                                                <div  style= "font-size: 0.7rem; height: 30px;margin-left: 18px ">
-                                                                                    <span class="itemInfo" style="position: relative;">备注：<a style="font-weight:normal;color: red; position: relative ">asdasddsadasdasd</a></span>
-                                                                                </div>
-                                                                            </td>
-
-                                                                        </tr>
-                                                                    </table>
-                                                                </button>
-                                                            </td>
-                                                            <td id="itemId_OperationBtnBox<%=j%>" style="width: 13% ;padding: 0px">
-                                                                <button class="itemButton2" type="button" id="itemId_OperationBtn<%=j%>" onclick="selectItem('itemSelectBox<%=j%>',document.getElementById(this.id).parentNode.id,document.getElementById(this.id).parentNode.parentNode.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.lastElementChild.id)" style="font-size: 0.7rem;height: 95px;"><img src='images/add.png' height="30px" width="30px"></button>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </div>
-                                            <%}%>
+                                        <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px ">
+<!--                                            Ajax 搜索结果 --->
                                         </div>
 
                                     </div>
@@ -409,4 +438,5 @@
 
 </body>
 
+</body>
 </html>
