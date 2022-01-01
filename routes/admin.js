@@ -2392,7 +2392,7 @@ router.post('/adBOMListMan', function(req, res,){
 
 //   ---查找设备部件---  A-B-C  设备，部件，物料
 /* AJax get component List */
-router.get('/ajaxComponents', function(req, res, next) {
+router.get('/ajaxComponents', function(req, res) {
     const machineId = req.query.machineId;
     const sql = 'SELECT componentId, componentName, component.updateTime, component.note AS cNote, cost, userName\n' +
         'FROM component \n' +
@@ -2464,7 +2464,7 @@ router.get('/ajaxComponents', function(req, res, next) {
 
 //   ---查找部件物料---  A-B-C  设备，部件，物料
 /* AJax get item List */
-router.get('/ajaxItems', function(req, res, next) {
+router.get('/ajaxItems', function(req, res) {
     const componentId = req.query.componentId;
     const machineId = req.query.machineId;
     const sql = 'SELECT item.itemId, itemName, itemPrice, item.itemModel, itemArea, itemNote, itemQuantity, component.categoryId, itemType\n' +
@@ -2980,8 +2980,127 @@ router.get('/adBOMList', function (req, res) {
 //     });
 // });
 
-/*                            ***************************************************物料增删改查***************************************************                  */
+/*                            ***************************************************BOM表物料增删改查***************************************************                  */
 
+/* AJax Search Item */
+router.get('/ajaxSearchItem', function(req, res) {
+    var searchText, searchSql;
+    searchText = req.query.searchText;
+    searchText = '%' + searchText + '%';
+
+    searchSql = 'SELECT itemId, itemModel, itemName, itemNote, itemType, itemNum, itemUnit, itemSupplier\n' +
+        'FROM item\n' +
+        'WHERE itemId LIKE "%主轴%" OR itemModel LIKE "'+ searchText + '" OR itemName LIKE "'+ searchText + '" OR itemNote LIKE "'+ searchText + '";'
+
+
+    connection.query(searchSql,function (err, item) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send('搜索物料错误！' + err);
+            return;
+        }
+        var HTMLtext='';
+        for(var j=0;j<item.length;j++){
+            HTMLtext += '<div id="itemSelectBox'+j+'">\n' +
+                '    <table id="'+item[j].itemId+'Content'+j+'" class="noteButton"  style="width: 100%;height: 90px!important;">\n' +
+                '        <tr  style="width: 100%">\n' +
+                '            <td style="width: 87%">\n' +
+                '                <button  class="noteButton" name="itemButton"  style="padding-left: 10px; width: 100%" type="button" onclick="">\n' +
+                '                    <table  style="width: 100%;padding: 0px">\n' +
+                '                        <tr style="padding: 0px">\n' +
+                '                            <td   style="padding: 0px">\n' +
+                '                                <table  style="width: 100%;padding: 0px">\n' +
+                '                                    <tr id="1" style="width: 100%;padding: 0px">\n' +
+                '                                        <td style="padding: 0px" >\n' +
+                '                                            <div  style= "font-size: 0.7rem; height: 30px;width: 100% ">\n' +
+                '                                                <span class="itemInfo" style="color: #0050fa;position: relative">#'+(j+1)+'</span>\n' +
+                '                                                <span class="itemInfo" style="position: relative">名称：<a style="font-weight: normal;color: #0050fa; position: relative">'+item[j].itemName+'</a></span>\n' +
+                '                                            </div>\n' +
+                '                                        </td>\n' +
+                '                                        <td id="'+item[j].itemId+'requiredNum'+j+'" style="display: none" >\n' +
+                '                                            <div style="margin-left: 10px;">\n' +
+                '                                                <span style=" font-weight: bold;color: #28a745">所需数量：<input class="itemDetailsInput" name="'+item[j].itemId+'Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" ></span>\n' +
+                '                                            </div>\n' +
+                '                                        </td>\n' +
+                '                                    </tr>\n' +
+                '                                </table>\n' +
+                '                                <table style="width: 100%;padding: 0px">\n' +
+                '                                    <tr style="width: 100%;padding: 0px">\n' +
+                '                                        <td style="padding: 0px" >\n' +
+                '                                            <div  style= "font-size: 0.7rem; height: 30px; margin-left: 16px;width: 100%">\n' +
+                '                                                <span class="itemInfo" style="position: relative;">物料编号：<a style="font-weight:normal;color: #0050fa; position: relative ">'+item[j].itemId+'</a></span>\n' +
+                '                                            </div>\n' +
+                '                                        </td>\n' +
+                '                                        <td style="padding: 0px">\n' +
+                '                                            <div  style= "font-size: 0.7rem; height: 30px; margin-left: 17px;width: 100%">\n' +
+                '                                                <span class="itemInfo" style="position: relative;">型号（图号）：<a style="font-weight:normal;color: #0050fa; position: relative ">'+item[j].itemModel+'</a></span>\n' +
+                '                                            </div>\n' +
+                '                                        </td>\n' +
+                '                                    </tr>\n' +
+                '                                </table>\n' +
+                '                                <div  style= "font-size: 0.7rem; height: 30px;margin-left: 18px ">\n' +
+                '                                    <span class="itemInfo" style="position: relative;">备注：<a style="font-weight:normal;color: red; position: relative ">'+item[j].itemNote+'</a></span>\n' +
+                '                                </div>\n' +
+                '                            </td>\n' +
+                '                        </tr>\n' +
+                '                    </table>\n' +
+                '                </button>\n' +
+                '            </td>\n' +
+                '            <td id="'+item[j].itemId+'OperationBtnBox'+j+'" style="width: 13% ;padding: 0px">\n' +
+                '                <button class="itemButton2" type="button" id="'+item[j].itemId+'OperationBtn'+j+'" onclick="selectItem(\'itemSelectBox'+j+'\',document.getElementById(this.id).parentNode.id,document.getElementById(this.id).parentNode.parentNode.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.lastElementChild.id)" style="font-size: 0.7rem;height: 95px;"><img src=\'images/add.png\' height="30px" width="30px"></button>\n' +
+                '            </td>\n' +
+                '        </tr>\n' +
+                '    </table>\n' +
+                '</div>';
+        }
+
+        res.json({
+            item:item,
+            HTMLtext:HTMLtext
+        });
+
+    });
+
+
+})
+
+/* AJax Save BOM List */
+router.get('/ajaxSaveBOMList', function(req, res) {
+    const componentId = req.query.componentId;
+    const items = req.query.items;
+
+    console.log(componentId);
+    console.log(items);
+
+    res.send('OK!');
+
+    // const sql = 'SELECT componentId, componentName, component.updateTime, component.note AS cNote, cost, userName\n' +
+    //     'FROM component \n' +
+    //     'INNER JOIN machine\n' +
+    //     'ON component.machineId = machine.machineId\n' +
+    //     'INNER JOIN user \n' +
+    //     'ON component.userId = user.userId\n' +
+    //     'WHERE component.machineId = ' + '"' + machineId + '"'
+    //
+    // connection.query( sql,function (err, component) {
+    //     if (err) {
+    //         console.log('[SELECT ERROR] - ', err.message);
+    //         res.send(err);
+    //         return;
+    //     }
+    //
+    //     // res.render('adBOMListMan', {
+    //     //     components:result,
+    //     // });
+    //
+    //     res.json({
+    //         component:component,
+    //         HTMLtext:HTMLtext
+    //     });
+    //
+    // });
+
+})
 
 
 /*                            ***************************************************分类增删改查***************************************************                  */
