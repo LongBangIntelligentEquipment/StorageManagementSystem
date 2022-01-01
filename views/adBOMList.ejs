@@ -78,6 +78,36 @@
             $(itemButton).removeAttr('disabled');
             $("#editBomBtn").removeAttr('hidden')
         }
+        
+        function selectItem(checkItemBoxChildId,itemOperationBtn,requiredNum) {
+
+            var reCheckItemBoxChildId="#"+checkItemBoxChildId
+            var itemBoxId=$(reCheckItemBoxChildId).children().attr('id')
+            var transferItemHTML=document.getElementById(checkItemBoxChildId).innerHTML
+            var reItemBoxId="#"+itemBoxId;
+            var reNameItemBoxId=itemBoxId+'_original'
+            $(reItemBoxId).attr('id',reNameItemBoxId)
+            $("#itemAddBox").append(transferItemHTML)
+
+            var reItemOperationBtn="#"+itemOperationBtn;
+            var reNameItemOperationBtnId=itemOperationBtn+'_original'
+            $(reItemOperationBtn).attr('id',reNameItemOperationBtnId)
+            document.getElementById(reNameItemOperationBtnId).setAttribute('style','display:none')
+            document.getElementById(itemOperationBtn).innerHTML="<button class=\"itemButton4\" type=\"button\" id=\"\" onclick=\"deleItem(\'"+reItemBoxId+"\',\'"+reNameItemOperationBtnId+"\')\" style=\"font-size: 0.7rem;height: 95px;\"><img src='images/bin.png' height=\"30px\" width=\"30px\"></button>\n"
+
+
+            var requiredNumBox=document.getElementById(requiredNum).innerHTML
+            var reRequiredNum='#'+requiredNum
+            var reNameRequiredNum=requiredNum+'_original'
+            $(reRequiredNum).attr('id',reNameRequiredNum)
+            $(reRequiredNum).attr('style','display:display')
+            $(reRequiredNum).removeAttr('disabled')
+        }
+
+        function deleItem(deleId,revoverBtnId) {
+            $(deleId).remove()
+            document.getElementById(revoverBtnId).setAttribute('style','display:display')
+        }
     </script>
 
 </head>
@@ -205,115 +235,81 @@
 
                                         <div class="card-body" style="height: 400px;overflow:auto ;padding: 0px ">
                                             <% for(var j=0;j<100;j++) {%>
-                                            <table style="width: 100%;height: 90px!important;">
-                                                <tr style="width: 100%">
-                                                    <td style="width: 87%">
-                                                        <button class="noteButton" name="itemButton"  style="padding-left: 10px; width: 100%" type="button" onclick="location.href='/aditem'">
-                                                            <table style="width: 100%;padding: 0px">
-                                                                <tr style="padding: 0px">
-                                                                    <td style="padding: 0px">
-                                                                        <div >
-                                                                            <div  style= "font-size: 0.7rem; height: 30px;width: 100% ">
-                                                                                <span class="itemInfo" style="color: #0050fa;position: relative">#<%=j+1%></span>
-                                                                                <span class="itemInfo" style="position: relative">名称：<a style="font-weight: normal;color: #0050fa; position: relative">【大博量具】阿斯顿卢卡斯的啦苏联进口的啊</a></span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <table style="width: 100%;padding: 0px">
-                                                                            <tr style="width: 100%;padding: 0px">
-                                                                                <td style="padding: 0px" >
-                                                                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 16px;width: 100%">
-                                                                                        <span class="itemInfo" style="position: relative;">物料编号：<a style="font-weight:normal;color: #0050fa; position: relative ">adasdasd</a></span>
-                                                                                    </div>
-                                                                                </td>
-                                                                                <td style="padding: 0px">
-                                                                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 17px;width: 100%">
-                                                                                        <span class="itemInfo" style="position: relative;">型号（图号）：<a style="font-weight:normal;color: #0050fa; position: relative ">adasdasd</a></span>
-                                                                                    </div>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </table>
-                                                                        <div  style= "font-size: 0.7rem; height: 30px;margin-left: 18px ">
-                                                                            <span class="itemInfo" style="position: relative;">备注：<a style="font-weight:normal;color: red; position: relative ">asdasddsadasdasd</a></span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td style="width: 13% ;padding: 0px">
-                                                                        <button class="itemButton2" type="button" onclick="" style="font-size: 0.7rem;height: 95px;"><img src='images/add.png' height="30px" width="30px"></button>
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
 
+                                                <div id="itemSelectBox<%=j%>">
+                                                    <table id="itemId_Content<%=j%>" class="noteButton"  style="width: 100%;height: 90px!important;">
+                                                        <tr  style="width: 100%">
+                                                            <td style="width: 87%">
+                                                                <button  class="noteButton" name="itemButton"  style="padding-left: 10px; width: 100%" type="button" onclick="">
+                                                                    <table  style="width: 100%;padding: 0px">
+                                                                        <tr style="padding: 0px">
+                                                                            <td   style="padding: 0px">
+                                                                                <table  style="width: 100%;padding: 0px">
+                                                                                    <tr id="1" style="width: 100%;padding: 0px">
+                                                                                        <td style="padding: 0px" >
+                                                                                            <div  style= "font-size: 0.7rem; height: 30px;width: 100% ">
+                                                                                                <span class="itemInfo" style="color: #0050fa;position: relative">#<%=j+1%></span>
+                                                                                                <span class="itemInfo" style="position: relative">名称：<a style="font-weight: normal;color: #0050fa; position: relative">【大博量具】阿斯顿卢卡斯的啦苏联进口的啊</a></span>
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td id="itemId_requiredNum<%=j%>" style="display: none" >
+                                                                                            <div style="margin-left: 10px;">
+                                                                                                <span style=" font-weight: bold;color: #28a745">所需数量：<input class="itemDetailsInput" name="itemId_Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" ></span>
+                                                                                            </div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                                <table style="width: 100%;padding: 0px">
+                                                                                    <tr style="width: 100%;padding: 0px">
+                                                                                        <td style="padding: 0px" >
+                                                                                            <div  style= "font-size: 0.7rem; height: 30px; margin-left: 16px;width: 100%">
+                                                                                                <span class="itemInfo" style="position: relative;">物料编号：<a style="font-weight:normal;color: #0050fa; position: relative ">adasdasd</a></span>
+                                                                                            </div>
+                                                                                        </td>
+                                                                                        <td style="padding: 0px">
+                                                                                            <div  style= "font-size: 0.7rem; height: 30px; margin-left: 17px;width: 100%">
+                                                                                                <span class="itemInfo" style="position: relative;">型号（图号）：<a style="font-weight:normal;color: #0050fa; position: relative ">adasdasd</a></span>
+                                                                                            </div>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                                <div  style= "font-size: 0.7rem; height: 30px;margin-left: 18px ">
+                                                                                    <span class="itemInfo" style="position: relative;">备注：<a style="font-weight:normal;color: red; position: relative ">asdasddsadasdasd</a></span>
+                                                                                </div>
+                                                                            </td>
 
-                                                        </button>
-                                                    </td>
-
-                                                </tr>
-                                            </table>
-
+                                                                        </tr>
+                                                                    </table>
+                                                                </button>
+                                                            </td>
+                                                            <td id="itemId_OperationBtnBox<%=j%>" style="width: 13% ;padding: 0px">
+                                                                <button class="itemButton2" type="button" id="itemId_OperationBtn<%=j%>" onclick="selectItem('itemSelectBox<%=j%>',document.getElementById(this.id).parentNode.id,document.getElementById(this.id).parentNode.parentNode.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.lastElementChild.id)" style="font-size: 0.7rem;height: 95px;"><img src='images/add.png' height="30px" width="30px"></button>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
                                             <%}%>
                                         </div>
 
                                     </div>
                                 </div>
                             </td>
-                            <td id="comfirmAddBox" >
+                            <td id="comfirmAddBox" style="width: 50%" >
                                 <div class="col-md" style="">
-                                    <div class="card" style="border-radius: 10px;overflow: hidden">
+                                    <div class="card" style="border-radius: 10px;overflow: hidden;">
                                         <div class="card-header text-center">
                                             <h2>添加物料</h2>
                                         </div>
-                                        <div class="card-body" style="height: 400px;overflow:auto ;padding: 0px;">
-                                            <% for(var j=0;j<30;j++) {%>
-                                            <table style="width: 100%;height: 90px!important;">
-                                                <tr style="width: 100%">
-                                                    <td style="width: 87%">
-                                                        <button class="noteButton" name="itemButton"  style="padding-left: 10px; width: 100%" type="button" onclick="location.href='/aditem'">
-                                                            <table style="width: 100%;padding: 0px">
-                                                                <tr style="padding: 0px">
-                                                                    <td style="padding: 0px">
-                                                                        <div >
-                                                                            <div  style= "font-size: 0.7rem; height: 30px;width: 100% ">
-                                                                                <span class="itemInfo" style="color: #0050fa;position: relative">#<%=j+1%></span>
-                                                                                <span class="itemInfo" style="position: relative">名称：<a style="font-weight: normal;color: #0050fa; position: relative">【大博量具】阿斯顿卢卡斯的啦苏联进口的啊</a></span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <table style="width: 100%;padding: 0px">
-                                                                            <tr style="width: 100%;padding: 0px">
-                                                                                <td style="padding: 0px" >
-                                                                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 16px;width: 100%">
-                                                                                        <span class="itemInfo" style="position: relative;">物料编号：<a style="font-weight:normal;color: #0050fa; position: relative ">adasdasd</a></span>
-                                                                                    </div>
-                                                                                </td>
-                                                                                <td style="padding: 0px">
-                                                                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 17px;width: 100%">
-                                                                                        <span class="itemInfo" style="position: relative;">型号（图号）：<a style="font-weight:normal;color: #0050fa; position: relative ">adasdasd</a></span>
-                                                                                    </div>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </table>
-                                                                        <div  style= "font-size: 0.7rem; height: 30px;margin-left: 18px ">
-                                                                            <span class="itemInfo" style="position: relative;">备注：<a style="font-weight:normal;color: red; position: relative ">asdasddsadasdasd</a></span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td style="width: 13% ;padding: 0px">
-                                                                        <button class="itemButton4" type="button" onclick="" style="font-size: 0.7rem;height: 95px;"><img src='images/bin.png' height="30px" width="30px"></button>
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
+                                        <div id="itemAddBox" class="card-body" style="height: 400px;overflow:auto ;padding: 0px;">
 
-
-                                                        </button>
-                                                    </td>
-
-                                                </tr>
-                                            </table>
-
-                                            <%}%>
                                         </div>
                                     </div>
                                 </div>
                             </td>
                         </tr>
+
                     </table>
+                    <button class="searchInputBoxButton" type="submit" style="margin-top: -55px; margin-left: 72%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;添加表</button>
 
                 </div>
                 <div id="BomListDetail" >
