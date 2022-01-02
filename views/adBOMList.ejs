@@ -21,6 +21,8 @@
                 $('#updateFile').attr('style','display:/'/';');
                 $('#confirmEditButton').removeAttr('hidden');
             }
+
+            $('#componentDelButton').removeAttr('hidden')
         }
 
         function InfoDisplay(rolejudgement,type1,type2,type3,type4,ojIdJudge,ojId){
@@ -47,10 +49,14 @@
             if(document.getElementById('checkboxswitch').checked){
                 document.getElementById('BomListDetail').style.display='none'
                 document.getElementById('BomListRecord').style.display=''
+                $('#BomEditBtn').attr('hidden','hidden')
             }else{
                 document.getElementById('BomListDetail').style.display=''
                 document.getElementById('BomListRecord').style.display='none'
+                $('#BomEditBtn').removeAttr('hidden')
             }
+
+
         }
 
         function btnEdi(length,actId){
@@ -64,10 +70,17 @@
         function editItemBtn() {
             var editItemBtn='[name=editItemBtn]';
             var itemButton='[name=itemButton]';
-
             $(editItemBtn).removeAttr('hidden');
             $(itemButton).attr('disabled','disabled');
             $("#editBomBtn").attr('hidden','hidden')
+
+            var componentLength='<%=component.length%>'
+            for(var i=0;i<parseInt(componentLength);i++){
+            var requireNum="#"+'requireNum'+i
+            $(requireNum).removeAttr('disabled');
+            $(requireNum).attr('style','width: 50px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;height: 100%')
+            }
+            $('#addBomBtn').attr('hidden','hidden')
         }
 
         function cancelEditItemBtn() {
@@ -77,6 +90,14 @@
             $(editItemBtn).attr('hidden','hidden');
             $(itemButton).removeAttr('disabled');
             $("#editBomBtn").removeAttr('hidden')
+
+            var componentLength='<%=component.length%>'
+            for(var i=0;i<parseInt(componentLength);i++){
+                var requireNum="#"+'requireNum'+i
+                $(requireNum).attr('disabled','disabled')
+                $(requireNum).attr('style','height:100%')
+            }
+            $('#addBomBtn').removeAttr('hidden')
         }
 
         function packData(){
@@ -133,35 +154,61 @@
 
         function selectItem(checkItemBoxChildId,itemOperationBtn,requiredNum) {
 
+
             var reCheckItemBoxChildId="#"+checkItemBoxChildId
             var itemBoxId=$(reCheckItemBoxChildId).children().attr('id')
             var transferItemHTML=document.getElementById(checkItemBoxChildId).innerHTML
             var reItemBoxId="#"+itemBoxId;
-            var reNameItemBoxId=itemBoxId+'_original'
-            $(reItemBoxId).attr('id',reNameItemBoxId)
-            $("#itemAddBox").append(transferItemHTML)
 
+
+            var canAdding=true;
+
+            for(var i=0;i<$("#itemAddBox").children().length;i++){
+                if($("#itemAddBox").children().eq(i).attr('value')===$(reItemBoxId).attr('value')){
+                    canAdding=false;
+                    break;
+                }
+            }
             var reItemOperationBtn="#"+itemOperationBtn;
             var reNameItemOperationBtnId=itemOperationBtn+'_original'
-            $(reItemOperationBtn).attr('id',reNameItemOperationBtnId)
-            document.getElementById(reNameItemOperationBtnId).setAttribute('style','display:none')
-            document.getElementById(itemOperationBtn).innerHTML="<button class=\"itemButton4\" type=\"button\" id=\"\" onclick=\"deleItem(\'"+reItemBoxId+"\',\'"+reNameItemOperationBtnId+"\')\" style=\"font-size: 0.7rem;height: 95px;\"><img src='images/bin.png' height=\"30px\" width=\"30px\"></button>\n"
+
+            if(canAdding){
+                var reNameItemBoxId=itemBoxId+'_original'
+                $(reItemBoxId).attr('id',reNameItemBoxId)
+                $("#itemAddBox").append(transferItemHTML)
 
 
-            var requiredNumBox=document.getElementById(requiredNum).innerHTML
-            var reRequiredNum='#'+requiredNum
-            var reNameRequiredNum=requiredNum+'_original'
-            $(reRequiredNum).attr('id',reNameRequiredNum)
-            $(reRequiredNum).attr('style','display:display')
-            $(reRequiredNum).removeAttr('disabled')
+                $(reItemOperationBtn).attr('id',reNameItemOperationBtnId)
+                document.getElementById(reNameItemOperationBtnId).setAttribute('style','display:none')
+                document.getElementById(itemOperationBtn).innerHTML="<button class=\"itemButton4\" type=\"button\" id=\"\" onclick=\"deleItem(\'"+reItemBoxId+"\',\'"+reNameItemOperationBtnId+"\')\" style=\"font-size: 0.7rem;height: 95px;\"><img src='images/bin.png' height=\"30px\" width=\"30px\"></button>\n"
+
+
+                var reRequiredNum='#'+requiredNum
+                var reNameRequiredNum=requiredNum+'_original'
+                $(reRequiredNum).attr('id',reNameRequiredNum)
+                $(reRequiredNum).attr('style','display:display')
+                $(reRequiredNum).removeAttr('disabled')
+            }else{
+                 reItemOperationBtn="#"+itemOperationBtn;
+                 reNameItemOperationBtnId=$("#itemAddBox").children().eq(i).children().children().children().eq(1).attr("id")+'_original'
+                $(reItemOperationBtn).attr('id',reNameItemOperationBtnId)
+                document.getElementById(reNameItemOperationBtnId).setAttribute('style','display:none')
+                alert("所选物料已存在【添加物料】列表中")
+            }
+
         }
 
         function deleItem(deleId,revoverBtnId) {
-            $(deleId).remove()
-            document.getElementById(revoverBtnId).setAttribute('style','display:display')
+            if (window.confirm("确认将所选物料从【添加物料】列表中移除？")){
+                $(deleId).remove()
+                document.getElementById(revoverBtnId).setAttribute('style','display:display')
+            }
+
         }
 
+        var searchTimes=0;
         function searchItems(){
+            searchTimes++;
             var searchText = document.getElementById('searchText').value;
 
             if (!searchText){
@@ -172,13 +219,14 @@
             $.ajax({
                 url: './ajaxSearchItem',
                 data: {
-                    'searchText':searchText
+                    'searchText':searchText,
+                    'searchTimes':searchTimes
                 },
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
                     if (data.item.length !==0){
-                        $(itemBox).append(data.HTMLtext)
+                        document.getElementById('itemBox').innerHTML=data.HTMLtext
                     }
                     else {
                         $(itemBox).append('<div id=\'item0\'>此部件暂无设置所属物料</div>')
@@ -189,6 +237,20 @@
                 }
             })
 
+        }
+
+        function addItemsScreenDisplay() {
+            $('#addItemsScreen').attr('style','display:display')
+            $('#addItemsScreenDisplayBtn').attr('style','position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;display:display')
+            $('#editBomBtn').attr('hidden','hidden')
+            $('#addBomBtn').attr('hidden','hidden')
+        }
+
+        function CancelItemsScreenDisplay() {
+            $('#addItemsScreen').attr('style','display:none')
+            $('#addItemsScreenDisplayBtn').attr('style','display:none')
+            $('#editBomBtn').removeAttr('hidden')
+            $('#addBomBtn').removeAttr('hidden')
         }
 
     </script>
@@ -270,9 +332,9 @@
                             <style onload="Authority('仓库管理员','editButton')"></style>
                             <style onload="Authority('技术员','editButton')"></style>
 
-                            <button class="itemButton4" type="button" onclick=confirmAgainDelete() ><img src='images/bin.png' height="30px" width="30px"></button>
+                            <a hidden id="componentDelButton"><button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick='confirmAgainDelete()' style="background-color: red!important; margin-left: 300px" ><img src='images/bin.png' height="30px" width="30px"></button></a>
 
-                            <a hidden id="confirmEditButton"> <button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit"     style="  margin-left: 10px">确定</button></a>
+                            <a hidden id="confirmEditButton"> <button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit"     style="margin-left: -380px">确定</button></a>
                         </td>
                     </tr>
                 </table>
@@ -289,16 +351,17 @@
                     <input  type="checkbox" id="checkboxswitch" onchange="slideSwitch()" class="onoff sw1" style="background-color: transparent!important;margin-left: 325px;"  >
 
                 </div>
-                <div style="margin-left: -320px;margin-top: 15px;margin-bottom: 40px">
+                <div id="BomEditBtn" style="margin-left: -320px;margin-top: 15px;margin-bottom: 40px">
                     <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑&emsp;BOM表</button></a>
                     <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>
-                    <button class="searchInputBoxButton" type="button" onclick="" style="position: absolute!important; margin-top: -45px; margin-left: 480px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button>
+                    <a id="addBomBtn"><button  class="searchInputBoxButton" type="button" onclick="addItemsScreenDisplay()" style="position: absolute!important; margin-top: -45px; margin-left: 480px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button></a>
+                    <button class="searchInputBoxButton" id="addItemsScreenDisplayBtn" type="button" onclick="CancelItemsScreenDisplay()" style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;display: none" >&emsp;取消添加&emsp;</button>
 
-                    <a name="editItemBtn" hidden> <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: -45px; margin-left: 800px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;BOM表</button></a>
+
 
                 </div>
 
-                <div id="addItemsScreen">
+                <div id="addItemsScreen" style="display: none">
                     <div  style="font-weight: bold;font-size: 1.3rem;margin-left: 30px;">物料添加框：</div>
 
                     <div id="itemSearchBox" style="margin-top: 10px;margin-left: 20px" >
@@ -317,7 +380,7 @@
                                         </div>
 
                                         <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px ">
-<!--                                            Ajax 搜索结果 --->
+
                                         </div>
 
                                     </div>
@@ -338,11 +401,11 @@
                         </tr>
 
                     </table>
-                    <button class="searchInputBoxButton" type="submit" style="margin-top: -55px; margin-left: 72%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;添加表</button>
+                    <button class="searchInputBoxButton" type="submit" style="margin-top: -55px; margin-left: 72%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;"  >保存&emsp;添加表</button>
 
                 </div>
                 <div id="BomListDetail" >
-                <table  class="noteButton" style="width: 100%;font-size: 1rem;">
+                <table   style="width: 100%;font-size: 1rem;">
 
                     <div style="margin-bottom: 10px;font-weight: bold;font-size: 1.3rem;margin-left: 30px;">BOM表详情：</div>
 
@@ -363,7 +426,7 @@
 
                                 <div  style= "font-size: 0.7rem; height: 30px;" id="">
                                     <span class="itemInfo" >类型：<a style="font-weight: normal;color: red;"><%=component[j].itemType%></a></span>
-                                    <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" type="text" value="<%=component[j].itemQuantity%>" disabled style="width: 50px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"></a></span>
+                                    <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
                                     <span class="itemInfo" style="margin-left: 350px">备注：<a style="font-weight:normal;color: red; "><%=component[j].itemNote%></a></span>
                                 </div>
                             </button>
@@ -386,7 +449,13 @@
                     <%}%>
                     </tr>
                 </table>
+
                 </div>
+                <div>                    <a name="editItemBtn" hidden> <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: 10px; margin-left:60%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;BOM表</button></a>
+                </div>
+
+
+
                 <div id="BomListRecord" style="display: none">
                 <table  style=";width: 100%;font-size: 1rem; background-color:rgb(250, 241, 247)!important; ">
                     <div style="margin-top: -45px;margin-bottom: 30px;font-weight: bold;font-size: 1.3rem;margin-left: 30px">一键出仓记录：</div>

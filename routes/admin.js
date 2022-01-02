@@ -2986,6 +2986,7 @@ router.get('/adBOMList', function (req, res) {
 router.get('/ajaxSearchItem', function(req, res) {
     var searchText, searchSql;
     searchText = req.query.searchText;
+    var searchTimes=req.query.searchTimes;
     searchText = '%' + searchText + '%';
 
     searchSql = 'SELECT itemId, itemModel, itemName, itemNote, itemType, itemNum, itemUnit, itemSupplier\n' +
@@ -3002,7 +3003,7 @@ router.get('/ajaxSearchItem', function(req, res) {
         var HTMLtext='';
         for(var j=0;j<item.length;j++){
             HTMLtext += '<div id="itemSelectBox'+j+'">\n' +
-                '    <table id="'+item[j].itemId+'Content'+j+'" class="noteButton"  style="width: 100%;height: 90px!important;">\n' +
+                '    <table id="'+'Content'+j+searchTimes+'" class="noteButton" value="'+item[j].itemId+'"  style="width: 100%;height: 90px!important;">\n' +
                 '        <tr  style="width: 100%">\n' +
                 '            <td style="width: 87%">\n' +
                 '                <button  class="noteButton" name="itemButton"  style="padding-left: 10px; width: 100%" type="button" onclick="">\n' +
@@ -3017,9 +3018,9 @@ router.get('/ajaxSearchItem', function(req, res) {
                 '                                                <span class="itemInfo" style="position: relative">名称：<a style="font-weight: normal;color: #0050fa; position: relative">'+item[j].itemName+'</a></span>\n' +
                 '                                            </div>\n' +
                 '                                        </td>\n' +
-                '                                        <td id="'+item[j].itemId+'requiredNum'+j+'" style="display: none" >\n' +
+                '                                        <td id="'+'requiredNum'+j+searchTimes+'" style="display: none" >\n' +
                 '                                            <div style="margin-left: 10px;">\n' +
-                '                                                <span style=" font-weight: bold;color: #28a745">所需数量：<input class="itemDetailsInput" name="'+item[j].itemId+'Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" ></span>\n' +
+                '                                                <span style=" font-weight: bold;color: #28a745">所需数量：<input class="itemDetailsInput" name="'+'Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" ></span>\n' +
                 '                                            </div>\n' +
                 '                                        </td>\n' +
                 '                                    </tr>\n' +
@@ -3046,8 +3047,8 @@ router.get('/ajaxSearchItem', function(req, res) {
                 '                    </table>\n' +
                 '                </button>\n' +
                 '            </td>\n' +
-                '            <td id="'+item[j].itemId+'OperationBtnBox'+j+'" style="width: 13% ;padding: 0px">\n' +
-                '                <button class="itemButton2" type="button" id="'+item[j].itemId+'OperationBtn'+j+'" onclick="selectItem(\'itemSelectBox'+j+'\',document.getElementById(this.id).parentNode.id,document.getElementById(this.id).parentNode.parentNode.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.lastElementChild.id)" style="font-size: 0.7rem;height: 95px;"><img src=\'images/add.png\' height="30px" width="30px"></button>\n' +
+                '            <td id="'+'OperationBtnBox'+j+searchTimes+'" style="width: 13% ;padding: 0px">\n' +
+                '                <button class="itemButton2" type="button" id="'+'OperationBtn'+j+searchTimes+'" onclick="selectItem(\'itemSelectBox'+j+'\',document.getElementById(this.id).parentNode.id,document.getElementById(this.id).parentNode.parentNode.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.firstElementChild.lastElementChild.id)" style="font-size: 0.7rem;height: 95px;"><img src=\'images/add.png\' height="30px" width="30px"></button>\n' +
                 '            </td>\n' +
                 '        </tr>\n' +
                 '    </table>\n' +
