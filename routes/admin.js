@@ -3006,7 +3006,7 @@ router.get('/ajaxSearchItem', function(req, res) {
                 '    <table id="'+'Content'+j+searchTimes+'" class="noteButton" value="'+item[j].itemId+'"  style="width: 100%;height: 90px!important;">\n' +
                 '        <tr  style="width: 100%">\n' +
                 '            <td style="width: 87%">\n' +
-                '                <button  class="noteButton" name="itemButton"  style="padding-left: 10px; width: 100%" type="button" onclick="">\n' +
+                '                <button  class="noteButton" name="itemButton" id="itemBtn"  style="padding-left: 10px; width: 100%" type="button" onclick="">\n' +
                 '                    <table  style="width: 100%;padding: 0px">\n' +
                 '                        <tr style="padding: 0px">\n' +
                 '                            <td   style="padding: 0px">\n' +
@@ -3020,7 +3020,7 @@ router.get('/ajaxSearchItem', function(req, res) {
                 '                                        </td>\n' +
                 '                                        <td id="'+'requiredNum'+j+searchTimes+'" style="display: none" >\n' +
                 '                                            <div style="margin-left: 10px;">\n' +
-                '                                                <span style=" font-weight: bold;color: #28a745">所需数量：<input class="itemDetailsInput" name="'+'Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" ></span>\n' +
+                '                                                <span style=" font-weight: bold;color: #28a745">所需数量：<input id="itemQty" class="itemDetailsInput" name="'+'Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" ></span>\n' +
                 '                                            </div>\n' +
                 '                                        </td>\n' +
                 '                                    </tr>\n' +
@@ -3029,12 +3029,12 @@ router.get('/ajaxSearchItem', function(req, res) {
                 '                                    <tr style="width: 100%;padding: 0px">\n' +
                 '                                        <td style="padding: 0px" >\n' +
                 '                                            <div  style= "font-size: 0.7rem; height: 30px; margin-left: 16px;width: 100%">\n' +
-                '                                                <span class="itemInfo" style="position: relative;">物料编号：<a style="font-weight:normal;color: #0050fa; position: relative ">'+item[j].itemId+'</a></span>\n' +
+                '                                                <span class="itemInfo" style="position: relative;">物料编号：<a id="itemId" style="font-weight:normal;color: #0050fa; position: relative ">'+item[j].itemId+'</a></span>\n' +
                 '                                            </div>\n' +
                 '                                        </td>\n' +
                 '                                        <td style="padding: 0px">\n' +
                 '                                            <div  style= "font-size: 0.7rem; height: 30px; margin-left: 17px;width: 100%">\n' +
-                '                                                <span class="itemInfo" style="position: relative;">型号（图号）：<a style="font-weight:normal;color: #0050fa; position: relative ">'+item[j].itemModel+'</a></span>\n' +
+                '                                                <span class="itemInfo" style="position: relative;">型号（图号）：<a id="itemModel" style="font-weight:normal;color: #0050fa; position: relative ">'+item[j].itemModel+'</a></span>\n' +
                 '                                            </div>\n' +
                 '                                        </td>\n' +
                 '                                    </tr>\n' +
@@ -3066,40 +3066,33 @@ router.get('/ajaxSearchItem', function(req, res) {
 })
 
 /* AJax Save BOM List */
-router.get('/ajaxSaveBOMList', function(req, res) {
+router.get('/ajaxSaveAdd', function(req, res) {
     const componentId = req.query.componentId;
     const items = req.query.items;
+    const itemLength = items[0].length;
 
     console.log(componentId);
     console.log(items);
 
-    res.send('OK!');
+    const addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
 
-    // const sql = 'SELECT componentId, componentName, component.updateTime, component.note AS cNote, cost, userName\n' +
-    //     'FROM component \n' +
-    //     'INNER JOIN machine\n' +
-    //     'ON component.machineId = machine.machineId\n' +
-    //     'INNER JOIN user \n' +
-    //     'ON component.userId = user.userId\n' +
-    //     'WHERE component.machineId = ' + '"' + machineId + '"'
-    //
-    // connection.query( sql,function (err, component) {
-    //     if (err) {
-    //         console.log('[SELECT ERROR] - ', err.message);
-    //         res.send(err);
-    //         return;
-    //     }
-    //
-    //     // res.render('adBOMListMan', {
-    //     //     components:result,
-    //     // });
-    //
-    //     res.json({
-    //         component:component,
-    //         HTMLtext:HTMLtext
-    //     });
-    //
-    // });
+    for (let i=0; i<itemLength; i++ ) {
+        let itemId = items[0][i]
+        let itemModel = items[1][i]
+        let itemQty = items[2][i]
+
+        var addSqlParams = [componentId,itemId,itemModel,itemQty];
+
+        connection.query(addSql,addSqlParams, function (err, result) {
+            if (err) {
+                console.log('[INSERT ERROR] - ', err.message);
+                res.send(err);
+                return;
+            }
+        });
+    }
+
+    res.send(true);
 
 })
 

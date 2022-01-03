@@ -101,20 +101,40 @@
         }
 
         function packData(){
-            var row, itemBtn, itemNum, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
+            var confirmTable, itemAddBox, itemBtn, itemNum, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
             var itemArray = [], itemIdArray = [], itemModelArray = [], itemQtyArray = [];
 
-            row = $('#componentItemsTable tr td');
-            itemBtn = row.find('#itemBtn');
+            confirmTable = $('#comfirmAddBox');
+            itemAddBox = confirmTable.find('#itemAddBox');
+
+            itemBtn = itemAddBox.find('#itemBtn');
             itemNum = itemBtn.length;
-            itemId = row.find('#itemId');
-            itemModel = row.find('#itemModel');
-            itemQty = row.find('#itemQty');
+            itemId = itemBtn.find('#itemId');
+            itemModel = itemBtn.find('#itemModel');
+            itemQty = itemBtn.find('#itemQty');
+
+            if (itemNum === 0){
+                alert('请搜索物料进行添加！')
+                return false;
+            }
 
             for (i=0;i<itemNum;i++){
                 itemIdText = itemId[i].innerText;
                 itemModelText = itemModel[i].innerText;
                 itemQtyText = itemQty[i].value;
+
+                if (!itemQtyText){
+                    alert('请输入所需数量！');
+                    return false;
+                }
+
+                <%if (component[0].itemId){%>
+                <%for(let j = 0 ; j < component.length ; j++) { %>
+                    if (itemIdText === '<%=component[j].itemId%>') {
+                        alert('物料已存在，请检查所需数量！');
+                        return false;
+                    }
+                <%}}%>
 
                 itemIdArray.push(itemIdText);
                 itemModelArray.push(itemModelText);
@@ -128,13 +148,15 @@
             return itemArray;
         }
 
-        function saveBOMList(){
+        function saveAdd(){
             var items = packData();
 
             console.log(items);
 
+            if (!items){return}
+
             $.ajax({
-                url: './ajaxSaveBOMList',
+                url: './ajaxSaveAdd',
                 data: {
                     'items':items,
                     'componentId': '<%=component[0].componentId%>'
@@ -143,6 +165,11 @@
                 // dataType: 'json',
                 success: function (data) {
                     console.log(data);
+                    if (data){
+                        window.location = './adBOMList?componentId=<%=component[0].componentId%>';
+                    } else {
+                        alert('保存添加错误！');
+                    }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     alert('error ' + textStatus + " " + errorThrown);
@@ -226,7 +253,8 @@
                 dataType: 'json',
                 success: function (data) {
                     if (data.item.length !==0){
-                        document.getElementById('itemBox').innerHTML=data.HTMLtext
+                        document.getElementById('itemBox').innerHTML=data.HTMLtext;
+                        document.getElementById('searchResultHeader').innerHTML ="搜索结果(" + data.item.length + ")";
                     }
                     else {
                         $(itemBox).append('<div id=\'item0\'>此部件暂无设置所属物料</div>')
@@ -338,77 +366,60 @@
                         </td>
                     </tr>
                 </table>
+            </form>
 
 
 
 
-            <div class="pageCard" style="border-top: 0.1rem solid #404142;">
-                <div class="pageTitle">
+        <div class="pageCard" style="border-top: 0.1rem solid #404142;">
+            <div class="pageTitle">
+                <div style="font-weight: bold;width: 340px;font-size: 1.3rem;color: #404143">BOM表详情/一键出仓记录:</div>
+                <input  type="checkbox" id="checkboxswitch" onchange="slideSwitch()" class="onoff sw1" style="background-color: transparent!important;margin-left: 325px;"  >
+            </div>
+            <div id="BomEditBtn" style="margin-left: -320px;margin-top: 15px;margin-bottom: 40px">
+                <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑&emsp;BOM表</button></a>
+                <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>
+                <a id="addBomBtn"><button  class="searchInputBoxButton" type="button" onclick="addItemsScreenDisplay()" style="position: absolute!important; margin-top: -45px; margin-left: 480px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button></a>
+                <button class="searchInputBoxButton" id="addItemsScreenDisplayBtn" type="button" onclick="CancelItemsScreenDisplay()" style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;display: none" >&emsp;取消添加&emsp;</button>
+            </div>
 
-                    <div style="font-weight: bold;width: 340px;font-size: 1.3rem;color: #404143">
-                           BOM表详情/一键出仓记录:
-                    </div>
-                    <input  type="checkbox" id="checkboxswitch" onchange="slideSwitch()" class="onoff sw1" style="background-color: transparent!important;margin-left: 325px;"  >
-
+            <div id="addItemsScreen" style="display: none">
+                <div  style="font-weight: bold;font-size: 1.3rem;margin-left: 30px;">物料添加框：</div>
+                <div id="itemSearchBox" style="margin-top: 10px;margin-left: 20px" >
+                    <input class="indexOf" id="searchText" name="searchText" style="margin-left: 4px;width: 45%" placeholder="根据物料的名称/型号/备注搜索">
+                    <button class="searchInputBoxButton" value="1" name="indexOfButton" type="button" onclick="searchItems()" style="margin-left: 45.2%" >搜&emsp;索</button>
                 </div>
-                <div id="BomEditBtn" style="margin-left: -320px;margin-top: 15px;margin-bottom: 40px">
-                    <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑&emsp;BOM表</button></a>
-                    <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>
-                    <a id="addBomBtn"><button  class="searchInputBoxButton" type="button" onclick="addItemsScreenDisplay()" style="position: absolute!important; margin-top: -45px; margin-left: 480px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button></a>
-                    <button class="searchInputBoxButton" id="addItemsScreenDisplayBtn" type="button" onclick="CancelItemsScreenDisplay()" style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;display: none" >&emsp;取消添加&emsp;</button>
 
-
-
-                </div>
-
-                <div id="addItemsScreen" style="display: none">
-                    <div  style="font-weight: bold;font-size: 1.3rem;margin-left: 30px;">物料添加框：</div>
-
-                    <div id="itemSearchBox" style="margin-top: 10px;margin-left: 20px" >
-                        <input class="indexOf" id="searchText" name="searchText" style="margin-left: 4px;width: 45%" placeholder="根据物料的名称/型号/备注搜索">
-                        <button class="searchInputBoxButton" value="1" name="indexOfButton" type="button" onclick="searchItems()" style="margin-left: 45.2%" >搜&emsp;索</button>
-                    </div>
-
-
-                    <table id="addItemsBox" style="padding-top: 50px;width: 100%;">
-                        <tr style="width: 100%">
-                            <td id="searchResultBox" >
-                                <div class="col-md" >
-                                    <div class="card" style="border-radius: 10px;overflow: hidden ">
-                                        <div class="card-header text-center">
-                                            <h2>搜索结果</h2>
-                                        </div>
-
-                                        <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px ">
-
-                                        </div>
-
+                <table id="addItemsBox" style="padding-top: 50px;width: 100%;">
+                    <tr style="width: 100%">
+                        <td id="searchResultBox" >
+                            <div class="col-md" >
+                                <div class="card" style="border-radius: 10px;overflow: hidden ">
+                                    <div class="card-header text-center">
+                                        <h2 id="searchResultHeader">搜索结果</h2>
                                     </div>
+                                    <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px "></div>
                                 </div>
-                            </td>
-                            <td id="comfirmAddBox" style="width: 50%" >
-                                <div class="col-md" style="">
-                                    <div class="card" style="border-radius: 10px;overflow: hidden;">
-                                        <div class="card-header text-center">
-                                            <h2>添加物料</h2>
-                                        </div>
-                                        <div id="itemAddBox" class="card-body" style="height: 400px;overflow:auto ;padding: 0px;">
-
-                                        </div>
+                            </div>
+                        </td>
+                        <td id="comfirmAddBox" style="width: 50%" >
+                            <div class="col-md" style="">
+                                <div class="card" style="border-radius: 10px;overflow: hidden;">
+                                    <div class="card-header text-center">
+                                        <h2>添加物料</h2>
                                     </div>
+                                    <div id="itemAddBox" class="card-body" style="height: 400px;overflow:auto ;padding: 0px;"></div>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <button class="searchInputBoxButton" type="button" onclick="saveAdd()" style="margin-top: -55px; margin-left: 72%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;"  >保存&emsp;添加表</button>
+            </div>
 
-                    </table>
-                    <button class="searchInputBoxButton" type="submit" style="margin-top: -55px; margin-left: 72%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;"  >保存&emsp;添加表</button>
-
-                </div>
-                <div id="BomListDetail" >
+            <div id="BomListDetail" >
                 <table   style="width: 100%;font-size: 1rem;">
-
                     <div style="margin-bottom: 10px;font-weight: bold;font-size: 1.3rem;margin-left: 30px;">BOM表详情：</div>
-
                     <%if (component[0].itemId){%>
                     <%for(let j = 0 ; j < component.length ; j++) { %>
                     <tr id="component<%=j%>" style="width: 100%;">
@@ -423,7 +434,6 @@
                                     <span class="itemInfo" >型号（图号）：<a style="font-weight: normal;color: #0050fa;"><%=component[j].itemModel%></a></span>
                                     <span class="itemInfo" style="margin-left: 350px">单价：<a style="font-weight:normal;color: #0050fa; "><%=component[j].itemPrice%></a></span>
                                 </div>
-
                                 <div  style= "font-size: 0.7rem; height: 30px;" id="">
                                     <span class="itemInfo" >类型：<a style="font-weight: normal;color: red;"><%=component[j].itemType%></a></span>
                                     <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
@@ -433,64 +443,57 @@
                         </td>
                         <td style="width: 13%">
                             <table cellspacing="0" cellpadding="0" style="width: 100%">
-                                <tr >
-
+                                <tr>
                                     <td>
                                         <a name="editItemBtn" hidden><button class="itemButton4" style="height: 90px;border: 0" type="submit" onclick="asdf" id="deleItemBtn<%=j%>" ><img src='images/bin.png' height="30px" width="30px"></button></a>
                                     </td>
                                 </tr>
-
                             </table>
                         </td>
                     </tr>
-
                     <% }} else {%>
                         此部件未添加物料
                     <%}%>
                     </tr>
                 </table>
-
-                </div>
-                <div>                    <a name="editItemBtn" hidden> <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: 10px; margin-left:60%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;BOM表</button></a>
-                </div>
-
-
-
-                <div id="BomListRecord" style="display: none">
-                <table  style=";width: 100%;font-size: 1rem; background-color:rgb(250, 241, 247)!important; ">
-                    <div style="margin-top: -45px;margin-bottom: 30px;font-weight: bold;font-size: 1.3rem;margin-left: 30px">一键出仓记录：</div>
-
-                    <%for(let j = 0 ; j < 10 ; j++) { %>
-                    <tr id="component<%=j%>"  >
-                        <td style="width: 87%!important;">
-                            <button class="noteButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
-                                <span class="itemInfo"  style=" font-size: 1rem;margin-left: -50px;color: #0050fa;   ">一键出仓</span>
-                                <div style="margin-left: 50px">
-                                <div  style= "font-size: 0.7rem; height: 30px; ">
-                                    <span class="itemInfo" >日期：<a style="font-weight: normal;color: #0050fa;"></a></span>
-                                    <span class="itemInfo" style="margin-left: 260px">申请人：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                    <span class="itemInfo" style="margin-left: 530px">经办人：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                </div>
-                                <div  style= "font-size: 0.7rem; height: 30px; ">
-                                    <span class="itemInfo" >报警：<a style="font-weight: normal;color: red;"></a></span>
-                                </div>
-
-                                <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                    <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
-                                </div>
-                                </div>
-                            </button>
-                        </td>
-
-                    </tr>
-                    <% } %>
-
-                </table>
-                </div>
-
+            </div>
+            <div><a name="editItemBtn" hidden>
+                    <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: 10px; margin-left:60%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;">保存&emsp;BOM表</button>
+                </a>
             </div>
 
-            </form>
+
+
+            <div id="BomListRecord" style="display: none">
+            <table  style=";width: 100%;font-size: 1rem; background-color:rgb(250, 241, 247)!important; ">
+                <div style="margin-top: -45px;margin-bottom: 30px;font-weight: bold;font-size: 1.3rem;margin-left: 30px">一键出仓记录：</div>
+
+                <%for(let j = 0 ; j < 10 ; j++) { %>
+                <tr id="component<%=j%>"  >
+                    <td style="width: 87%!important;">
+                        <button class="noteButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
+                            <span class="itemInfo"  style=" font-size: 1rem;margin-left: -50px;color: #0050fa;   ">一键出仓</span>
+                            <div style="margin-left: 50px">
+                            <div  style= "font-size: 0.7rem; height: 30px; ">
+                                <span class="itemInfo" >日期：<a style="font-weight: normal;color: #0050fa;"></a></span>
+                                <span class="itemInfo" style="margin-left: 260px">申请人：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                <span class="itemInfo" style="margin-left: 530px">经办人：<a style="font-weight:normal;color: #0050fa; "></a></span>
+                            </div>
+                            <div  style= "font-size: 0.7rem; height: 30px; ">
+                                <span class="itemInfo" >报警：<a style="font-weight: normal;color: red;"></a></span>
+                            </div>
+
+                            <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
+                            </div>
+                            </div>
+                        </button>
+                    </td>
+                </tr>
+                <% } %>
+            </table>
+            </div>
+        </div>
         </main>
     </div>
 </section>
