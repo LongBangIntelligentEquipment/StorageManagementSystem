@@ -3065,7 +3065,7 @@ router.get('/ajaxSearchItem', function(req, res) {
 
 })
 
-/* AJax Save BOM List */
+/* AJax Save ADD BOM List */
 router.get('/ajaxSaveAdd', function(req, res) {
     const componentId = req.query.componentId;
     const items = req.query.items;
@@ -3083,6 +3083,8 @@ router.get('/ajaxSaveAdd', function(req, res) {
 
         var addSqlParams = [componentId,itemId,itemModel,itemQty];
 
+        console.log(addSqlParams);
+
         connection.query(addSql,addSqlParams, function (err, result) {
             if (err) {
                 console.log('[INSERT ERROR] - ', err.message);
@@ -3092,8 +3094,44 @@ router.get('/ajaxSaveAdd', function(req, res) {
         });
     }
 
-    res.send(true);
+    res.send(false);
+})
 
+/* AJax Save DEL, Edit BOM List */
+router.get('/ajaxSaveEdit', function(req, res) {
+    const componentId = req.query.componentId;
+    const items = req.query.items;
+    const itemLength = items[0].length;
+
+    console.log(componentId);
+    console.log(items);
+
+    let delSql = 'DELETE FROM component_has_item WHERE component_componentId = ' + componentId;
+    connection.query(delSql, function (err) {
+        if (err) {
+            console.log('[DELETE ERROR] - ', err.message);
+            res.send('从部件中移除物料错误！' + err);
+        }
+    });
+
+    let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
+
+    for (let i=0; i<itemLength; i++ ) {
+        let itemId = items[0][i]
+        let itemModel = items[1][i]
+        let itemQty = items[2][i]
+
+        var addSqlParams = [componentId,itemId,itemModel,itemQty];
+
+        connection.query(addSql,addSqlParams, function (err) {
+            if (err) {
+                console.log('[INSERT ERROR] - ', err.message);
+                res.send('从部件中添加物料错误！' + err);
+            }
+        });
+    }
+
+    res.send(false);
 })
 
 

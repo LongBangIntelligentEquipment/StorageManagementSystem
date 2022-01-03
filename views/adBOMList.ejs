@@ -98,6 +98,8 @@
                 $(requireNum).attr('style','height:100%')
             }
             $('#addBomBtn').removeAttr('hidden')
+
+            cancelRemoveItem();
         }
 
         function packData(){
@@ -163,9 +165,9 @@
                 },
                 type: 'GET',
                 // dataType: 'json',
-                success: function (data) {
-                    console.log(data);
-                    if (data){
+                success: function (err) {
+                    console.log(err);
+                    if (!err){
                         window.location = './adBOMList?componentId=<%=component[0].componentId%>';
                     } else {
                         alert('保存添加错误！');
@@ -175,13 +177,69 @@
                     alert('error ' + textStatus + " " + errorThrown);
                 }
             })
-
         }
 
+        function packData2(){
+            var table, itemBtn, itemNum, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
+            var itemArray = [], itemIdArray = [], itemModelArray = [], itemQtyArray = [];
+
+            table = $('#BOMListItem tbody:first');
+            itemBtn = table.find('[name = itemButton]:visible');
+
+            itemId = itemBtn.find('#itemId');
+            itemModel = itemBtn.find('#itemModel');
+            itemQty = itemBtn.find('#itemQty');
+            itemQty = itemQty.find('input');
+
+            for (i=0;i<itemBtn.length;i++){
+                itemIdText = itemId[i].innerText;
+                itemModelText = itemModel[i].innerText;
+                itemQtyText = itemQty[i].value;
+
+                if (!itemQtyText){
+                    alert('请输入所需数量！');
+                    return false;
+                }
+
+                itemIdArray.push(itemIdText);
+                itemModelArray.push(itemModelText);
+                itemQtyArray.push(itemQtyText);
+            }
+
+            itemArray.push(itemIdArray);
+            itemArray.push(itemModelArray);
+            itemArray.push(itemQtyArray);
+
+            return itemArray;
+        }
+
+        function saveEdit(){
+            var items = packData2();
+            if (!items){return}
+
+            $.ajax({
+                url: './ajaxSaveEdit',
+                data: {
+                    'items':items,
+                    'componentId': '<%=component[0].componentId%>'
+                },
+                type: 'GET',
+                // dataType: 'json',
+                success: function (err) {
+                    console.log(err);
+                    if (!err){
+                        window.location = './adBOMList?componentId=<%=component[0].componentId%>';
+                    } else {
+                        alert('保存BOM表错误！');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('error ' + textStatus + " " + errorThrown);
+                }
+            })
+        }
 
         function selectItem(checkItemBoxChildId,itemOperationBtn,requiredNum) {
-
-
             var reCheckItemBoxChildId="#"+checkItemBoxChildId
             var itemBoxId=$(reCheckItemBoxChildId).children().attr('id')
             var transferItemHTML=document.getElementById(checkItemBoxChildId).innerHTML
@@ -230,7 +288,6 @@
                 $(deleId).remove()
                 document.getElementById(revoverBtnId).setAttribute('style','display:display')
             }
-
         }
 
         var searchTimes=0;
@@ -264,7 +321,20 @@
                     alert('error ' + textStatus + " " + errorThrown);
                 }
             })
+        }
 
+        var delArray = [];
+        function removeItem(itemIndex){
+            itemIndex = '#item' + itemIndex;
+            $(itemIndex).attr('hidden','');
+            delArray.push(itemIndex);
+        }
+
+        function cancelRemoveItem(){
+            for (let i=0;i<delArray.length;i++){
+                $(delArray[i]).removeAttr('hidden');
+            }
+            delArray = [];
         }
 
         function addItemsScreenDisplay() {
@@ -418,25 +488,25 @@
             </div>
 
             <div id="BomListDetail" >
-                <table   style="width: 100%;font-size: 1rem;">
+                <table id="BOMListItem" style="width: 100%;font-size: 1rem;">
                     <div style="margin-bottom: 10px;font-weight: bold;font-size: 1.3rem;margin-left: 30px;">BOM表详情：</div>
                     <%if (component[0].itemId){%>
                     <%for(let j = 0 ; j < component.length ; j++) { %>
-                    <tr id="component<%=j%>" style="width: 100%;">
+                    <tr id="item<%=j%>" style="width: 100%;">
                         <td style="width: 87%">
-                            <button class="noteButton" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
+                            <button class="noteButton" name="itemButton" style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
                                     <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
                                     <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=component[j].itemName%></a></span>
-                                    <span class="itemInfo" style="margin-left: 260px">物料编号：<a style="font-weight:normal;color: #0050fa; "><%=component[j].itemId%></a></span>
+                                    <span class="itemInfo" style="margin-left: 260px">物料编号：<a id="itemId" style="font-weight:normal;color: #0050fa; "><%=component[j].itemId%></a></span>
                                 </div>
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
-                                    <span class="itemInfo" >型号（图号）：<a style="font-weight: normal;color: #0050fa;"><%=component[j].itemModel%></a></span>
+                                    <span class="itemInfo" >型号（图号）：<a id="itemModel" style="font-weight: normal;color: #0050fa;"><%=component[j].itemModel%></a></span>
                                     <span class="itemInfo" style="margin-left: 350px">单价：<a style="font-weight:normal;color: #0050fa; "><%=component[j].itemPrice%></a></span>
                                 </div>
                                 <div  style= "font-size: 0.7rem; height: 30px;" id="">
                                     <span class="itemInfo" >类型：<a style="font-weight: normal;color: red;"><%=component[j].itemType%></a></span>
-                                    <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
+                                    <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a id="itemQty" style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
                                     <span class="itemInfo" style="margin-left: 350px">备注：<a style="font-weight:normal;color: red; "><%=component[j].itemNote%></a></span>
                                 </div>
                             </button>
@@ -445,7 +515,7 @@
                             <table cellspacing="0" cellpadding="0" style="width: 100%">
                                 <tr>
                                     <td>
-                                        <a name="editItemBtn" hidden><button class="itemButton4" style="height: 90px;border: 0" type="submit" onclick="asdf" id="deleItemBtn<%=j%>" ><img src='images/bin.png' height="30px" width="30px"></button></a>
+                                        <a name="editItemBtn" hidden><button class="itemButton4" style="height: 90px;border: 0" type="button" onclick="removeItem(<%=j%>)" ><img src='images/bin.png' height="30px" width="30px"></button></a>
                                     </td>
                                 </tr>
                             </table>
@@ -458,7 +528,7 @@
                 </table>
             </div>
             <div><a name="editItemBtn" hidden>
-                    <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: 10px; margin-left:60%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;">保存&emsp;BOM表</button>
+                    <button class="searchInputBoxButton" type="button" onclick="saveEdit()" style="position: absolute!important; margin-top: 10px; margin-left:60%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;">保存&emsp;BOM表</button>
                 </a>
             </div>
 
