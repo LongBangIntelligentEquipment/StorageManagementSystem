@@ -2484,7 +2484,7 @@ router.get('/ajaxItems', function(req, res) {
         for(var j=0;j<item.length;j++){
             HTMLtext += '                        <tr class="noteButton3" id="'+machineId+componentId+'item'+j+'" style="width: 100%;" >\n' +
                 '                            <td style="width: 87%; ">\n' +
-                '                                <button class="noteButton3"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adItem?itemId=' + item[j].itemId + '\'">\n' +
+                '                                <button class="noteButton3"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adItem?itemId='+item[j].itemId+'&returnSql=\'+document.URL.split(\'sql=\')[1]">\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 50px ">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -60px;color: #0050fa;   ">物料&nbsp;'+parseInt(j+1)+'</span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: -20px">物料名称：<a style="font-weight: normal;color: #0050fa;">' + item[j].itemName + '</a></span>\n' +
@@ -2999,7 +2999,7 @@ router.get('/ajaxSearchItem', function(req, res) {
                 '    <table id="'+'Content'+j+searchTimes+'" class="noteButton" value="'+item[j].itemId+'"  style="width: 100%;height: 90px!important;">\n' +
                 '        <tr  style="width: 100%">\n' +
                 '            <td style="width: 87%">\n' +
-                '                <button  class="noteButton" name="itemButton" id="itemBtn"  style="padding-left: 10px; width: 100%" type="button" onclick="">\n' +
+                '                <button  class="noteButton" name="itemButton" id="itemBtn"  style="padding-left: 10px; width: 100%" type="button" onclick="window.open(\'/adItem?itemId='+item[j].itemId+'&returnSql=\'+document.URL.split(\'sql=\')[1])">\n' +
                 '                    <table  style="width: 100%;padding: 0px">\n' +
                 '                        <tr style="padding: 0px">\n' +
                 '                            <td   style="padding: 0px">\n' +

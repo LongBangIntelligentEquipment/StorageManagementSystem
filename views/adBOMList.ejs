@@ -23,6 +23,25 @@
             }
 
             $('#componentDelButton').removeAttr('hidden')
+            $('#editButtonControl').attr('hidden','hidden')
+            $('#cancelEditButtonControl').removeAttr('hidden')
+        }
+
+        function cancelDetailEditable() {
+            if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
+                for(var i=0;i<5;i++){
+                    var elementId='#'+'detail'+i;
+                    $(elementId).attr('disabled','disabled');
+                    $(elementId).attr('style','')
+
+                }
+                $('#updateFile').attr('style','display:none;');
+                $('#confirmEditButton').attr('hidden','hidden');
+            }
+
+            $('#componentDelButton').attr('hidden','hidden')
+            $('#editButtonControl').removeAttr('hidden')
+            $('#cancelEditButtonControl').attr('hidden','hidden')
         }
 
         function InfoDisplay(rolejudgement,type1,type2,type3,type4,ojIdJudge,ojId){
@@ -402,7 +421,7 @@
                                 <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="<%=component[0].componentName%>" disabled></div>
                                 <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=component[0].componentId%>" disabled></div>
 
-                                <div class="itemDetail" id="typeSelect">类型：<select class="itemDetailsInput" name="BomListType" id="detail2" required="required" disabled style="height: 35px;width: 130px;color:black;" >
+                                <div class="itemDetail" id="typeSelect">类型：<select class="itemDetailsInput" name="BomListType" id="detail2" required="required" disabled style="height: 35px;width: 130px;" >
                                         <option value="<%=component[0].categoryId%>" selected><%=component[0].categoryName%></option>
                                         <%for(let i = 0; i < category.length; i++) { %>
                                         <% if (component[0].categoryName === category[i].categoryName){
@@ -432,7 +451,9 @@
                     </tr>
                     <tr>
                         <td >
-                            <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: none;" >编辑</button>
+                            <a id="editButtonControl"><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: none;" >编辑</button></a>
+                            <a id="cancelEditButtonControl" hidden> <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="cancelDetailEditable()" style="background-color: #fa5000!important;" >取消编辑</button></a>
+
                             <style onload="Authority('系统管理员','editButton')"></style>
                             <style onload="Authority('仓库管理员','editButton')"></style>
                             <style onload="Authority('技术员','editButton')"></style>
@@ -501,7 +522,7 @@
                     <%for(let j = 0 ; j < component.length ; j++) { %>
                     <tr id="item<%=j%>" style="width: 100%;">
                         <td style="width: 87%">
-                            <button class="noteButton" name="itemButton" style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
+                            <button class="noteButton" name="itemButton" style="padding-left: 80px;" type="button" onclick="location.href='/adItem?itemId=<%=component[j].itemId%>&returnSql='+document.URL.split('sql=')[1]">
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
                                     <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
                                     <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=component[j].itemName%></a></span>
