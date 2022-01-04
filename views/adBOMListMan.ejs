@@ -122,6 +122,10 @@
                 }
             }
         }
+
+        function copyAct(machineId) {
+
+        }
     </script>
 </head>
 <body>
@@ -184,13 +188,13 @@
                 </div>
             </header>
 
-
+            <form method="post" action="/adBOMListMan">
             <div class="pageCard" style="width: 100%">
                 <div class="pageTitle" style="width: 100%">
-                    <form method="post" action="/adBOMListMan">
+
                         <input class="indexOf" name="searchText" style="margin-left: 4px" placeholder="根据机械部件物料的名称/型号/备注搜索机械">
                         <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit">搜&emsp;索</button>
-                    </form>
+
 
 <!--                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentSearch'" type="button"-->
 <!--                            id="allComponentButton" style="margin-left: 390px;">管理所有部件-->
@@ -226,6 +230,9 @@
                             <table cellspacing="0" cellpadding="0" style="width: 100%">
                                 <tr >
                                     <td>
+                                        <button class="itemButton2" style="height: 90px;border: 0" type="submit" onclick=""><img src='images/copy.png' height="32px" width="32px"></button>
+                                    </td>
+                                    <td>
                                         <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/adBOMListMachineMan?machineId=<%=machine[i].machineId%>')"><img src='images/view-details.png' height="30px" width="30px"></button>
                                     </td>
                                 </tr>
@@ -238,8 +245,8 @@
                     </table>
                 </table>
                 <% } %>
-
             </div>
+            </form>
         </main>
     </div>
 </section>

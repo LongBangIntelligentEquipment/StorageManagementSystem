@@ -2462,7 +2462,7 @@ router.get('/ajaxComponents', function(req, res) {
 router.get('/ajaxItems', function(req, res) {
     const componentId = req.query.componentId;
     const machineId = req.query.machineId;
-    const sql = 'SELECT item.itemId, itemName, itemPrice, item.itemModel, itemArea, itemNote, itemQuantity, component.categoryId, itemType\n' +
+    const sql = 'SELECT item.itemId, itemName, itemPrice, item.itemModel, itemArea, itemNote, itemQuantity, component.categoryId, itemType, itemFileName\n' +
         'FROM component\n' +
         'INNER JOIN component_has_item\n' +
         'ON component_has_item.component_componentId = component.componentId\n' +
@@ -2505,10 +2505,10 @@ router.get('/ajaxItems', function(req, res) {
                 '                            <td style="width: 13%!important; margin-left: -100px">\n' +
                 '                                <table cellspacing="0" cellpadding="0" style="width: 100%">\n' +
                 '                                    <tr style="width: 100%">\n' +
-                '                                            <button class="itemButton1" type="button" onclick="window.open(\'uploads/<%=itemList[i].itemFileName%>\')"><img src=\'images/checkDrawing.png\' height="37px" width="40px"></button>\n' +
+                '                                            <button class="itemButton1" type="button" onclick="window.open(\'uploads/'+item[j].itemFileName+'\')"><img src=\'images/checkDrawing.png\' height="37px" width="40px"></button>\n' +
                 '</tr>\n'+
                 '<tr>\n'+
-                '                                            <button class="itemButton2" type="button" onclick="window.open(\'/qrCodePrint?itemId=<%=itemList[i].itemId%>\')"><img src=\'images/checkQRcode.png\' height="23px" width="23px"></button>\n' +
+                '                                            <button class="itemButton2" type="button" onclick="window.open(\'/qrCodePrint?itemId='+item[j].itemId+'\')"><img src=\'images/checkQRcode.png\' height="23px" width="23px"></button>\n' +
                 '                                    </tr>\n' +
                 '                                </table>\n' +
                 '                            </td>\n' +
@@ -2999,7 +2999,7 @@ router.get('/ajaxSearchItem', function(req, res) {
                 '    <table id="'+'Content'+j+searchTimes+'" class="noteButton" value="'+item[j].itemId+'"  style="width: 100%;height: 90px!important;">\n' +
                 '        <tr  style="width: 100%">\n' +
                 '            <td style="width: 87%">\n' +
-                '                <button  class="noteButton" name="itemButton" id="itemBtn"  style="padding-left: 10px; width: 100%" type="button" onclick="window.open(\'/adItem?itemId='+item[j].itemId+'&returnSql=\'+document.URL.split(\'sql=\')[1])">\n' +
+                '                <button  class="noteButton" name="checkItemBtn" id="itemBtn"  style="padding-left: 10px; width: 100%" type="button" onclick="window.open(\'/adItem?itemId='+item[j].itemId+'&returnSql=\'+document.URL.split(\'sql=\')[1])">\n' +
                 '                    <table  style="width: 100%;padding: 0px">\n' +
                 '                        <tr style="padding: 0px">\n' +
                 '                            <td   style="padding: 0px">\n' +

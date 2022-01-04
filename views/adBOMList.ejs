@@ -277,11 +277,15 @@
             if(canAdding){
                 var reNameItemBoxId=itemBoxId+'_original'
                 $(reItemBoxId).attr('id',reNameItemBoxId)
+                $('[name=checkItemBtn]').attr('name','checkItemBtn_Original')
                 $("#itemAddBox").append(transferItemHTML)
+                $('[name=checkItemBtn]').attr('disabled','disabled')
+                $('[name=checkItemBtn_Original]').attr('name','checkItemBtn')
 
 
                 $(reItemOperationBtn).attr('id',reNameItemOperationBtnId)
                 document.getElementById(reNameItemOperationBtnId).setAttribute('style','display:none')
+
                 document.getElementById(itemOperationBtn).innerHTML="<button class=\"itemButton4\" type=\"button\" id=\"\" onclick=\"deleItem(\'"+reItemBoxId+"\',\'"+reNameItemOperationBtnId+"\')\" style=\"font-size: 0.7rem;height: 95px;\"><img src='images/bin.png' height=\"30px\" width=\"30px\"></button>\n"
 
 
@@ -290,6 +294,8 @@
                 $(reRequiredNum).attr('id',reNameRequiredNum)
                 $(reRequiredNum).attr('style','display:display')
                 $(reRequiredNum).removeAttr('disabled')
+
+
             }else{
                  reItemOperationBtn="#"+itemOperationBtn;
                  reNameItemOperationBtnId=$("#itemAddBox").children().eq(i).children().children().children().eq(1).attr("id")+'_original'
