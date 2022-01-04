@@ -187,8 +187,8 @@
             </header>
 
 
-            <div class="pageCard">
-                <div class="pageTitle">
+            <div class="pageCard" style="width: 100%">
+                <div class="pageTitle" style="width: 100%">
                     <form method="post" action="/adBOMListMan">
                         <input class="indexOf" name="searchText" style="margin-left: 4px" placeholder="根据机械部件物料的名称/型号/备注搜索机械">
                         <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit">搜&emsp;索</button>
@@ -209,12 +209,12 @@
 
                 <% for(let i = 0 ; i < machine.length ; i++) { %>
                 <table class="noteButton" style="width: 100%;font-size: 1rem;">
-                    <tr >
-                        <td style="width: 80%;">
+                    <tr style="width: 100%;">
+                        <td style="width: 87%;">
                             <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponents('<%=i%>','<%=machine[i].machineId%>')">
                                 <div  style= "font-size: 0.7rem; height: 35px; ">
                                     <span class="BOMInfo" style="margin-left: -50px; color: #0050fa "><%=machine[i].machineName%></span>
-                                    <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=machine[i].updateTime%></a></span>
+                                    <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=machine[i].updateTime.getFullYear()%>-<%=machine[i].updateTime.getMonth()+1%>-<%=machine[i].updateTime.getDate()%>  </a></span>
 
                                 </div>
                                 <div  style= "font-size: 0.7rem; height: 35px; ">
@@ -229,7 +229,7 @@
                             </button>
                         </td>
 
-                        <td style="width: 20%">
+                        <td style="width: 13%">
                             <table cellspacing="0" cellpadding="0" style="width: 100%">
                                 <tr >
                                     <td>

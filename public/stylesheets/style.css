@@ -563,6 +563,18 @@ footer {
   background-color: #fff4fb !important;
 }
 
+.noteButton3{
+  background-color: transparent!important;
+  color: #666!important;
+  border: 0;
+  text-align: left;
+  width: 120%;
+}
+
+.noteButton3:hover{
+  background-color: #f3ffe3 !important;
+}
+
 .indexOf{
   position: absolute;
   width: 330px;

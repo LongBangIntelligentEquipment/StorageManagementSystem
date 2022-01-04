@@ -2412,15 +2412,15 @@ router.get('/ajaxComponents', function(req, res) {
 
         var HTMLtext='';
         for(var j=0;j<component.length;j++){
-            HTMLtext += '<table style="width: 100%;">\n'+
-                '                        <tr style="width: 100%;" id="'+machineId+'component'+j+'" >\n' +
+            HTMLtext += '<table cellspacing="0" cellpadding="0" style="width: 100%;">\n'+
+                '                        <tr class="noteButton2" style="width: 87%;" id="'+machineId+'component'+j+'" >\n' +
                 '                            <td style="width: 80%;">\n' +
                 '                                <button class="noteButton2" name="componentBtn" id="'+machineId+component[j].componentId+'" value=0 style="padding-left: 80px;" type="button" onclick="showItems('+j+','+'\''+machineId+'\''+','+component[j].componentId+')">\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
-                '                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#'+parseInt(j+1)+'</span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: -60px;color: #0050fa;   ">部件&nbsp;'+parseInt(j+1)+'</span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: -20px">部件名称：<a style="font-weight: normal;color: #0050fa;">' + component[j].componentName + '</a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 200px">制表人：<a style="font-weight:normal;color: #0050fa; ">' + component[j].userName + '</a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; ">' + component[j].updateTime + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; ">' + component[j].updateTime.getFullYear()+'-'+component[j].updateTime.getMonth()+1+'-'+component[j].updateTime.getDate()+ '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -20px">部件型号：<a style="font-weight:normal;color: #0050fa; ">' + component[j].componentId + '</a></span>\n' +
@@ -2431,26 +2431,21 @@ router.get('/ajaxComponents', function(req, res) {
                 '                                    </div>\n' +
                 '                                </button>\n' +
                 '                            </td>\n' +
-                '                            <td style="width: 20%!important;">\n' +
-                '                                <table cellspacing="0" cellpadding="0" style="width: 100%">\n' +
-                '                                    <tr >\n' +
-                '                                        <td>\n' +
-                '                                            <button class="itemButton3" type="button" onclick="window.open(\'uploads/\')" ><img src=\'images/checkDrawing.png\' height="50px" width="50px"></button>\n' +
-                '                                        </td>\n' +
-                '                                        <td>\n' +
-                '                                            <button class="itemButton4" type="button" onclick="location.href=\'/adBOMList?componentId=' + component[j].componentId + '\'" >查看部件</button>\n' +
-                '                                        </td>\n' +
-                '                                    </tr>\n' +
-                '                                </table>\n' +
+                '                            <td style="width: 13%!important;">\n' +
+                '<table  style="width: 100%">\n' +
+                '                                <tr >\n' +
+                '                                    <td>\n' +
+                '                                        <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=\'/adBOMList?componentId=' + component[j].componentId + '\'"><img src=\'images/view-details.png\' height="30px" width="30px"></button>\n' +
+                '                                    </td>\n' +
+                '                                </tr>\n' +
+                '                            </table> \n'+
                 '                            </td>\n' +
                 '                        </tr>\n'+
                 '<tr style="width: 100%;">' +
-                '<td style="width: 99.9%;">' +
-                '                                    <div id="'+machineId+component[j].componentId+'itemBox'+'" >\n' +
-                '                                    </div>\n' +
-                '</td>' +
-                '<td style="width: 0.01%;">' +
-                '</td>' +
+
+                '                                    <table cellspacing="0" cellpadding="0" id="'+machineId+component[j].componentId+'itemBox'+'"  style="width: 100%">\n' +
+                '                                    </table>\n' +
+
                 '</tr>'+
             '</table>'
         }
@@ -2487,35 +2482,33 @@ router.get('/ajaxItems', function(req, res) {
         }
         var HTMLtext='';
         for(var j=0;j<item.length;j++){
-            HTMLtext += '                        <tr id="'+machineId+componentId+'item'+j+'" >\n' +
-                '                            <td style="width: 100%;">\n' +
-                '                                <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adItem?itemId=' + item[j].itemId + '\'">\n' +
-                '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
-                '                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#'+parseInt(j+1)+'</span>\n' +
+            HTMLtext += '                        <tr class="noteButton3" id="'+machineId+componentId+'item'+j+'" style="width: 100%;" >\n' +
+                '                            <td style="width: 87%; ">\n' +
+                '                                <button class="noteButton3"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adItem?itemId=' + item[j].itemId + '\'">\n' +
+                '                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 50px ">\n' +
+                '                                        <span class="itemInfo" style="margin-left: -60px;color: #0050fa;   ">物料&nbsp;'+parseInt(j+1)+'</span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: -20px">物料名称：<a style="font-weight: normal;color: #0050fa;">' + item[j].itemName + '</a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 200px">物料编号：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemId + '</a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 430px">区域：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemArea + '</a></span>\n' +
                 '                                    </div>\n' +
-                '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
+                '                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 50px ">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -20px">型号(图号)：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemId + '</a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 200px">类别：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemType + '</a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemPrice + '</a></span>\n' +
                 '                                    </div>\n' +
-                '                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">\n' +
+                '                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 50px" id="">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -20px" >所需数量：<a style="font-weight: normal;color: #0050fa;">' + item[j].itemQuantity + '</a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 200px">备注：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemNote + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                </button>\n' +
                 '                            </td>\n' +
-                '                            <td style="width: 20%!important;">\n' +
+                '                            <td style="width: 13%!important; margin-left: -100px">\n' +
                 '                                <table cellspacing="0" cellpadding="0" style="width: 100%">\n' +
-                '                                    <tr >\n' +
-                '                                        <td>\n' +
+                '                                    <tr style="width: 100%">\n' +
                 '                                            <button class="itemButton1" type="button" onclick="window.open(\'uploads/<%=itemList[i].itemFileName%>\')"><img src=\'images/checkDrawing.png\' height="37px" width="40px"></button>\n' +
-                '                                        </td>\n' +
-                '                                        <td>\n' +
+                '</tr>\n'+
+                '<tr>\n'+
                 '                                            <button class="itemButton2" type="button" onclick="window.open(\'/qrCodePrint?itemId=<%=itemList[i].itemId%>\')"><img src=\'images/checkQRcode.png\' height="23px" width="23px"></button>\n' +
-                '                                        </td>\n' +
                 '                                    </tr>\n' +
                 '                                </table>\n' +
                 '                            </td>\n' +
