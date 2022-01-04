@@ -2284,8 +2284,6 @@ router.post('/adItemOrder', function(req, res, next) {
                     addNote('采购事件更新',result0[0].itemName,orderId,'申请中')
                     ChangeState(true,'hasOrder',1,url);
 
-
-
                 });
             });
         });
@@ -3058,11 +3056,25 @@ router.get('/ajaxSearchItem', function(req, res) {
 
 })
 
+// 更新物料成本
+function updateComponentCost(componentId, componentCost){
+    const updaateCostSql = 'UPDATE component SET cost = ? WHERE componentId =' + '"' + componentId + '"';
+    const updaateCostParams = [componentCost]
+    connection.query(updaateCostSql, updaateCostParams, function (err) {
+        if (err) {
+            console.log('[UPDATE ERROR] 更新部件成本错误！- ', err.message);
+        }
+    });
+}
+
 /* AJax Save ADD BOM List */
 router.get('/ajaxSaveAdd', function(req, res) {
     const componentId = req.query.componentId;
     const items = req.query.items;
     const itemLength = items[0].length;
+
+    var componentCost = parseFloat(req.query.componentCost);
+    if (!componentCost){componentCost=0};
 
     const addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
 
@@ -3073,26 +3085,34 @@ router.get('/ajaxSaveAdd', function(req, res) {
 
         var addSqlParams = [componentId,itemId,itemModel,itemQty];
 
-        console.log(addSqlParams);
-
-        connection.query(addSql,addSqlParams, function (err) {
+        connection.query(addSql, addSqlParams, function (err) {
             if (err) {
-                console.log('[INSERT ERROR] - ', err.message);
-                res.send('从部件中添加物料错误！' + err);
+                console.log('[INSERT ERROR] 从部件中添加物料错误！- ', err.message);
+                return;
             }
+            const itemPriceSql = 'SELECT itemPrice FROM item WHERE itemId =' + '"' + itemId + '"'
+            connection.query(itemPriceSql, function (err, itemPrice) {
+                if (err) {
+                    console.log('[SELECT ERROR] 查找物料价格错误！- ', err.message);
+                    return;
+                }
+                componentCost += itemPrice[0].itemPrice * itemQty;
+                if (i === itemLength-1){
+                    updateComponentCost(componentId, componentCost);
+                    res.send(true);
+                }
+            });
         });
-        if (i === itemLength-1){res.send(false);}
     }
 })
 
 /* AJax Save DEL, Edit BOM List */
 router.get('/ajaxSaveEdit', function(req, res) {
     const componentId = req.query.componentId;
-    let delSql = 'DELETE FROM component_has_item WHERE component_componentId = ' + componentId;
+    let delSql = 'DELETE FROM component_has_item WHERE component_componentId =' + '"' + componentId + '"';
     connection.query(delSql, function (err) {
         if (err) {
-            console.log('[DELETE ERROR] - ', err.message);
-            res.send('从部件中移除物料错误！' + err);
+            console.log('[DELETE ERROR] 从部件中移除物料错误！ - ', err.message);
         }
     });
 
@@ -3101,11 +3121,13 @@ router.get('/ajaxSaveEdit', function(req, res) {
     if (items){
         itemLength = items[0].length;
     } else {
-        res.send(false);
+        res.send(true);
         return;
     }
 
     let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
+
+    var componentCost = 0;
 
     for (let i=0; i<itemLength; i++ ) {
         let itemId = items[0][i]
@@ -3116,11 +3138,23 @@ router.get('/ajaxSaveEdit', function(req, res) {
 
         connection.query(addSql,addSqlParams, function (err) {
             if (err) {
-                console.log('[INSERT ERROR] - ', err.message);
-                res.send('从部件中添加物料错误！' + err);
+                console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
             }
+
+            const itemPriceSql = 'SELECT itemPrice FROM item WHERE itemId =' + '"' + itemId + '"'
+            connection.query(itemPriceSql, function (err, itemPrice) {
+                if (err) {
+                    console.log('[SELECT ERROR] 查找物料价格错误！- ', err.message);
+                    return;
+                }
+                componentCost += itemPrice[0].itemPrice * itemQty;
+                if (i === itemLength-1){
+                    updateComponentCost(componentId, componentCost);
+                    res.send(true);
+                }
+            });
+
         });
-        if (i === itemLength-1){res.send(false);}
     }
 })
 
