@@ -100,6 +100,7 @@
             $('#addBomBtn').removeAttr('hidden')
 
             cancelRemoveItem();
+            cancelEditItemQty();
         }
 
         function packData(){
@@ -152,9 +153,6 @@
 
         function saveAdd(){
             var items = packData();
-
-            console.log(items);
-
             if (!items){return}
 
             $.ajax({
@@ -167,10 +165,10 @@
                 // dataType: 'json',
                 success: function (err) {
                     console.log(err);
-                    if (!err){
-                        window.location = './adBOMList?componentId=<%=component[0].componentId%>';
+                    if (err){
+                        alert('保存添加错误！\n' + err);
                     } else {
-                        alert('保存添加错误！');
+                        window.location = './adBOMList?componentId=<%=component[0].componentId%>';
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -180,7 +178,7 @@
         }
 
         function packData2(){
-            var table, itemBtn, itemNum, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
+            var table, itemBtn, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
             var itemArray = [], itemIdArray = [], itemModelArray = [], itemQtyArray = [];
 
             table = $('#BOMListItem tbody:first');
@@ -226,11 +224,11 @@
                 type: 'GET',
                 // dataType: 'json',
                 success: function (err) {
-                    console.log(err);
-                    if (!err){
-                        window.location = './adBOMList?componentId=<%=component[0].componentId%>';
+                    console.log('err' + err);
+                    if (err){
+                        alert('保存编辑错误！\n' + err);
                     } else {
-                        alert('保存BOM表错误！');
+                        window.location = './adBOMList?componentId=<%=component[0].componentId%>';
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -335,6 +333,15 @@
                 $(delArray[i]).removeAttr('hidden');
             }
             delArray = [];
+        }
+
+        function cancelEditItemQty(){
+            var itemIndexId;
+
+            <%for(let i=0; i<component.length; i++) { %>
+            itemIndexId = '#requireNum' + '<%=i%>';
+            $(itemIndexId).val(<%=component[i].itemQuantity%>)
+            <%}%>
         }
 
         function addItemsScreenDisplay() {

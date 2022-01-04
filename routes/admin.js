@@ -3071,9 +3071,6 @@ router.get('/ajaxSaveAdd', function(req, res) {
     const items = req.query.items;
     const itemLength = items[0].length;
 
-    console.log(componentId);
-    console.log(items);
-
     const addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
 
     for (let i=0; i<itemLength; i++ ) {
@@ -3085,27 +3082,19 @@ router.get('/ajaxSaveAdd', function(req, res) {
 
         console.log(addSqlParams);
 
-        connection.query(addSql,addSqlParams, function (err, result) {
+        connection.query(addSql,addSqlParams, function (err) {
             if (err) {
                 console.log('[INSERT ERROR] - ', err.message);
-                res.send(err);
-                return;
+                res.send('从部件中添加物料错误！' + err);
             }
         });
+        if (i === itemLength-1){res.send(false);}
     }
-
-    res.send(false);
 })
 
 /* AJax Save DEL, Edit BOM List */
 router.get('/ajaxSaveEdit', function(req, res) {
     const componentId = req.query.componentId;
-    const items = req.query.items;
-    const itemLength = items[0].length;
-
-    console.log(componentId);
-    console.log(items);
-
     let delSql = 'DELETE FROM component_has_item WHERE component_componentId = ' + componentId;
     connection.query(delSql, function (err) {
         if (err) {
@@ -3113,6 +3102,15 @@ router.get('/ajaxSaveEdit', function(req, res) {
             res.send('从部件中移除物料错误！' + err);
         }
     });
+
+    const items = req.query.items;
+    var itemLength;
+    if (items){
+        itemLength = items[0].length;
+    } else {
+        res.send(false);
+        return;
+    }
 
     let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
 
@@ -3129,9 +3127,8 @@ router.get('/ajaxSaveEdit', function(req, res) {
                 res.send('从部件中添加物料错误！' + err);
             }
         });
+        if (i === itemLength-1){res.send(false);}
     }
-
-    res.send(false);
 })
 
 
