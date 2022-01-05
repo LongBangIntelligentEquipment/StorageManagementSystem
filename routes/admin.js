@@ -2675,7 +2675,7 @@ router.get('/adBOMListMachineMan', function (req, res) {
     let url = URL.parse(req.url, true).query;
     let machineId = url.machineId;
     // 设备有部件
-    let machineComponentSql = 'SELECT machine.machineId, machineName, machine.updateTime AS mUpdateTime, machine.note AS mNote, designer, componentId, componentName, component.updateTime AS cUpdateTime, component.note AS cNote, categoryName, cost\n' +
+    let machineComponentSql = 'SELECT machine.machineId, machineName, machine.updateTime AS mUpdateTime, machine.note AS mNote, designer, componentId, componentModel, componentName, component.updateTime AS cUpdateTime, component.note AS cNote, categoryName, cost\n' +
         'FROM machine\n' +
         'INNER JOIN component\n' +
         'ON machine.machineId = component.machineId\n' +
@@ -2797,7 +2797,7 @@ router.post('/adBOMListComponentAdd', upload.single('BomListFileName'), function
             return;
         }
         let categoryId = category[0].categoryId;
-        let addSql = 'INSERT INTO component(componentId,componentName,updateTime,state,note,userId,categoryId,cost,fileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
+        let addSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,fileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
         let addSqlParams = [addComponentModel, addComponentName, updateTime, "正常", addComponentNote, designerId, categoryId,0,fileName, addToMachineId];
         connection.query(addSql, addSqlParams, function (err) {
             if (err) {
@@ -2860,7 +2860,7 @@ router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
         fileName = 'null';
     }
 
-    let modSql = 'UPDATE component SET componentId = ?,  componentName = ?, updateTime = ?, userId = ?, note = ?, categoryId = ?, fileName = ? WHERE componentId = '+'\''+componentId+'\'';
+    let modSql = 'UPDATE component SET componentModel = ?,  componentName = ?, updateTime = ?, userId = ?, note = ?, categoryId = ?, fileName = ? WHERE componentId = '+'\''+componentId+'\'';
     let modSqlParams = [BomListModel, BomListName, updateTime, userId, BomListNote, BomListType, fileName];
     connection.query(modSql,modSqlParams,function (err) {
         if(err){
@@ -2881,7 +2881,7 @@ router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
 router.get('/adBOMList', function (req, res) {
     let url = URL.parse(req.url, true).query;
     // 部件有物料
-    let componentItemSql = 'SELECT componentId, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName, itemId, itemName, itemPrice, itemModel, itemType, itemNote, itemQuantity\n' +
+    let componentItemSql = 'SELECT componentId, componentModel, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName, itemId, itemName, itemPrice, itemModel, itemType, itemNote, itemQuantity\n' +
         'FROM component\n' +
         'INNER JOIN component_has_item\n' +
         'ON component_has_item.component_componentId = component.componentId\n' +
@@ -3073,7 +3073,10 @@ function updateComponentCost(componentId, componentCost){
     const updaateCostParams = [componentCost]
     connection.query(updaateCostSql, updaateCostParams, function (err) {
         if (err) {
-            console.log('[UPDATE ERROR] 更新部件成本错误！- ', err.message);
+            console.log('[UPDATE ERROR] 更新部件成本错误！- ', err.message + '\n');
+            return ('[UPDATE ERROR] 更新部件成本错误！- ' + err.message + '\n');
+        } else {
+            return false;
         }
     });
 }
@@ -3083,9 +3086,10 @@ router.get('/ajaxSaveAdd', function(req, res) {
     const componentId = req.query.componentId;
     const items = req.query.items;
     const itemLength = items[0].length;
+    var errorMessage;
 
     var componentCost = parseFloat(req.query.componentCost);
-    if (!componentCost){componentCost=0};
+    if (!componentCost){componentCost=0}
 
     const addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
 
@@ -3099,18 +3103,28 @@ router.get('/ajaxSaveAdd', function(req, res) {
         connection.query(addSql, addSqlParams, function (err) {
             if (err) {
                 console.log('[INSERT ERROR] 从部件中添加物料错误！- ', err.message);
+                errorMessage += '[INSERT ERROR] 从部件中添加物料错误！- '+ err.message +'\n';
                 return;
             }
             const itemPriceSql = 'SELECT itemPrice FROM item WHERE itemId =' + '"' + itemId + '"'
             connection.query(itemPriceSql, function (err, itemPrice) {
                 if (err) {
                     console.log('[SELECT ERROR] 查找物料价格错误！- ', err.message);
+                    errorMessage += '[SELECT ERROR] 查找物料价格错误！- '+ err.message +'\n';
                     return;
                 }
                 componentCost += itemPrice[0].itemPrice * itemQty;
                 if (i === itemLength-1){
                     updateComponentCost(componentId, componentCost);
-                    res.send(true);
+                    // if (updateComponentCost(componentId, componentCost)){
+                    //     errorMessage += '[UPDATE ERROR] 更新部件成本错误！- '+ err.message +'\n';
+                    // }
+                    if (errorMessage){
+                        console.log(errorMessage)
+                        res.send(errorMessage);
+                    }else {
+                        res.send(false);
+                    }
                 }
             });
         });
@@ -3119,6 +3133,7 @@ router.get('/ajaxSaveAdd', function(req, res) {
 
 /* AJax Save DEL, Edit BOM List */
 router.get('/ajaxSaveEdit', function(req, res) {
+    var errorMessage;
     const componentId = req.query.componentId;
     let delSql = 'DELETE FROM component_has_item WHERE component_componentId =' + '"' + componentId + '"';
     connection.query(delSql, function (err) {
@@ -3132,10 +3147,9 @@ router.get('/ajaxSaveEdit', function(req, res) {
     if (items){
         itemLength = items[0].length;
     } else {
-        res.send(true);
+        res.send(false);
         return;
     }
-
     let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
 
     var componentCost = 0;
@@ -3150,21 +3164,30 @@ router.get('/ajaxSaveEdit', function(req, res) {
         connection.query(addSql,addSqlParams, function (err) {
             if (err) {
                 console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
+                errorMessage += '[INSERT ERROR] 从部件中添加物料错误！- '+ err.message +'\n';
             }
 
             const itemPriceSql = 'SELECT itemPrice FROM item WHERE itemId =' + '"' + itemId + '"'
             connection.query(itemPriceSql, function (err, itemPrice) {
                 if (err) {
                     console.log('[SELECT ERROR] 查找物料价格错误！- ', err.message);
+                    errorMessage += '[SELECT ERROR] 查找物料价格错误！- '+ err.message +'\n';
                     return;
                 }
                 componentCost += itemPrice[0].itemPrice * itemQty;
                 if (i === itemLength-1){
                     updateComponentCost(componentId, componentCost);
-                    res.send(true);
+                    // if (updateComponentCost(componentId, componentCost)){
+                    //     errorMessage += '[UPDATE ERROR] 更新部件成本错误！- '+ err.message +'\n';
+                    // }
+                    if (errorMessage === ''){
+                        console.log(errorMessage)
+                        res.send(errorMessage);
+                    }else {
+                        res.send(false);
+                    }
                 }
             });
-
         });
     }
 })
