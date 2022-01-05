@@ -2345,18 +2345,29 @@ router.post('/adUser', function(req, res, next) {
 /* GET adBOMListMan */
 router.get('/adBOMListMan', function(req, res) {
     let sql = 'SELECT * FROM machine;';
-    connection.query(sql,function (err,result) {
+    let userSql = 'SELECT userName,role FROM user;';
+
+    connection.query(sql,function (err,result0) {
         if(err){
             console.log('[SELECT ERROR] - ',err.message);
             res.send('查找设备出错：' + '\n' + err);
             return;
         }
-        res.render('adBOMListMan', {
-            user:req.session.user,
-            machine: result
+        connection.query(userSql,function (err, result1) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+                res.send(err);
+                return;
+            }
+            res.render('adBOMListMan', {
+                user:req.session.user,
+                machine: result0,
+                users: result1
+            });
         });
     });
 });
+
 
 //   ---搜索设备部件物料---  A-B-C  设备，部件，物料
 /* POST adBOMListMan */
