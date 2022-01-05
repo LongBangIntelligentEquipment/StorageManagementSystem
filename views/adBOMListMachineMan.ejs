@@ -19,14 +19,35 @@
             return window.confirm("确认执行【修改设备 <%=machine[0].machineId%>-<%=machine[0].machineName%>】操作?");
         }
 
+
+
         function detailEditable(){
             if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
                 btnEdi('5','detail');
                 $('#updateFile').attr('style','display:/'/';');
                 $('#confirmEditButton').removeAttr('hidden');
-                // $('#editButton').attr('style','display: none;');
-                // $('#cancelEditButton').attr('style','display:/'/';');
             }
+
+            $('#componentDelButton').removeAttr('hidden')
+            $('#editButtonControl').attr('hidden','hidden')
+            $('#cancelEditButtonControl').removeAttr('hidden')
+        }
+
+        function cancelDetailEditable() {
+            if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
+                for(var i=0;i<5;i++){
+                    var elementId='#'+'detail'+i;
+                    $(elementId).attr('disabled','disabled');
+                    $(elementId).attr('style','')
+
+                }
+                $('#updateFile').attr('style','display:none;');
+                $('#confirmEditButton').attr('hidden','hidden');
+            }
+
+            $('#componentDelButton').attr('hidden','hidden')
+            $('#editButtonControl').removeAttr('hidden')
+            $('#cancelEditButtonControl').attr('hidden','hidden')
         }
 
         function InfoDisplay(rolejudgement,type1,type2,type3,type4,ojIdJudge,ojId){
@@ -118,13 +139,13 @@
                         <td >
                             <div style="width: 450px;margin-top: -10px">
                                 <div class="itemDetail">设备详细信息：</div>
-                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="MachineName" id="detail0" value="<%=machine[0].machineName%>" disabled style="width: 100%"></div>
-                                <div class="itemDetail">型号：<input class="itemDetailsInput" name="MachineModel" id="detail1" value="<%=machine[0].machineId%>" disabled  style="width: 100%"></div>
-                                <div class="itemDetail">设计师：<input class="itemDetailsInput" name="MachineDesigner" id="detail2" value="<%=machine[0].designer%>" disabled  style="width: 100%"></div>
+                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="MachineName" id="detail0" value="<%=machine[0].machineName%>" disabled ></div>
+                                <div class="itemDetail">型号：<input class="itemDetailsInput" name="MachineModel" id="detail1" value="<%=machine[0].machineId%>" disabled  ></div>
+                                <div class="itemDetail">设计师：<input class="itemDetailsInput" name="MachineDesigner" id="detail2" value="<%=machine[0].designer%>" disabled  ></div>
                                 <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="MachineUpdateTime" value="<%=machine[0].mUpdateTime%>" disabled ></div>
                                 <div class="itemDetail" >设备成本：<input class="itemDetailsInput" name="MachineCost" value="200,000" disabled ></div>
-                                <div class="itemDetail">备注：<input class="itemDetailsInput" name="MachineNote" id="detail3" value="<%=machine[0].mNote%>" disabled style="width: 100%"></div>
-                                <div class="itemDetail" id="updateFile" style="display: none">重新上传图片：<input type="file"  name="MachineFileName"  id="detail4" value=""  style="width: 310px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" >
+                                <div class="itemDetail">备注：<input class="itemDetailsInput" name="MachineNote" id="detail3" value="<%=machine[0].mNote%>" disabled ></div>
+                                <div class="itemDetail" id="updateFile" style="display: none">重新上传图片：<input type="file"  name="MachineFileName"  id="detail4" value=""   >
                                     <div style="color: red">请上传图片格式文件</div>
                                 </div>
                             </div>
@@ -137,15 +158,16 @@
                     </tr>
                     <tr>
                         <td >
-                            <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: none;" >编辑</button>
-<!--                            <button class="btn btn-block btn-submit button button&#45;&#45;primary smaller" type="button" id="cancleEditButton" onclick="detailEditable()" style="display: none;" >取消编辑</button>-->
+                            <a id="editButtonControl"><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: none;" >编辑</button></a>
+                            <a id="cancelEditButtonControl" hidden> <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="cancelDetailEditable()" style="background-color: #fa5000!important;" >取消编辑</button></a>
+
                             <style onload="Authority('系统管理员','editButton')"></style>
                             <style onload="Authority('仓库管理员','editButton')"></style>
                             <style onload="Authority('技术员','editButton')"></style>
 
-                            <button class="itemButton4" type="button" onclick=confirmAgainDelete() ><img src='images/bin.png' height="30px" width="30px"></button>
+                            <a hidden id="componentDelButton"><button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick='confirmAgainDelete()' style="background-color: red!important; margin-left: 300px" ><img src='images/bin.png' height="30px" width="30px"></button></a>
 
-                            <a hidden id="confirmEditButton"> <button class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" style="margin-left: 10px">确定</button></a>
+                            <a hidden id="confirmEditButton"> <button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" style="margin-left: -380px">确定</button></a>
                         </td>
                     </tr>
                 </table>
@@ -156,7 +178,7 @@
                 </div>
 
                 <div id="BomListDetail" style="width: auto">
-                <table  class="noteButton" style="width: 100%;font-size: 1rem;">
+                <table   style="width: 100%;font-size: 1rem;">
                     <div style="margin-left: -320px;margin-bottom: 70px;margin-top: 55px">
 <!--                        <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑所属部件</button></a>-->
 <!--                        <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>-->
@@ -167,7 +189,7 @@
                     <%for(let j = 0 ; j < machine.length ; j++) { %>
                     <tr id="machine<%=j%>" style="width: 100%;">
                         <td style="width: 100%">
-                            <button class="noteButton" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList?componentId=<%=machine[j].componentId%>'">
+                            <button class="noteButton2" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList?componentId=<%=machine[j].componentId%>'">
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
                                     <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
                                     <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"><%=machine[j].componentName%></a></span>

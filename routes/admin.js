@@ -2403,7 +2403,7 @@ router.post('/adBOMListMan', function(req, res,){
 /* AJax get component List */
 router.get('/ajaxComponents', function(req, res) {
     const machineId = req.query.machineId;
-    const sql = 'SELECT componentId, componentName, component.updateTime, component.note AS cNote, cost, userName\n' +
+    const sql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.note AS cNote, cost, userName\n' +
         'FROM component \n' +
         'INNER JOIN machine\n' +
         'ON component.machineId = machine.machineId\n' +
@@ -2432,7 +2432,7 @@ router.get('/ajaxComponents', function(req, res) {
                 '                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; ">' + component[j].updateTime.getFullYear()+'-'+component[j].updateTime.getMonth()+1+'-'+component[j].updateTime.getDate()+ '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
-                '                                        <span class="itemInfo" style="margin-left: -20px">部件型号：<a style="font-weight:normal;color: #0050fa; ">' + component[j].componentId + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: -20px">部件型号：<a style="font-weight:normal;color: #0050fa; ">' + component[j].componentModel + '</a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + component[j].cost + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">\n' +

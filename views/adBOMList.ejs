@@ -530,7 +530,7 @@
                     <%for(let j = 0 ; j < component.length ; j++) { %>
                     <tr id="item<%=j%>" style="width: 100%;">
                         <td style="width: 87%">
-                            <button class="noteButton" name="itemButton" style="padding-left: 80px;" type="button" onclick="location.href='/adItem?itemId=<%=component[j].itemId%>&returnSql='+document.URL.split('sql=')[1]">
+                            <button class="noteButton3" name="itemButton" style="padding-left: 80px;" type="button" onclick="location.href='/adItem?itemId=<%=component[j].itemId%>&returnSql='+document.URL.split('sql=')[1]">
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
                                     <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
                                     <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=component[j].itemName%></a></span>
