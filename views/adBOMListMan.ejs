@@ -124,12 +124,21 @@
         }
 
         function copyAct(machineId) {
+            $('#copyInputBox').removeAttr('hidden')
+            $('#copyMachineId').attr('value',machineId)
+            $('#blankCover').removeAttr('hidden')
+        }
+
+        function cancelCopyAct() {
+            $('#copyInputBox').attr('hidden','hidden')
+            $('#blankCover').attr('hidden','hidden')
 
         }
     </script>
 </head>
-<body>
 
+<body>
+<div id="blankCover" style="position: absolute;background-color: rgba(255,255,255,0.5);width: 100%;height: 100%;z-index: 998" hidden></div>
 
 <section class="functionBoard">
 
@@ -170,85 +179,122 @@
 
     </div>
 
+        <div class="functionBoard right" style="width: auto">
+            <main role="main" class="container mt-3 mb-3" >
 
-    <div class="functionBoard right">
-        <main role="main" class="container mt-3 mb-3">
-
-            <header role="banner">
-                <div class="headcontainer">
-                    <div class="page-title">
-                        BOM表管理
+                <header role="banner">
+                    <div class="headcontainer">
+                        <div class="page-title">
+                            BOM表管理
+                        </div>
+                        <span class="page-title"
+                              style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span
+                                id="role" class="page-title"
+                                style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%= user.role %></span><span
+                                class="page-title"
+                                style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%= user.userName %></span>
                     </div>
-                    <span class="page-title"
-                          style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span
-                            id="role" class="page-title"
-                            style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%= user.role %></span><span
-                            class="page-title"
-                            style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%= user.userName %></span>
-                </div>
-            </header>
+                </header>
 
-            <form method="post" action="/adBOMListMan">
-            <div class="pageCard" style="width: 100%">
-                <div class="pageTitle" style="width: 100%">
-
-                        <input class="indexOf" name="searchText" style="margin-left: 4px" placeholder="根据机械部件物料的名称/型号/备注搜索机械">
-                        <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit">搜&emsp;索</button>
-
-
-<!--                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentSearch'" type="button"-->
-<!--                            id="allComponentButton" style="margin-left: 390px;">管理所有部件-->
-<!--                    </button>-->
-<!--                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentAdd?machineId=WWW'" type="button"-->
-<!--                            id="addNewComponentButton" style="display: none;">创建部件-->
-<!--                    </button>-->
-                    <button class="searchBarButton" onclick="location.href='/adBOMListMachineAdd'" type="button" style="margin-left: 390px;" id="addNewMachineButton">创建设备</button>
-                </div>
-
-                <% for(let i = 0 ; i < machine.length ; i++) { %>
-                <table class="noteButton" style="width: 100%;font-size: 1rem;">
-                    <tr style="width: 100%;">
-                        <td style="width: 87%;">
-                            <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponents('<%=i%>','<%=machine[i].machineId%>')">
-                                <div  style= "font-size: 0.7rem; height: 35px; ">
-                                    <span class="BOMInfo" style="margin-left: -50px; color: #0050fa "><%=machine[i].machineName%></span>
-                                    <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=machine[i].updateTime.getFullYear()%>-<%=machine[i].updateTime.getMonth()+1%>-<%=machine[i].updateTime.getDate()%>  </a></span>
+                <form method="post" action="/adBOMListMan">
+                    <div id="copyInputBox" hidden style="position: absolute;width: 50%;height: 60%;margin-left: 15%;z-index: 999">
+                        <div class="col-md" >
+                            <div class="card" style="border-radius: 10px;overflow: hidden ">
+                                <div class="card-header text-center">
+                                    <h2 id="searchResultHeader">搜索结果</h2>
                                 </div>
-                                <div  style= "font-size: 0.7rem; height: 35px; ">
-                                    <span class="BOMInfo" style="margin-left: -50px;color: #0050fa"><%=machine[i].machineId%><a style="font-weight:normal;color: #0050fa; "></a></span>
-                                    <span class="BOMInfo" style="margin-left: 200px">设计：<%=machine[i].designer%><a style="font-weight:normal;color: #0050fa; "></a></span>
-                                    <span class="BOMInfo" style="margin-left: 430px">设备成本：200,000元<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px ">
+                                    <div class="itemDetailsPage" style="width: 100%;margin-left: 3%;margin-top: 5%">
+                                        <div class="itemDetail">正在复制新设备：<input class="itemDetailsInput" id="copyMachineId" value="" disabled></div>
+                                        <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="detail1" style="width: 80%" placeholder="请输入设备名称" required></div>
+                                        <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="detail2" style="width: 80%" placeholder="请输入设备型号" required></div>
+                                        <div class="itemDetail">设计工程师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="detail3" required="required" style="height: 35px;width: 130px;color:black;" >
+                                                <% for(let i = 0; i < users.length; i++) { %>
+                                                    <% if (users[i].role === '技术员' || users[i].role === '系统管理员') { %>
+                                                        <option value="<%= users[i].userName %>"><%= users[i].userName %></option>
+                                                <% }} %>
+                                            </select>
+                                        </div>
+                                        <div class="itemDetail">备注：<input name="addMachineNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 80%"></div>
+                                        <table cellspacing="0" cellpadding="0" style="width: 100%;margin-top: 20px">
+                                            <tr style="width: 100%">
+                                                <td style="width: 100%;">
+                                                    <button class="btn btn-block btn-submit button button--primary smaller" style="float: right;border: 0;margin-right: 10%;background-color: red!important;" type="button" onclick="cancelCopyAct()">取消</button>
+                                                    <button class="btn btn-block btn-submit button button--primary smaller" style="float: right;border: 0;margin-right: 2%;background-color: #00cb46!important;" type="submit" onclick="">确认</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pageCard"  style="width: 100%">
+                        <div class="pageTitle" style="width: 100%">
 
-                                <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                    <span class="BOMInfo" style="margin-left: -50px">备注： <a style="font-weight: normal;color: red;"><%=machine[i].note%></a></span>
-                                </div>
-                            </button>
-                        </td>
+                            <input class="indexOf" name="searchText" style="margin-left: 4px" placeholder="根据机械部件物料的名称/型号/备注搜索机械">
+                            <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit">搜&emsp;索</button>
 
-                        <td style="width: 13%">
-                            <table cellspacing="0" cellpadding="0" style="width: 100%">
-                                <tr >
-                                    <td>
-                                        <button class="itemButton2" style="height: 90px;border: 0" type="submit" onclick=""><img src='images/copy.png' height="32px" width="32px"></button>
-                                    </td>
-                                    <td>
-                                        <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/adBOMListMachineMan?machineId=<%=machine[i].machineId%>')"><img src='images/view-details.png' height="30px" width="30px"></button>
-                                    </td>
-                                </tr>
+
+                            <!--                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentSearch'" type="button"-->
+                            <!--                            id="allComponentButton" style="margin-left: 390px;">管理所有部件-->
+                            <!--                    </button>-->
+                            <!--                    <button class="searchBarButton" onclick="location.href='/adBOMListComponentAdd?machineId=WWW'" type="button"-->
+                            <!--                            id="addNewComponentButton" style="display: none;">创建部件-->
+                            <!--                    </button>-->
+                            <button class="searchBarButton" onclick="location.href='/adBOMListMachineAdd'" type="button" style="margin-left: 390px;" id="addNewMachineButton">创建设备</button>
+                        </div>
+
+                        <% for(let i = 0 ; i < machine.length ; i++) { %>
+                        <table class="noteButton" style="width: 100%;font-size: 1rem;">
+                            <tr style="width: 100%;">
+                                <td style="width: 87%;">
+                                    <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponents('<%=i%>','<%=machine[i].machineId%>')">
+                                        <div  style= "font-size: 0.7rem; height: 35px; ">
+                                            <span class="BOMInfo" style="margin-left: -50px; color: #0050fa "><%=machine[i].machineName%></span>
+                                            <span class="BOMInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "><%=machine[i].updateTime.getFullYear()%>-<%=machine[i].updateTime.getMonth()+1%>-<%=machine[i].updateTime.getDate()%>  </a></span>
+                                        </div>
+                                        <div  style= "font-size: 0.7rem; height: 35px; ">
+                                            <span class="BOMInfo" style="margin-left: -50px;color: #0050fa"><%=machine[i].machineId%><a style="font-weight:normal;color: #0050fa; "></a></span>
+                                            <span class="BOMInfo" style="margin-left: 200px">设计：<%=machine[i].designer%><a style="font-weight:normal;color: #0050fa; "></a></span>
+                                            <span class="BOMInfo" style="margin-left: 430px">设备成本：200,000元<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                        </div>
+
+                                        <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                            <span class="BOMInfo" style="margin-left: -50px">备注： <a style="font-weight: normal;color: red;"><%=machine[i].note%></a></span>
+                                        </div>
+                                    </button>
+                                </td>
+
+                                <td style="width: 13%">
+                                    <table cellspacing="0" cellpadding="0" style="width: 100%">
+                                        <tr >
+                                            <td>
+                                                <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/adBOMListMachineMan?machineId=<%=machine[i].machineId%>')"><img src='images/view-details.png' height="30px" width="30px"></button>
+
+                                            </td>
+                                            <td>
+                                                <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="copyAct('<%=machine[i].machineId%>')"><img src='images/copy.png' height="32px" width="32px"></button>
+
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                            <table id="componentBox<%=i%>" style="width: 100%">
+
                             </table>
-                        </td>
-                    </tr>
+                        </table>
+                        <% } %>
+                    </div>
 
-                    <table id="componentBox<%=i%>" style="width: 100%">
+                </form>
+            </main>
+        </div>
 
-                    </table>
-                </table>
-                <% } %>
-            </div>
-            </form>
-        </main>
-    </div>
+
+
 </section>
 
 
