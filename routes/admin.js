@@ -2444,7 +2444,7 @@ router.get('/ajaxComponents', function(req, res) {
                 '<table  style="width: 100%">\n' +
                 '                                <tr >\n' +
                 '                                    <td>\n' +
-                '                                        <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=\'/adBOMList?componentId=' + component[j].componentId + '\'"><img src=\'images/view-details.png\' height="30px" width="30px"></button>\n' +
+                '                                        <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=\'/adBOMList?componentId=' + component[j].componentId + '\'"><img src=\'images/components.png\' height="50px" width="50px"></button>\n' +
                 '                                    </td>\n' +
                 '                                </tr>\n' +
                 '                            </table> \n'+
@@ -2692,6 +2692,16 @@ router.get('/adBOMListMachineMan', function (req, res) {
         'WHERE machine.machineId =' + '\'' + machineId + '\'';
     let categorySql = 'SELECT * FROM category;';
 
+    let userSql = 'SELECT userName,role FROM user;'
+    connection.query(userSql,function (err, users) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send(err);
+            return;
+        }
+
+
+
     connection.query(categorySql, function (err, category) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
@@ -2714,7 +2724,8 @@ router.get('/adBOMListMachineMan', function (req, res) {
                     res.render('adBOMListMachineMan', {
                         user: req.session.user,
                         category: category,
-                        machine: machine
+                        machine: machine,
+                        users: users
                     });
                 });
             }
@@ -2722,10 +2733,12 @@ router.get('/adBOMListMachineMan', function (req, res) {
                 res.render('adBOMListMachineMan', {
                     user: req.session.user,
                     category: category,
-                    machine: machineComponent
+                    machine: machineComponent,
+                    users: users
                 });
             }
         });
+    });
     });
 });
 

@@ -240,7 +240,7 @@
                         <% for(let i = 0 ; i < machine.length ; i++) { %>
                         <table class="noteButton" style="width: 100%;font-size: 1rem;">
                             <tr style="width: 100%;">
-                                <td style="width: 87%;">
+                                <td style="width: 82%;">
                                     <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponents('<%=i%>','<%=machine[i].machineId%>')">
                                         <div  style= "font-size: 0.7rem; height: 35px; ">
                                             <span class="BOMInfo" style="margin-left: -50px; color: #0050fa "><%=machine[i].machineName%></span>
@@ -258,15 +258,15 @@
                                     </button>
                                 </td>
 
-                                <td style="width: 13%">
+                                <td style="width: 18%">
                                     <table cellspacing="0" cellpadding="0" style="width: 100%">
                                         <tr >
                                             <td>
-                                                <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/adBOMListMachineMan?machineId=<%=machine[i].machineId%>')"><img src='images/view-details.png' height="30px" width="30px"></button>
+                                                <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/adBOMListMachineMan?machineId=<%=machine[i].machineId%>')"><img src='images/machine.png' height="50px" width="50px"></button>
 
                                             </td>
                                             <td>
-                                                <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="copyAct('<%=machine[i].machineId%>')"><img src='images/copy.png' height="32px" width="32px"></button>
+                                                <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="copyAct('<%=machine[i].machineId%>')"><img src='images/copy.png' height="50px" width="50px"></button>
 
                                             </td>
                                         </tr>

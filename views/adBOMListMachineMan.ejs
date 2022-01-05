@@ -141,7 +141,13 @@
                                 <div class="itemDetail">设备详细信息：</div>
                                 <div class="itemDetail">名称：<input class="itemDetailsInput" name="MachineName" id="detail0" value="<%=machine[0].machineName%>" disabled ></div>
                                 <div class="itemDetail">型号：<input class="itemDetailsInput" name="MachineModel" id="detail1" value="<%=machine[0].machineId%>" disabled  ></div>
-                                <div class="itemDetail">设计师：<input class="itemDetailsInput" name="MachineDesigner" id="detail2" value="<%=machine[0].designer%>" disabled  ></div>
+                                <div class="itemDetail">设计工程师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput" name="MachineDesigner" id="detail2" disabled required="required"  >
+                                        <% for(let i = 0; i < users.length; i++) { %>
+                                            <% if (users[i].role === '技术员' || users[i].role === '系统管理员') { %>
+                                                <option value="<%= users[i].userName %>"><%= users[i].userName %></option>
+                                        <% }} %>
+                                    </select>
+                                </div>
                                 <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="MachineUpdateTime" value="<%=machine[0].mUpdateTime%>" disabled ></div>
                                 <div class="itemDetail" >设备成本：<input class="itemDetailsInput" name="MachineCost" value="200,000" disabled ></div>
                                 <div class="itemDetail">备注：<input class="itemDetailsInput" name="MachineNote" id="detail3" value="<%=machine[0].mNote%>" disabled ></div>
