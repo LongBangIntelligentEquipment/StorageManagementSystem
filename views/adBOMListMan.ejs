@@ -123,10 +123,11 @@
             }
         }
 
-        function copyAct(machineId) {
+        function copyAct(machineId,showMachineName) {
             $('#copyInputBox').removeAttr('hidden')
             $('#copyMachineId').attr('value',machineId)
             $('#blankCover').removeAttr('hidden')
+            document.getElementById('showMachineName').innerText=showMachineName
         }
 
         function cancelCopyAct() {
@@ -205,7 +206,7 @@
                                 </div>
                                 <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px ">
                                     <div class="itemDetailsPage" style="width: 100%;margin-left: 3%;margin-top: 5%">
-                                        <div class="itemDetail">正在复制新设备：<input class="itemDetailsInput" id="copyMachineId" value="" disabled></div>
+                                        <div class="itemDetail">复制设备：<a id="showMachineName"></a>&emsp;<input class="itemDetailsInput" id="copyMachineId" value="" disabled></div>
                                         <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="detail1" style="width: 80%" placeholder="请输入设备名称" required></div>
                                         <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="detail2" style="width: 80%" placeholder="请输入设备型号" required></div>
                                         <div class="itemDetail">设计工程师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="detail3" required="required" style="height: 35px;width: 130px;color:black;" >
@@ -266,7 +267,7 @@
 
                                             </td>
                                             <td>
-                                                <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="copyAct('<%=machine[i].machineId%>')"><img src='images/copy.png' height="50px" width="50px"></button>
+                                                <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="copyAct('<%=machine[i].machineId%>','<%=machine[i].machineName%>')"><img src='images/copy.png' height="50px" width="50px"></button>
 
                                             </td>
                                         </tr>
