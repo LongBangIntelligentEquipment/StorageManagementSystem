@@ -10,7 +10,7 @@
     <script language="javascript">
 
         function confirmAgainDelete() {
-            if (window.confirm("确认执行【删除部件 <%=component[0].componentName%>-<%=component[0].componentId%>】操作?")){
+            if (window.confirm("确认执行【删除部件 <%=component[0].componentName%>-<%=component[0].componentModel%>】操作?")){
                 return location.href=('/adBOMListComponentDelete?componentId=<%=component[0].componentId%>')
             }
         }
@@ -190,8 +190,10 @@
                 type: 'GET',
                 // dataType: 'json',
                 success: function (data) {
-                    if(data){
+                    if(!data){
                         window.location = './adBOMList?componentId=<%=component[0].componentId%>';
+                    } else{
+                        alert(data);
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -247,8 +249,10 @@
                 type: 'GET',
                 // dataType: 'json',
                 success: function (data) {
-                    if(data){
+                    if(!data){
                         window.location = './adBOMList?componentId=<%=component[0].componentId%>';
+                    } else{
+                        alert(data);
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -426,7 +430,7 @@
                             <div style="width: 450px;margin-top: -10px">
                                 <div class="itemDetail">详细信息：</div>
                                 <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="<%=component[0].componentName%>" disabled></div>
-                                <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=component[0].componentId%>" disabled></div>
+                                <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=component[0].componentModel%>" disabled></div>
 
                                 <div class="itemDetail" id="typeSelect">类型：<select class="itemDetailsInput" name="BomListType" id="detail2" required="required" disabled style="height: 35px;width: 130px;" >
                                         <option value="<%=component[0].categoryId%>" selected><%=component[0].categoryName%></option>
