@@ -2388,6 +2388,7 @@ router.get('/adBOMListMan', function(req, res) {
 router.post('/adBOMListMan', function(req, res,){
     var sql;
     let searchText =  '\'\%%' + req.body.searchText + '%\'';
+    let userSql = 'SELECT userName,role FROM user;';
     if(req.body.indexOfButton){
         sql='SELECT machine.machineId, machineName, machine.updateTime, designer, machine.note\n' +
             'FROM machine\n' +
@@ -2406,10 +2407,19 @@ router.post('/adBOMListMan', function(req, res,){
             res.send('搜索出错：' + '\n' + err);
             return;
         }
-        res.render('adBOMListMan', {
-            user:req.session.user,
-            machine: result
+        connection.query(userSql,function (err, result1) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+                res.send(err);
+                return;
+            }
+            res.render('adBOMListMan', {
+                user:req.session.user,
+                machine: result,
+                users: result1
+            });
         });
+
     });
 });
 
@@ -2895,7 +2905,7 @@ router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
         }
         // --添加事件更新到首页--
         // addNote('BOM表事件更新', BomListName, BomListModel, '修改BOM表');
-        res.redirect('/adBOMList?componentId=' + BomListModel);
+        res.redirect('/adBOMList?componentId=' + componentId);
     });
 
 });
@@ -2927,7 +2937,16 @@ router.get('/adBOMList', function (req, res) {
         'WHERE componentId =' + '\'' + url.componentId + '\'';
     let categorySql = 'SELECT * FROM category;';
 
-    connection.query(categorySql, function (err, category) {
+    let machineSql = 'SELECT * FROM machine;';
+
+
+    connection.query(machineSql,function (err,machine) {
+        if(err){
+            console.log('[SELECT ERROR] - ',err.message);
+            res.send('查找设备出错：' + '\n' + err);
+            return;
+        }
+        connection.query(categorySql, function (err, category) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
             res.send(err);
@@ -2939,6 +2958,14 @@ router.get('/adBOMList', function (req, res) {
                 res.send(err);
                 return;
             }
+            connection.query(categorySql,function (err, categoryName) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                    res.send('查找类别出错：' + '\n' + err);
+                    return;
+                }
+
+
 
             if (componentItem.length === 0){
                 connection.query(componentSql, function (err, component) {
@@ -2950,7 +2977,9 @@ router.get('/adBOMList', function (req, res) {
                     res.render('adBOMList', {
                         user: req.session.user,
                         category: category,
-                        component: component
+                        component: component,
+                        categoryName: categoryName,
+                        machine: machine,
                     });
                 });
             }
@@ -2958,10 +2987,14 @@ router.get('/adBOMList', function (req, res) {
                 res.render('adBOMList', {
                     user: req.session.user,
                     category: category,
-                    component: componentItem
+                    component: componentItem,
+                    categoryName: categoryName,
+                    machine: machine,
                 });
             }
         });
+        });
+    });
     });
 });
 
