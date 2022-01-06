@@ -209,11 +209,20 @@
                                         <div class="itemDetail">复制设备：<a id="showMachineName"></a>&emsp;<input class="itemDetailsInput" id="copyMachineId" value="" disabled></div>
                                         <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="detail1" style="width: 80%" placeholder="请输入设备名称" required></div>
                                         <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="detail2" style="width: 80%" placeholder="请输入设备型号" required></div>
-                                        <div class="itemDetail">设计工程师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="detail3" required="required" style="height: 35px;width: 130px;color:black;" >
+                                        <div class="itemDetail">设计师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="detail3" required="required" style="height: 35px;color:black;" >
+                                                <option id="designer" value="" selected>请选择设计师</option>
                                                 <% for(let i = 0; i < users.length; i++) { %>
+                                                    <% if (machine[0].designer === users[i].userName) {
+                                                        if (i < users.length - 1) {
+                                                            i++;
+                                                        } else {
+                                                            break;
+                                                        }
+                                                    } %>
                                                     <% if (users[i].role === '技术员' || users[i].role === '系统管理员') { %>
                                                         <option value="<%= users[i].userName %>"><%= users[i].userName %></option>
-                                                <% }} %>
+                                                    <% } %>
+                                                <% } %>
                                             </select>
                                         </div>
                                         <div class="itemDetail">备注：<input name="addMachineNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 80%"></div>
@@ -250,7 +259,7 @@
                                         <div  style= "font-size: 0.7rem; height: 35px; ">
                                             <span class="BOMInfo" style="margin-left: -50px;color: #0050fa"><%=machine[i].machineId%><a style="font-weight:normal;color: #0050fa; "></a></span>
                                             <span class="BOMInfo" style="margin-left: 200px">设计：<%=machine[i].designer%><a style="font-weight:normal;color: #0050fa; "></a></span>
-                                            <span class="BOMInfo" style="margin-left: 430px">设备成本：200,000元<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                            <span class="BOMInfo" style="margin-left: 430px">设备成本：<%=machine[i].machineCost%>元<a style="font-weight:normal;color: #0050fa; "></a></span>
                                         </div>
 
                                         <div  style= "font-size: 0.7rem; height: 30px;" id="">
@@ -267,7 +276,7 @@
 
                                             </td>
                                             <td>
-                                                <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="copyAct('<%=machine[i].machineId%>','<%=machine[i].machineName%>')"><img src='images/copy.png' height="50px" width="50px"></button>
+                                                <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="copyAct('<%=machine[i].machineId%>','<%=machine[i].machineName%>', '<%= machine[i].designer %>')"><img src='images/copy.png' height="50px" width="50px"></button>
 
                                             </td>
                                         </tr>

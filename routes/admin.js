@@ -538,6 +538,9 @@ router.post('/adItem', upload.single('updateFileName'), function(req, res, next)
 
                             }
 
+                            //更新部件成本
+                            updateComponentCost(false,url.itemId);
+
 
                             if(req.body.updateModel===undefined&&req.body.updateId===undefined){
                                 var flashUrl='adItem?itemId='+url.itemId+'&returnSql='+url.returnSql+'&itemModel='+url.itemModel;
@@ -1786,7 +1789,18 @@ router.post('/adOrder', function(req, res, next) {
                         console.log('[UPDATE ERROR] - ',err.message);
                         return;
                     }
-
+                    //更改物料价格
+                    var itemId = result0[0].itemId;
+                    var modSql = 'UPDATE item SET itemPrice=? WHERE itemId = '+'"'+itemId+'";';
+                    var modSqlParams = [req.body.purchasePrice];
+                    connection.query(modSql,modSqlParams,function (err) {
+                        if(err){
+                            console.log('[UPDATE ERROR] - ',err.message);
+                            return;
+                        }
+                        //更新部件价格
+                        updateComponentCost(false, itemId);
+                    });
                 });
 
                 ChangeState(true,'hasOrder',1,url);
@@ -2353,7 +2367,7 @@ router.get('/adBOMListMan', function(req, res) {
             res.send('查找设备出错：' + '\n' + err);
             return;
         }
-        connection.query(userSql,function (err, result1) {
+        connection.query(userSql,function (err, users) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
                 res.send(err);
@@ -2362,7 +2376,7 @@ router.get('/adBOMListMan', function(req, res) {
             res.render('adBOMListMan', {
                 user:req.session.user,
                 machine: result0,
-                users: result1
+                users: users
             });
         });
     });
@@ -2675,7 +2689,7 @@ router.get('/adBOMListMachineMan', function (req, res) {
     let url = URL.parse(req.url, true).query;
     let machineId = url.machineId;
     // 设备有部件
-    let machineComponentSql = 'SELECT machine.machineId, machineName, machine.updateTime AS mUpdateTime, machine.note AS mNote, designer, componentId, componentModel, componentName, component.updateTime AS cUpdateTime, component.note AS cNote, categoryName, cost\n' +
+    let machineComponentSql = 'SELECT machine.machineId, machineName, machine.updateTime AS mUpdateTime, machine.note AS mNote, designer, componentId, componentModel, componentName, component.updateTime AS cUpdateTime, component.note AS cNote, categoryName, cost As componentCost\n' +
         'FROM machine\n' +
         'INNER JOIN component\n' +
         'ON machine.machineId = component.machineId\n' +
@@ -2699,8 +2713,6 @@ router.get('/adBOMListMachineMan', function (req, res) {
             res.send(err);
             return;
         }
-
-
 
     connection.query(categorySql, function (err, category) {
         if (err) {
@@ -2906,7 +2918,7 @@ router.get('/adBOMList', function (req, res) {
         'ON component.userId = user.userId\n' +
         'WHERE componentId =' + '\'' + url.componentId + '\'';
     // 部件无物料
-    let componentSql = 'SELECT componentId, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName\n' +
+    let componentSql = 'SELECT componentId, componentModel, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName\n' +
         'FROM component\n' +
         'LEFT JOIN category\n' +
         'ON component.categoryId = category.categoryId\n' +
@@ -3080,17 +3092,91 @@ router.get('/ajaxSearchItem', function(req, res) {
 
 })
 
-// 更新物料成本
-function updateComponentCost(componentId, componentCost){
-    const updaateCostSql = 'UPDATE component SET cost = ? WHERE componentId =' + '"' + componentId + '"';
-    const updaateCostParams = [componentCost]
-    connection.query(updaateCostSql, updaateCostParams, function (err) {
+// 更新部件成本函数
+function updateComponentCost(componentId, itemId){
+
+    if (itemId){
+        let itemSql = 'SELECT componentId\n' +
+            'FROM component\n' +
+            'INNER JOIN component_has_item\n' +
+            'ON component_has_item.component_componentId = component.componentId\n' +
+            'INNER JOIN item\n' +
+            'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
+            'WHERE itemId =' + '"' + itemId + '"' ;
+
+        connection.query(itemSql, function (err,componentId) {
+            if (err) {
+                console.log('[SELECT ERROR] 查找部件错误！- ', err.message + '\n');
+                return ('[SELECT ERROR] 查找部件错误！- ' + err.message + '\n');
+            }
+            for (let i=0;i<componentId.length;i++){
+                updateComponentCost(componentId[i].componentId, false)
+            }
+        });
+    }
+
+    if (componentId){
+        let componentSql = 'SELECT itemPrice, itemQuantity\n' +
+            'FROM component\n' +
+            'INNER JOIN component_has_item\n' +
+            'ON component_has_item.component_componentId = component.componentId\n' +
+            'INNER JOIN item\n' +
+            'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
+            'WHERE componentId = ' + '"' + componentId + '"';
+        connection.query(componentSql, function (err,cost) {
+            if (err) {
+                console.log('[SELECT ERROR] 查找部件成本错误！- ', err.message + '\n');
+                return ('[SELECT ERROR] 查找部件成本错误！- ' + err.message + '\n');
+            }
+            var totalCost =0;
+            for (let i=0;i<cost.length;i++){
+                totalCost += cost[i].itemPrice * cost[i].itemQuantity
+            }
+            let updaateCostSql = 'UPDATE component SET cost = ? WHERE componentId =' + '"' + componentId + '"';
+            let updaateCostParams = [totalCost]
+            connection.query(updaateCostSql, updaateCostParams, function (err) {
+                if (err) {
+                    console.log('[UPDATE ERROR] 更新部件成本错误！- ', err.message + '\n');
+                    return ('[UPDATE ERROR] 更新部件成本错误！- ' + err.message + '\n');
+                }
+            });
+        });
+    }
+
+    updateMachineCost(componentId);
+}
+
+function updateMachineCost(componentId){
+    let componentMachineSql = 'SELECT component.machineId\n' +
+        'FROM component\n' +
+        'INNER JOIN machine\n' +
+        'ON component.machineId = machine.machineId\n' +
+        'WHERE componentId = ' + '"' + componentId + '"';
+    connection.query(componentMachineSql, function (err,machineIds) {
         if (err) {
-            console.log('[UPDATE ERROR] 更新部件成本错误！- ', err.message + '\n');
-            return ('[UPDATE ERROR] 更新部件成本错误！- ' + err.message + '\n');
-        } else {
-            return false;
+            console.log('[SELECT ERROR] 查找部件设备错误！- ', err.message + '\n');
+            return ('[SELECT ERROR] 查找部件设备错误！- ' + err.message + '\n');
         }
+        let machineId = machineIds[0].machineId;
+        let machineTotalCostSql = 'SELECT SUM(component.cost) AS machineTotalCost\n' +
+            'FROM component\n' +
+            'INNER JOIN machine\n' +
+            'ON component.machineId = machine.machineId\n' +
+            'WHERE component.machineId = ' + '"' + machineId + '"';
+        connection.query(machineTotalCostSql, function (err,machineTotalCosts) {
+            if (err) {
+                console.log('[SELECT ERROR] 查找设备成本错误！- ', err.message + '\n');
+                return ('[SELECT ERROR] 查找设备成本错误！- ' + err.message + '\n');
+            }
+            let machineTotalCost = machineTotalCosts[0].machineTotalCost
+            let updateMachineSql = 'UPDATE machine SET machineCost = '+ '"' + machineTotalCost + '"' + 'WHERE machineId = ' + '"' + machineId + '"';
+            connection.query(updateMachineSql, function (err) {
+                if (err) {
+                    console.log('[SELECT ERROR] 更新设备成本错误！- ', err.message + '\n');
+                    return ('[SELECT ERROR] 更新设备成本错误！- ' + err.message + '\n');
+                }
+            });
+        });
     });
 }
 
@@ -3100,9 +3186,6 @@ router.get('/ajaxSaveAdd', function(req, res) {
     const items = req.query.items;
     const itemLength = items[0].length;
     var errorMessage;
-
-    var componentCost = parseFloat(req.query.componentCost);
-    if (!componentCost){componentCost=0}
 
     const addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
 
@@ -3116,30 +3199,18 @@ router.get('/ajaxSaveAdd', function(req, res) {
         connection.query(addSql, addSqlParams, function (err) {
             if (err) {
                 console.log('[INSERT ERROR] 从部件中添加物料错误！- ', err.message);
-                errorMessage += '[INSERT ERROR] 从部件中添加物料错误！- '+ err.message +'\n';
+                errorMessage += '[INSERT ERROR] 从部件中添加物料错误！- ' + err.message + '\n';
                 return;
             }
-            const itemPriceSql = 'SELECT itemPrice FROM item WHERE itemId =' + '"' + itemId + '"'
-            connection.query(itemPriceSql, function (err, itemPrice) {
-                if (err) {
-                    console.log('[SELECT ERROR] 查找物料价格错误！- ', err.message);
-                    errorMessage += '[SELECT ERROR] 查找物料价格错误！- '+ err.message +'\n';
-                    return;
+            if (i === itemLength - 1) {
+                updateComponentCost(componentId, false);
+                if (errorMessage) {
+                    console.log(errorMessage)
+                    res.send(errorMessage);
+                } else {
+                    res.send(false);
                 }
-                componentCost += itemPrice[0].itemPrice * itemQty;
-                if (i === itemLength-1){
-                    updateComponentCost(componentId, componentCost);
-                    // if (updateComponentCost(componentId, componentCost)){
-                    //     errorMessage += '[UPDATE ERROR] 更新部件成本错误！- '+ err.message +'\n';
-                    // }
-                    if (errorMessage){
-                        console.log(errorMessage)
-                        res.send(errorMessage);
-                    }else {
-                        res.send(false);
-                    }
-                }
-            });
+            }
         });
     }
 })
@@ -3165,42 +3236,27 @@ router.get('/ajaxSaveEdit', function(req, res) {
     }
     let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
 
-    var componentCost = 0;
-
-    for (let i=0; i<itemLength; i++ ) {
+    for (let i = 0; i < itemLength; i++) {
         let itemId = items[0][i]
         let itemModel = items[1][i]
         let itemQty = items[2][i]
 
-        var addSqlParams = [componentId,itemId,itemModel,itemQty];
+        var addSqlParams = [componentId, itemId, itemModel, itemQty];
 
-        connection.query(addSql,addSqlParams, function (err) {
+        connection.query(addSql, addSqlParams, function (err) {
             if (err) {
                 console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
-                errorMessage += '[INSERT ERROR] 从部件中添加物料错误！- '+ err.message +'\n';
+                errorMessage += '[INSERT ERROR] 从部件中添加物料错误！- ' + err.message + '\n';
             }
-
-            const itemPriceSql = 'SELECT itemPrice FROM item WHERE itemId =' + '"' + itemId + '"'
-            connection.query(itemPriceSql, function (err, itemPrice) {
-                if (err) {
-                    console.log('[SELECT ERROR] 查找物料价格错误！- ', err.message);
-                    errorMessage += '[SELECT ERROR] 查找物料价格错误！- '+ err.message +'\n';
-                    return;
+            if (i === itemLength - 1) {
+                updateComponentCost(componentId, false);
+                if (errorMessage) {
+                    console.log(errorMessage)
+                    res.send(errorMessage);
+                } else {
+                    res.send(false);
                 }
-                componentCost += itemPrice[0].itemPrice * itemQty;
-                if (i === itemLength-1){
-                    updateComponentCost(componentId, componentCost);
-                    // if (updateComponentCost(componentId, componentCost)){
-                    //     errorMessage += '[UPDATE ERROR] 更新部件成本错误！- '+ err.message +'\n';
-                    // }
-                    if (errorMessage === ''){
-                        console.log(errorMessage)
-                        res.send(errorMessage);
-                    }else {
-                        res.send(false);
-                    }
-                }
-            });
+            }
         });
     }
 })
@@ -3294,7 +3350,7 @@ router.post('/adBOMListCategoryEdit', function(req, res) {
 //   ---查找分类---
 /* GET adBOMListCategoryMan*/
 router.get('/adBOMListCategoryMan', function(req, res) {
-    let sql;
+    let sql = 'SELECT * FROM category';
     connection.query( sql,function (err, result) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
@@ -3307,6 +3363,32 @@ router.get('/adBOMListCategoryMan', function(req, res) {
         })
     });
 });
+
+
+/*                            ***************************************************复制***************************************************                  */
+//   ---复制部件---
+/* POST componentCopy */
+router.get('/componentCopy', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    let componentId = url.componentId;
+    copyComponent(componentId);
+});
+
+function copyComponent(componentId){
+
+    let componentSql = 'SELECT * FROM component WHERE componentId = ' + componentId + ';';
+    connection.query( componentSql,function (err, component) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            return;
+        }
+        let insertSql = 'INSERT INTO component ';
+    });
+}
+
+
+//   ---复制机械---
+/* POST machineCopy */
 
 
 
