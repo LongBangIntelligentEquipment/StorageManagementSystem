@@ -650,7 +650,7 @@
                                 </div>
                                 <div  style= "font-size: 0.7rem; height: 30px;" id="">
                                     <span class="itemInfo" >类型：<a style="font-weight: normal;color: red;"><%=component[j].itemType%></a></span>
-                                    <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a id="itemQty" style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
+                                    <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a id="itemQty" style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" onkeyup = "value=value.replace(/[^\d]/g,'')" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
                                     <span class="itemInfo" style="margin-left: 350px">备注：<a style="font-weight:normal;color: red; "><%=component[j].itemNote%></a></span>
                                 </div>
                             </button>

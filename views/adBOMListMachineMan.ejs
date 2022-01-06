@@ -15,9 +15,7 @@
             }
         }
 
-        function confirmAgainEdit() {
-            return window.confirm("确认执行【修改设备 <%=machine[0].machineId%>-<%=machine[0].machineName%>】操作?");
-        }
+
 
         function detailEditable(){
             if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
@@ -145,7 +143,7 @@
                                 <div class="itemDetail">设备详细信息：</div>
                                 <div class="itemDetail">名称：<input class="itemDetailsInput" name="MachineName" id="detail0" value="<%=machine[0].machineName%>" disabled ></div>
                                 <div class="itemDetail">型号：<input class="itemDetailsInput" name="MachineModel" id="detail1" value="<%=machine[0].machineId%>" disabled  ></div>
-                                <div class="itemDetail">设计工程师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput" name="MachineDesigner" id="detail2" disabled required="required"  >
+                                <div class="itemDetail">设计师：<select class="itemDetailsInput" name="MachineDesigner" id="detail2" disabled required="required"  >
                                         <option value="<%= machine[0].designer %>" selected><%= machine[0].designer %></option>
                                         <% for(let i = 0; i < users.length; i++) { %>
                                             <% if (machine[0].designer === users[i].userName) {
