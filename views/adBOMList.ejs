@@ -14,6 +14,23 @@
                 return location.href=('/adBOMListComponentDelete?componentId=<%=component[0].componentId%>')
             }
         }
+        function comfirmAgain() {
+
+                var checkOne=false;
+                var checkBox=$('input[name = belongMachine]')
+                for(var i=0;i<checkBox.length;i++){
+                    if(checkBox[i].checked){
+                        checkOne=true;
+                    }
+                }
+                if(checkOne){
+                    return true
+                }else{
+                    alert('请至少选择一款【所属机型】')
+                    return false
+                }
+
+        }
 
         function detailEditable(){
             if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
@@ -25,6 +42,7 @@
             $('#componentDelButton').removeAttr('hidden')
             $('#editButtonControl').attr('hidden','hidden')
             $('#cancelEditButtonControl').removeAttr('hidden')
+            $('#copyButtonControl').attr('hidden','hidden')
         }
 
         function cancelDetailEditable() {
@@ -42,6 +60,7 @@
             $('#componentDelButton').attr('hidden','hidden')
             $('#editButtonControl').removeAttr('hidden')
             $('#cancelEditButtonControl').attr('hidden','hidden')
+            $('#copyButtonControl').removeAttr('hidden')
         }
 
         function InfoDisplay(rolejudgement,type1,type2,type3,type4,ojIdJudge,ojId){
@@ -388,10 +407,38 @@
             $('#addBomBtn').removeAttr('hidden')
         }
 
+        function copyAct(componentId,showComponentName) {
+
+
+            $('#copyDetail1').attr('required','required')
+            $('#copyDetail2').attr('required','required')
+            $('#copyDetail3').attr('required','required')
+            $('#copyDetail3').removeAttr('disabled')
+
+            $('#copyInputBox').removeAttr('hidden')
+            $('#copyComponentId').attr('value',componentId)
+            $('#blankCover').removeAttr('hidden')
+            document.getElementById('showComponentName').innerText=showComponentName
+            $('#bodyPage').attr('style','position:fixed')
+        }
+
+        function cancelCopyAct() {
+            $('#copyDetail1').removeAttr('required')
+            $('#copyDetail2').removeAttr('required')
+            $('#copyDetail3').removeAttr('required')
+            $('#copyDetail3').attr('disabled','disabled')
+
+
+            $('#copyInputBox').attr('hidden','hidden')
+            $('#blankCover').attr('hidden','hidden')
+            $('#bodyPage').removeAttr('style')
+        }
+
     </script>
 
 </head>
-<body >
+<body id="bodyPage" >
+<div id="blankCover" style="position: absolute;background-color: rgba(255,255,255,0.5);width: 100%;height: 100%;z-index: 998" hidden></div>
 
 
 <section class="functionBoard" >
@@ -423,7 +470,7 @@
                 </div>
             </header>
 
-            <form method="post">
+            <form method="post" >
                 <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
                     <tr>
                         <td >
@@ -431,7 +478,6 @@
                                 <div class="itemDetail">详细信息：</div>
                                 <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="<%=component[0].componentName%>" disabled></div>
                                 <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=component[0].componentModel%>" disabled></div>
-
                                 <div class="itemDetail" id="typeSelect">类型：<select class="itemDetailsInput" name="BomListType" id="detail2" required="required" disabled style="height: 35px;width: 130px;" >
                                         <option value="<%=component[0].categoryId%>" selected><%=component[0].categoryName%></option>
                                         <%for(let i = 0; i < category.length; i++) { %>
@@ -453,6 +499,7 @@
                                 <div class="itemDetail" id="updateFile" style="display: none">重新上传图片：<input type="file"  name="BomListFileName"  id="detail4" value=""  style="width: 310px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" >
                                     <div style="color: red">请上传图片格式文件</div>
                                 </div>
+
                             </div>
                         </td>
                         <td>
@@ -469,13 +516,71 @@
                             <style onload="Authority('系统管理员','editButton')"></style>
                             <style onload="Authority('仓库管理员','editButton')"></style>
                             <style onload="Authority('技术员','editButton')"></style>
+                            <a hidden id="confirmEditButton"> <button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" style="margin-left: 2%">确定</button></a>
 
-                            <a hidden id="componentDelButton"><button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick='confirmAgainDelete()' style="background-color: red!important; margin-left: 300px" ><img src='images/bin.png' height="30px" width="30px"></button></a>
+                            <a hidden id="componentDelButton"><button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick='confirmAgainDelete()' style="background-color: red!important; margin-left: 30%;" ><img src='images/bin.png' height="30px" width="30px"></button></a>
 
-                            <a hidden id="confirmEditButton"> <button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" style="margin-left: -380px">确定</button></a>
+                            <a id="copyButtonControl"><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="copyAct('<%=component[0].componentModel%>','<%=component[0].componentName%>')" style="background-color: #00cb46!important;margin-left:50%; " ><img src='images/copy.png' height="30px" width="30px"></button></a>
+
                         </td>
                     </tr>
                 </table>
+            </form>
+            <form method="post" onsubmit="return comfirmAgain()">
+                <div id="copyInputBox" hidden style="position: absolute;margin-top: -30%;width: 50%;height: 60%;margin-left: 15%;z-index: 999">
+                    <div class="col-md" >
+                        <div class="card" style="border-radius: 10px;overflow: hidden ">
+                            <div class="card-header text-center">
+                                <h2 id="searchResultHeader">复制部件</h2>
+                            </div>
+                            <div class="card-body"  style="height: 400px;overflow:auto ;padding: 0px ">
+                                <div  class="itemDetailsPage" style="width: 100%">
+                                    <div class="itemDetail">复制部件：<a id="showComponentName"></a>&emsp;<input class="itemDetailsInput" id="copyComponentId" value="" disabled></div>
+                                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="copyDetail1" value=""   style="width: 500px" placeholder="请输入部件名称" ></div>
+                                    <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="copyDetail2"   value=""  style="width: 500px" placeholder="请输入部件图号" ></div>
+                                    <div class="itemDetail" id="typeSelect">类型：
+                                        <select class="itemDetailsInput addItemInfo" disabled name="BomListType" id="copyDetail3"   style="height: 35px;width: 130px;" >
+                                            <option value="<%=component[0].categoryId%>" selected><%=component[0].categoryName%></option>
+                                            <%for(let i = 0; i < category.length; i++) { %>
+                                                <% if (component[0].categoryName === category[i].categoryName){
+                                                    if (i < category.length-1 ){
+                                                        i++;
+                                                    } else {break}
+                                                }%>
+                                                <option value="<%=category[i].categoryId%>"><%=category[i].categoryName%></option>
+                                            <%}%>
+                                        </select>
+                                        <span>
+                                        <button class="searchBarButton" onclick="location.href='/adBOMListCategoryMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>
+                                        </span>
+
+                                        <div >
+                                            <div class="itemDetail" >备注：<input name="addComponentNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
+                                            <div class="itemDetail" id="detail7" >上传图纸：<input name="BomListFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
+                                        </div>
+                                        <div id="shellBox" style="margin-top: 3%">
+                                            请选择所属设备<a style="color: red; font-size: x-large">*</a>：
+                                            <% for (let i = 0; i < machine.length; i++){ %>
+                                                <div style="margin-bottom: 5px">
+                                                    <input  type="checkbox" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
+                                                    <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                        <table cellspacing="0" cellpadding="0" style="width: 100%;margin-top: 20px">
+                                            <tr style="width: 100%">
+                                                <td style="width: 100%;">
+                                                    <button class="btn btn-block btn-submit button button--primary smaller" style="float: right;border: 0;margin-right: 10%;background-color: red!important;" type="button" onclick="cancelCopyAct()">取消</button>
+                                                    <button class="btn btn-block btn-submit button button--primary smaller" id="copyCofirmBtn"  style="float: right;border: 0;margin-right: 2%;background-color: #00cb46!important;" type="submit" onsubmit="">确认</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
             </form>
 
 

@@ -124,21 +124,31 @@
         }
 
         function copyAct(machineId,showMachineName) {
+            $('#copyDetail1').attr('required','required')
+            $('#copyDetail2').attr('required','required')
+            $('#copyDetail3').attr('required','required')
+
             $('#copyInputBox').removeAttr('hidden')
             $('#copyMachineId').attr('value',machineId)
             $('#blankCover').removeAttr('hidden')
             document.getElementById('showMachineName').innerText=showMachineName
+            $('#bodyPage').attr('style','position:fixed')
         }
 
         function cancelCopyAct() {
+            $('#copyDetail1').removeAttr('required')
+            $('#copyDetail2').removeAttr('required')
+            $('#copyDetail3').removeAttr('required')
+
             $('#copyInputBox').attr('hidden','hidden')
             $('#blankCover').attr('hidden','hidden')
+            $('#bodyPage').removeAttr('style')
 
         }
     </script>
 </head>
 
-<body>
+<body id="bodyPage">
 <div id="blankCover" style="position: absolute;background-color: rgba(255,255,255,0.5);width: 100%;height: 100%;z-index: 998" hidden></div>
 
 <section class="functionBoard">
@@ -207,9 +217,9 @@
                                 <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px ">
                                     <div class="itemDetailsPage" style="width: 100%;margin-left: 3%;margin-top: 5%">
                                         <div class="itemDetail">复制设备：<a id="showMachineName"></a>&emsp;<input class="itemDetailsInput" id="copyMachineId" value="" disabled></div>
-                                        <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="detail1" style="width: 80%" placeholder="请输入设备名称" required></div>
-                                        <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="detail2" style="width: 80%" placeholder="请输入设备型号" required></div>
-                                        <div class="itemDetail">设计工程师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="detail3" required="required" style="height: 35px;width: 130px;color:black;" >
+                                        <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="copyDetail1" style="width: 80%" placeholder="请输入设备名称" ></div>
+                                        <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="copyDetail2" style="width: 80%" placeholder="请输入设备型号" ></div>
+                                        <div class="itemDetail">设计工程师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="copyDetail1"  style="height: 35px;width: 130px;color:black;" >
                                                 <% for(let i = 0; i < users.length; i++) { %>
                                                     <% if (users[i].role === '技术员' || users[i].role === '系统管理员') { %>
                                                         <option value="<%= users[i].userName %>"><%= users[i].userName %></option>
