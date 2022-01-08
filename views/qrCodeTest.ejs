@@ -1,55 +1,57 @@
-<!DOCTYPE html>
 <html>
-<head>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $("button").click(function(){
-                $("p").append( '                                    <button class="searchBarButton" onclick="deleSelectBox()" type="button" id="deleSelectBtn0" style="background-color: red!important;width: 100px;margin-left: 10px;">删除</button>\n' +
-                    '                                </div>');
-            });
-        });
-    </script>
-
-
-
-    <% for(let j = 0 ; j < 10 ; j++) { %>
-                            <tr id="component'+order+'<%= j %>" >
-                                    <td style="width: 70%;">
-                                           <button class="noteButton2"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
-                                                    <div  style= "font-size: 0.7rem; height: 30px; ">
-                                                            <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#'+order+'<%= j %></span>
-                                                           <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>
-                                                           <span class="itemInfo" style="margin-left: 200px">部件型号：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                                            <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                                        </div>\n' +
-                                                    <div  style= "font-size: 0.7rem; height: 30px; ">
-                                                            <span class="itemInfo" >状态：<a style="font-weight: normal;color: red;"></a></span>
-                                                           <span class="itemInfo" style="margin-left: 200px">制表人：Felix<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                                           <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                                      </div>\n' +
-                                               <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                                            <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
-                                                        </div>
-                                                </button>
-                                       </td>
-                                    <td style="width: 30%!important;">
-                                            <table cellspacing="0" cellpadding="0" style="width: 100%">
-                                                                            <tr >
-                                                            <td>
-                                                                   <button class="itemButton3" type="button" onclick="window.open('uploads/')" ><img src=\'images/checkDrawing.png\' height="50px" width="50px"></button>
-                                                               </td>
-                                                       </tr>
-
-                                                </table>\n' +
-                                       </td>\n' +
-                                </tr>\n' +
-                       <% } %>'
-
-</head>
-<body>
-<p>This is a paragraph.</p>
-<p>This is another paragraph.</p>
-<button>在每个 p 元素的结尾添加内容</button>
-</body>
-</html>
+   <head>
+       <title></title>
+<style>
+       .showBox {
+          width: 400px;
+         min-height: 100px;
+        padding: 10px;
+              border: 1px solid #000;
+          }
+          .text {
+                                     background: orange;
+                                     }
+              </style>
+   </head>
+    <div class="showBox">唧唧复唧唧，木兰当户织。不闻机杼声，唯闻女叹息。
+ 问女何所思，问女何所忆。女亦无所思，女亦无所忆。昨夜见军帖，可汗大点兵，军书十二卷，卷卷有爷名。阿爷无大儿，木兰无长兄，愿为市鞍马，从此替爷征。
+  东市买骏马，西市买鞍鞯，南市买辔头，北市买长鞭。旦辞爷娘去，暮宿黄河边，不闻爷娘唤女声，但闻黄河流水鸣溅溅。旦辞黄河去，暮至黑山头，不闻爷娘唤女声，但闻燕山胡骑鸣啾啾。
+    </div>
+     <p>
+       <input placeholder="请输入关键字" class="inputEl"/>
+        <button onclick="sendMsg()">查找</button>
+     </p>
+   <script>
+        var originalText = document.getElementsByClassName('showBox')[0].innerText;
+         function sendMsg() {
+                 var text = originalText;
+               var history = document.getElementsByClassName('text');
+                if (history.length > 0) {
+                            text = originalText;
+                       }
+                    var inputValue = document.getElementsByClassName('inputEl')[0].value;
+                   var found = findAll(text, inputValue);
+                 for (var i = 0; i < text.length; i++) {
+                         for (var j in found) {
+                             if (i == found[j]) {
+                                         text = originalText.split(inputValue).join(`<span class="text">${inputValue}</span>`);
+                                   }
+                            }
+                      }
+                  document.getElementsByClassName('showBox')[0].innerHTML = text;
+                 document.getElementsByClassName('inputEl')[0].value = "";
+            function findAll(str, x) {
+                   var results = [];
+                     var len = str.length;
+                     var pos = 0;
+                     while (pos < len) {
+                           pos = str.indexOf(x, pos);
+                            if (pos === -1)
+                                   break;
+                           results.push(pos);
+                             pos = pos + 1;
+                        }
+                     return results;
+                 }}
+        </script>
+ </html>
