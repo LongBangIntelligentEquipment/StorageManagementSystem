@@ -311,7 +311,6 @@
                             <input class="indexOf" name="searchText" id="searchText" value="<%=searchResult%>" style="margin-left: 4px" placeholder="根据机械部件物料的名称/型号/备注搜索机械">
                             <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit">搜&emsp;索</button>
                             <button class="searchBarButton" onclick="location.href='/adBOMListMachineAdd'" type="button" style="margin-left: 390px;" id="addNewMachineButton">创建设备</button>
-                            <button class="searchBarButton" onclick="location.href='/synTest'" type="button" style="margin-left: 590px;" >同步异步</button>
                         </div>
 
                         <div class="pageBody" style="width: 100%">
@@ -341,19 +340,15 @@
                                         <tr >
                                             <td>
                                                 <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/adBOMListMachineMan?machineId=<%=machine[i].machineId%>')"><img src='images/machine.png' height="50px" width="50px"></button>
-
                                             </td>
                                             <td>
                                                 <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="copyAct('<%=machine[i].machineId%>','<%=machine[i].machineName%>')"><img src='images/copy.png' height="50px" width="50px"></button>
-
                                             </td>
                                         </tr>
                                     </table>
                                 </td>
                             </tr>
-
                             <tr id="componentBox<%=i%>" style="width: 100%">
-
                             </tr>
                         </table>
                         <% } %>

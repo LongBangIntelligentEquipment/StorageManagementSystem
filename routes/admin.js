@@ -2928,10 +2928,12 @@ router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
 router.get('/adBOMList', function (req, res) {
     let url = URL.parse(req.url, true).query;
     // 部件有物料
-    let componentItemSql = 'SELECT componentId, componentModel, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName, itemId, itemName, itemPrice, itemModel, itemType, itemNote, itemQuantity\n' +
+    let componentItemSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, cost, fileName, userName, itemId, itemName, itemPrice, itemModel, itemType, itemNote, itemQuantity, machineName\n' +
         'FROM component\n' +
         'INNER JOIN component_has_item\n' +
         'ON component_has_item.component_componentId = component.componentId\n' +
+        'INNER JOIN machine\n' +
+        'ON component.machineId = machine.machineId\n' +
         'INNER JOIN item\n' +
         'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
         'INNER JOIN category\n' +
@@ -3010,47 +3012,6 @@ router.get('/adBOMList', function (req, res) {
     });
 });
 
-// //   ---搜索BOM表---
-// /* POST adBOMListComponentSearch */
-// router.post('/adBOMListComponentSearch', function (req, res) {
-//     let categorySql = 'SELECT categoryName FROM category;';
-//     let machineSql = 'SELECT machineName, machineId FROM machine;';
-//     let searchText = req.body.searchText;
-//     let searchSql = 'SELECT componentId, componentName, updateTime, component.state, note, userName, categoryName, cost, fileName\n' +
-//         'FROM component\n' +
-//         'INNER JOIN user\n' +
-//         'ON user.userId = component.userId\n' +
-//         'INNER JOIN category\n' +
-//         'ON category.categoryId = component.categoryId\n' +
-//         'WHERE componentName LIKE \'%' + searchText + '%\' OR componentID LIKE \'%' + searchText + '%\' OR note LIKE \'%' + searchText + '%\';';
-//     connection.query(categorySql, function (err, categoryName) {
-//         if (err) {
-//             console.log('[SELECT ERROR] - ', err.message);
-//             res.send(err);
-//             return;
-//         }
-//         connection.query(machineSql, function (err, machine) {
-//             if (err) {
-//                 console.log('[SELECT ERROR] - ', err.message);
-//                 res.send(err);
-//                 return;
-//             }
-//             connection.query(searchSql, function (err, component) {
-//                 if (err) {
-//                     console.log('[SELECT ERROR] - ', err.message);
-//                     res.send(err);
-//                     return;
-//                 }
-//                 res.render('adBOMListComponentSearch', {
-//                     user: req.session.user,
-//                     categoryName: categoryName,
-//                     machine: machine,
-//                     component: component
-//                 });
-//             });
-//         });
-//     });
-// });
 
 /*                            ***************************************************BOM表物料增删改查***************************************************                  */
 
@@ -3060,12 +3021,9 @@ router.get('/ajaxSearchItem', function(req, res) {
     searchText = req.query.searchText;
     var searchTimes=req.query.searchTimes;
     searchText = '%' + searchText + '%';
-
     searchSql = 'SELECT itemId, itemModel, itemName, itemNote, itemType, itemNum, itemUnit, itemSupplier\n' +
         'FROM item\n' +
         'WHERE itemId LIKE "'+ searchText + '" OR itemModel LIKE "'+ searchText + '" OR itemName LIKE "'+ searchText + '" OR itemNote LIKE "'+ searchText + '";'
-
-
     connection.query(searchSql,function (err, item) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
@@ -3126,20 +3084,16 @@ router.get('/ajaxSearchItem', function(req, res) {
                 '    </table>\n' +
                 '</div>';
         }
-
         res.json({
             item:item,
             HTMLtext:HTMLtext
         });
 
     });
-
-
 })
 
 // 更新部件成本函数
 function updateComponentCost(componentId, itemId){
-
     if (itemId){
         let itemSql = 'SELECT componentId\n' +
             'FROM component\n' +
@@ -3159,7 +3113,6 @@ function updateComponentCost(componentId, itemId){
             }
         });
     }
-
     if (componentId){
         let componentSql = 'SELECT itemPrice, itemQuantity\n' +
             'FROM component\n' +
@@ -3426,7 +3379,6 @@ router.post('/componentCopy', function(req, res) {
     componentFileName = req.body.BomListFileName;
     machineIds = req.body.belongMachine;
 
-
     for (i=0; i<machineIds.length;i++) {
         machineId = machineIds[i];
         copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, i);
@@ -3437,64 +3389,113 @@ router.post('/componentCopy', function(req, res) {
 });
 
 function copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, count){
-            var saveDate, year, month, day, hour, min, sec, updateTime;
-            saveDate = new Date();
-            year = saveDate.getFullYear();
-            month = saveDate.getMonth() + 1;
-            day = saveDate.getDate();
-            hour = saveDate.getHours();
-            min = saveDate.getMinutes();
-            sec = saveDate.getSeconds();
-            updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    var saveDate, year, month, day, hour, min, sec, updateTime;
+    saveDate = new Date();
+    year = saveDate.getFullYear();
+    month = saveDate.getMonth() + 1;
+    day = saveDate.getDate();
+    hour = saveDate.getHours();
+    min = saveDate.getMinutes();
+    sec = saveDate.getSeconds();
+    updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
 
-            let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, cost\n' +
-                'FROM component\n' +
-                'INNER JOIN component_has_item\n' +
-                'ON component_has_item.component_componentId = component.componentId\n' +
-                'WHERE componentId = ' + '"' + componentId + '";';
-            connection.query( componentSql,function (err, componentItems) {
+    let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, cost\n' +
+        'FROM component\n' +
+        'INNER JOIN component_has_item\n' +
+        'ON component_has_item.component_componentId = component.componentId\n' +
+        'WHERE componentId = ' + '"' + componentId + '";';
+    connection.query( componentSql,function (err, componentItems) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            return false;
+        }
+        var newComponentCost = componentItems[0].cost;
+        if (!componentFileName){componentFileName = 'null'}
+        let insertSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,fileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
+        let insertParam = [componentModel,componentName,updateTime,'正常',componentNote,userId,componentType,newComponentCost,componentFileName, machineId]
+        connection.query( insertSql, insertParam,function (err) {
+            if (err) {
+                console.log('[INSERT ERROR] 增加复制部件错误！ - ', err.message);
+                return false;
+            }
+            updateMachineCost(machineId);
+            let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
+            connection.query( 'SELECT LAST_INSERT_ID() AS newComponentId;', function (err, newComponentIds) {
                 if (err) {
-                    console.log('[SELECT ERROR] - ', err.message);
+                    console.log('查找插入ID错误！ - ', err.message);
                     return false;
                 }
-                var newComponentCost = componentItems[0].cost;
-                let insertSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,fileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
-                let insertParam = [componentModel,componentName,updateTime,'正常',componentNote,userId,componentType,newComponentCost,componentFileName, machineId]
-                connection.query( insertSql, insertParam,function (err) {
-                    if (err) {
-                        console.log('[INSERT ERROR] 增加复制部件错误！ - ', err.message);
-                        return false;
-                    }
-                    updateMachineCost(machineId);
-                    let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
-                    connection.query( 'SELECT LAST_INSERT_ID() AS newComponentId;', function (err, newComponentIds) {
+                let newComponentId = newComponentIds[0].newComponentId - count;
+                for (let i = 0; i < componentItems.length; i++) {
+                    let itemId = componentItems[i].item_itemId;
+                    let itemModel = componentItems[i].item_itemModel;
+                    let itemQty = componentItems[i].itemQuantity;
+                    let addSqlParams = [newComponentId, itemId, itemModel, itemQty];
+                    connection.query(addSql, addSqlParams, function (err) {
                         if (err) {
-                            console.log('查找插入ID错误！ - ', err.message);
+                            console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
                             return false;
                         }
-                        let newComponentId = newComponentIds[0].newComponentId - count;
-                        for (let i = 0; i < componentItems.length; i++) {
-                            let itemId = componentItems[i].item_itemId;
-                            let itemModel = componentItems[i].item_itemModel;
-                            let itemQty = componentItems[i].itemQuantity;
-                            let addSqlParams = [newComponentId, itemId, itemModel, itemQty];
-                            console.log('addSql: ' + addSql + '\n');
-                            console.log('addSqlParams: ' + addSqlParams + '\n');
-                            connection.query(addSql, addSqlParams, function (err) {
-                                if (err) {
-                                    console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
-                                    return false;
-                                }
-                            });
-                        }
                     });
-                });
+                }
             });
+        });
+    });
 }
 
 
 //   ---复制机械---
 /* POST machineCopy */
+router.post('/machineCopy', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    var userId, copyMachineId, machineName, machineModel, machineDesigner, machineNote;
+    copyMachineId = url.machineId;
+    // userId = req.session.user.userId;
+    machineName = req.body.addMachineName;
+    machineModel = req.body.addMachineModel;
+    machineDesigner = req.body.addMachineDesigner;
+    machineNote = req.body.addMachineNote;
+
+    copyMachine(copyMachineId, machineName, machineModel, machineDesigner, machineNote);
+
+    let flashUrl = '/adBOMListMan';
+    res.redirect('flash?url='+flashUrl);
+});
+
+function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, machineNote){
+    var saveDate, year, month, day, hour, min, sec, updateTime;
+    saveDate = new Date();
+    year = saveDate.getFullYear();
+    month = saveDate.getMonth() + 1;
+    day = saveDate.getDate();
+    hour = saveDate.getHours();
+    min = saveDate.getMinutes();
+    sec = saveDate.getSeconds();
+    updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+
+    let copyMachineSql = 'SELECT *\n' +
+        'FROM machine\n' +
+        'INNER JOIN component\n' +
+        'ON component.machineId = machine.machineId\n' +
+        'WHERE machine.machineId = ' + '"' + copyMachineId + '";';
+
+
+}
+
+
+
+
+
+
+// ORDER BY componentType
+
+
+
+
+
+
+
+
 
 
 
