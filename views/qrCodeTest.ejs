@@ -1,57 +1,55 @@
 <html>
    <head>
        <title></title>
-<style>
-       .showBox {
-          width: 400px;
-         min-height: 100px;
-        padding: 10px;
-              border: 1px solid #000;
-          }
-          .text {
-                                     background: orange;
-                                     }
-              </style>
+
    </head>
-    <div class="showBox">唧唧复唧唧，木兰当户织。不闻机杼声，唯闻女叹息。
- 问女何所思，问女何所忆。女亦无所思，女亦无所忆。昨夜见军帖，可汗大点兵，军书十二卷，卷卷有爷名。阿爷无大儿，木兰无长兄，愿为市鞍马，从此替爷征。
-  东市买骏马，西市买鞍鞯，南市买辔头，北市买长鞭。旦辞爷娘去，暮宿黄河边，不闻爷娘唤女声，但闻黄河流水鸣溅溅。旦辞黄河去，暮至黑山头，不闻爷娘唤女声，但闻燕山胡骑鸣啾啾。
-    </div>
-     <p>
-       <input placeholder="请输入关键字" class="inputEl"/>
-        <button onclick="sendMsg()">查找</button>
-     </p>
+
+   <ul ondrop="drop_handler(event);" ondragover="dragover_handler(event);">
+       <li draggable="true" ondragstart="dragstart_handler(event);">1</li>
+       <li draggable="true" ondragstart="dragstart_handler(event);">2</li>
+       <li draggable="true" ondragstart="dragstart_handler(event);">3</li>
+       <li draggable="true" ondragstart="dragstart_handler(event);">4</li>
+       <li draggable="true" ondragstart="dragstart_handler(event);">5</li>
+   </ul>
    <script>
-        var originalText = document.getElementsByClassName('showBox')[0].innerText;
-         function sendMsg() {
-                 var text = originalText;
-               var history = document.getElementsByClassName('text');
-                if (history.length > 0) {
-                            text = originalText;
-                       }
-                    var inputValue = document.getElementsByClassName('inputEl')[0].value;
-                   var found = findAll(text, inputValue);
-                 for (var i = 0; i < text.length; i++) {
-                         for (var j in found) {
-                             if (i == found[j]) {
-                                         text = originalText.split(inputValue).join(`<span class="text">${inputValue}</span>`);
-                                   }
-                            }
-                      }
-                  document.getElementsByClassName('showBox')[0].innerHTML = text;
-                 document.getElementsByClassName('inputEl')[0].value = "";
-            function findAll(str, x) {
-                   var results = [];
-                     var len = str.length;
-                     var pos = 0;
-                     while (pos < len) {
-                           pos = str.indexOf(x, pos);
-                            if (pos === -1)
-                                   break;
-                           results.push(pos);
-                             pos = pos + 1;
-                        }
-                     return results;
-                 }}
-        </script>
+
+       var uls = document.querySelector('ul');
+       var offsetTop = uls.offsetTop;
+       var clientX = '';
+       var clientY = '';
+       var n = 0;
+       function dragstart_handler(ev) {
+           console.log("dragStart");
+           ev.target.setAttribute('id', 'test1')
+           ev.dataTransfer.setData("text/plain", ev.target.id);
+       }
+
+       function dragover_handler(ev) {
+           ev.preventDefault();
+           clientX = ev.clientX;
+           clientY = ev.clientY;
+           n = Math.round((clientY - offsetTop)/52)        //52代指拖拽元素的高度
+       }
+
+       function drop_handler(ev) {
+           console.log("Drop");
+           ev.preventDefault();
+           var data = ev.dataTransfer.getData("text");
+           console.log(n)
+           var nodes = document.getElementById(data);
+           uls.insertBefore(nodes, children(uls)[n]);
+           nodes.removeAttribute('id');
+           ev.dataTransfer.clearData();
+       }
+       function children(node){
+           var tmp = node.childNodes;
+           var arr = [];
+           tmp.forEach(function(item){
+               if(item.nodeType == 1){
+                   arr.push(item);
+               }
+           });
+           return arr;
+       }
+   </script>
  </html>
