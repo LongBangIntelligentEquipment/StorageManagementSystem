@@ -2398,7 +2398,7 @@ router.post('/adBOMListMan', function(req, res,){
             'ON component_has_item.component_componentId = component.componentId\n' +
             'LEFT JOIN item\n' +
             'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
-            'WHERE machine.machineId LIKE '+searchText+' OR machine.machineName LIKE '+searchText+' OR machine.note LIKE '+searchText+' OR item.itemName LIKE '+searchText+' OR item.itemId LIKE '+searchText+'\n'+
+            'WHERE machine.machineId LIKE '+searchText+' OR machine.machineName LIKE '+searchText+' OR machine.note LIKE '+searchText+' OR componentModel LIKE '+searchText+' OR componentName LIKE '+searchText+' OR component.note LIKE '+searchText+' OR item.itemName LIKE '+searchText+' OR item.itemId LIKE '+searchText+'\n'+
             'GROUP BY machine.machineId;';
     }
     connection.query(sql,function (err,result) {
@@ -2843,7 +2843,7 @@ router.post('/adBOMListComponentAdd', upload.single('BomListFileName'), function
             // --添加事件更新到首页--
             addNote('部件事件更新', addComponentName, addComponentModel, '添加新部件到' + addToMachineId);
 
-            res.redirect('./adBOMListMan');
+            res.redirect('/adBOMListMachineMan?machineId=' + addToMachineId);
         });
     });
 });
@@ -2854,15 +2854,29 @@ router.get('/adBOMListComponentDelete', function(req, res) {
     let url=URL.parse(req.url,true).query;
     let componentId = url.componentId;
     let delSql = 'DELETE FROM component WHERE componentId = '+'\''+componentId+'\'';
-    connection.query(delSql,function (err) {
-        if(err){
-            console.log('[DELETE ERROR] - ',err.message);
-            res.send(err);
-            return;
+    let componentMachineSql = 'SELECT component.machineId\n' +
+        'FROM component\n' +
+        'INNER JOIN machine\n' +
+        'ON component.machineId = machine.machineId\n' +
+        'WHERE componentId = ' + '"' + componentId + '"';
+    connection.query(componentMachineSql, function (err,machineIds) {
+        if (err) {
+            console.log('[SELECT ERROR] 查找部件设备错误！- ', err.message + '\n');
+            return ('[SELECT ERROR] 查找部件设备错误！- ' + err.message + '\n');
         }
-        // --添加事件更新到首页--
-        addNote('部件事件更新', componentId, componentId, '删除部件');
-        res.redirect('/adBOMListMan')
+        let machineId = machineIds[0].machineId;
+        connection.query(delSql,function (err) {
+            if(err){
+                console.log('[DELETE ERROR] - ',err.message);
+                res.send(err);
+                return;
+            }
+            // 更新设备成本
+            updateMachineCost(machineId);
+            // --添加事件更新到首页--
+            addNote('部件事件更新', componentId, componentId, '删除部件');
+            res.redirect('/adBOMListMan')
+        });
     });
 });
 
@@ -3163,52 +3177,53 @@ function updateComponentCost(componentId, itemId){
             }
             var totalCost =0;
             for (let i=0;i<cost.length;i++){
-                totalCost += cost[i].itemPrice * cost[i].itemQuantity
+                totalCost += cost[i].itemPrice * cost[i].itemQuantity;
             }
-            let updaateCostSql = 'UPDATE component SET cost = ? WHERE componentId =' + '"' + componentId + '"';
-            let updaateCostParams = [totalCost]
-            connection.query(updaateCostSql, updaateCostParams, function (err) {
+            let updateCostSql = 'UPDATE component SET cost = ? WHERE componentId =' + '"' + componentId + '"';
+            let updateCostParams = [totalCost];
+            connection.query(updateCostSql, updateCostParams, function (err) {
                 if (err) {
                     console.log('[UPDATE ERROR] 更新部件成本错误！- ', err.message + '\n');
                     return ('[UPDATE ERROR] 更新部件成本错误！- ' + err.message + '\n');
                 }
+                let componentMachineSql = 'SELECT component.machineId\n' +
+                    'FROM component\n' +
+                    'INNER JOIN machine\n' +
+                    'ON component.machineId = machine.machineId\n' +
+                    'WHERE componentId = ' + '"' + componentId + '"';
+                connection.query(componentMachineSql, function (err,machineIds) {
+                    if (err) {
+                        console.log('[SELECT ERROR] 查找部件设备错误！- ', err.message + '\n');
+                        return ('[SELECT ERROR] 查找部件设备错误！- ' + err.message + '\n');
+                    }
+                    let machineId = machineIds[0].machineId;
+                    updateMachineCost(machineId);
+                });
             });
         });
     }
 
-    updateMachineCost(componentId);
 }
 
-function updateMachineCost(componentId){
-    let componentMachineSql = 'SELECT component.machineId\n' +
+function updateMachineCost(machineId){
+    let machineTotalCostSql = 'SELECT SUM(component.cost) AS machineTotalCost\n' +
         'FROM component\n' +
         'INNER JOIN machine\n' +
         'ON component.machineId = machine.machineId\n' +
-        'WHERE componentId = ' + '"' + componentId + '"';
-    connection.query(componentMachineSql, function (err,machineIds) {
+        'WHERE component.machineId = ' + '"' + machineId + '"';
+    connection.query(machineTotalCostSql, function (err,machineTotalCosts) {
         if (err) {
-            console.log('[SELECT ERROR] 查找部件设备错误！- ', err.message + '\n');
-            return ('[SELECT ERROR] 查找部件设备错误！- ' + err.message + '\n');
+            console.log('[SELECT ERROR] 查找设备成本错误！- ', err.message + '\n');
+            return ('[SELECT ERROR] 查找设备成本错误！- ' + err.message + '\n');
         }
-        let machineId = machineIds[0].machineId;
-        let machineTotalCostSql = 'SELECT SUM(component.cost) AS machineTotalCost\n' +
-            'FROM component\n' +
-            'INNER JOIN machine\n' +
-            'ON component.machineId = machine.machineId\n' +
-            'WHERE component.machineId = ' + '"' + machineId + '"';
-        connection.query(machineTotalCostSql, function (err,machineTotalCosts) {
+        let machineTotalCost = machineTotalCosts[0].machineTotalCost
+        if (!machineTotalCost){machineTotalCost = 0}
+        let updateMachineSql = 'UPDATE machine SET machineCost = '+ '"' + machineTotalCost + '"' + 'WHERE machineId = ' + '"' + machineId + '"';
+        connection.query(updateMachineSql, function (err) {
             if (err) {
-                console.log('[SELECT ERROR] 查找设备成本错误！- ', err.message + '\n');
-                return ('[SELECT ERROR] 查找设备成本错误！- ' + err.message + '\n');
+                console.log('[SELECT ERROR] 更新设备成本错误！- ', err.message + '\n');
+                return ('[SELECT ERROR] 更新设备成本错误！- ' + err.message + '\n');
             }
-            let machineTotalCost = machineTotalCosts[0].machineTotalCost
-            let updateMachineSql = 'UPDATE machine SET machineCost = '+ '"' + machineTotalCost + '"' + 'WHERE machineId = ' + '"' + machineId + '"';
-            connection.query(updateMachineSql, function (err) {
-                if (err) {
-                    console.log('[SELECT ERROR] 更新设备成本错误！- ', err.message + '\n');
-                    return ('[SELECT ERROR] 更新设备成本错误！- ' + err.message + '\n');
-                }
-            });
         });
     });
 }
@@ -3258,7 +3273,7 @@ router.get('/ajaxSaveEdit', function(req, res) {
             console.log('[DELETE ERROR] 从部件中移除物料错误！ - ', err.message);
         }
     });
-
+    updateComponentCost(componentId,false);
     const items = req.query.items;
     var itemLength;
     if (items){
@@ -3401,22 +3416,82 @@ router.get('/adBOMListCategoryMan', function(req, res) {
 /*                            ***************************************************复制***************************************************                  */
 //   ---复制部件---
 /* POST componentCopy */
-router.get('/componentCopy', function(req, res) {
+router.post('/componentCopy', function(req, res) {
     let url=URL.parse(req.url,true).query;
     let componentId = url.componentId;
-    copyComponent(componentId);
+    var userId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, machineIds, i;
+    userId = req.session.user.userId;
+    componentName = req.body.addComponentName;
+    componentModel = req.body.addComponentModel;
+    componentType = req.body.BomListType;
+    componentNote = req.body.addComponentNote;
+    componentFileName = req.body.BomListFileName;
+    machineIds = req.body.belongMachine;
+
+
+    for (i=0; i<machineIds.length;i++) {
+        machineId = machineIds[i];
+        copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, i);
+    }
+
+    let flashUrl = '/adBOMListMan';
+    res.redirect('flash?url='+flashUrl);
 });
 
-function copyComponent(componentId){
+function copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, count){
+            var saveDate, year, month, day, hour, min, sec, updateTime;
+            saveDate = new Date();
+            year = saveDate.getFullYear();
+            month = saveDate.getMonth() + 1;
+            day = saveDate.getDate();
+            hour = saveDate.getHours();
+            min = saveDate.getMinutes();
+            sec = saveDate.getSeconds();
+            updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
 
-    let componentSql = 'SELECT * FROM component WHERE componentId = ' + componentId + ';';
-    connection.query( componentSql,function (err, component) {
-        if (err) {
-            console.log('[SELECT ERROR] - ', err.message);
-            return;
-        }
-        let insertSql = 'INSERT INTO component ';
-    });
+            let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, cost\n' +
+                'FROM component\n' +
+                'INNER JOIN component_has_item\n' +
+                'ON component_has_item.component_componentId = component.componentId\n' +
+                'WHERE componentId = ' + '"' + componentId + '";';
+            connection.query( componentSql,function (err, componentItems) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                    return false;
+                }
+                var newComponentCost = componentItems[0].cost;
+                let insertSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,fileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
+                let insertParam = [componentModel,componentName,updateTime,'正常',componentNote,userId,componentType,newComponentCost,componentFileName, machineId]
+                connection.query( insertSql, insertParam,function (err) {
+                    if (err) {
+                        console.log('[INSERT ERROR] 增加复制部件错误！ - ', err.message);
+                        return false;
+                    }
+                    updateMachineCost(machineId);
+                    let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
+                    connection.query( 'SELECT LAST_INSERT_ID() AS newComponentId;', function (err, newComponentIds) {
+                        if (err) {
+                            console.log('查找插入ID错误！ - ', err.message);
+                            return false;
+                        }
+                        let newComponentId = newComponentIds[0].newComponentId - count;
+                        for (let i = 0; i < componentItems.length; i++) {
+                            let itemId = componentItems[i].item_itemId;
+                            let itemModel = componentItems[i].item_itemModel;
+                            let itemQty = componentItems[i].itemQuantity;
+                            let addSqlParams = [newComponentId, itemId, itemModel, itemQty];
+                            console.log('addSql: ' + addSql + '\n');
+                            console.log('addSqlParams: ' + addSqlParams + '\n');
+                            connection.query(addSql, addSqlParams, function (err) {
+                                if (err) {
+                                    console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
+                                    return false;
+                                }
+                            });
+                        }
+                    });
+                });
+            });
 }
 
 
