@@ -2928,7 +2928,7 @@ router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
 router.get('/adBOMList', function (req, res) {
     let url = URL.parse(req.url, true).query;
     // 部件有物料
-    let componentItemSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, cost, fileName, userName, itemId, itemName, itemPrice, itemModel, itemType, itemNote, itemQuantity, machineName\n' +
+    let componentItemSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, cost, fileName, userName, itemId, itemName, itemPrice, itemModel, itemType, itemNote, itemQuantity, machineName, machine.machineId\n' +
         'FROM component\n' +
         'INNER JOIN component_has_item\n' +
         'ON component_has_item.component_componentId = component.componentId\n' +
@@ -2942,10 +2942,12 @@ router.get('/adBOMList', function (req, res) {
         'ON component.userId = user.userId\n' +
         'WHERE componentId =' + '\'' + url.componentId + '\'';
     // 部件无物料
-    let componentSql = 'SELECT componentId, componentModel, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName\n' +
+    let componentSql = 'SELECT componentId, componentModel, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName, machineName, machine.machineId\n' +
         'FROM component\n' +
         'LEFT JOIN category\n' +
         'ON component.categoryId = category.categoryId\n' +
+        'INNER JOIN machine\n' +
+        'ON component.machineId = machine.machineId\n' +
         'INNER JOIN user\n' +
         'ON component.userId = user.userId\n' +
         'WHERE componentId =' + '\'' + url.componentId + '\'';
