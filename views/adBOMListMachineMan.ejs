@@ -159,7 +159,7 @@
                                         <% } %>
                                     </select>
                                 </div>
-                                <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="MachineUpdateTime" value="<%=machine[0].mUpdateTime%>" disabled ></div>
+                                <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="MachineUpdateTime" value=" <%=machine[0].mUpdateTime.getFullYear()%>-<%=machine[0].mUpdateTime.getMonth()+1%>-<%=machine[0].mUpdateTime.getDate()%>" disabled ></div>
                                 <div class="itemDetail" >设备成本：<input class="itemDetailsInput" name="MachineCost" value="<%=machineCost%>" disabled ></div>
                                 <div class="itemDetail">备注：<input class="itemDetailsInput" name="MachineNote" id="detail3" value="<%=machine[0].mNote%>" disabled ></div>
                                 <div class="itemDetail" id="updateFile" style="display: none">重新上传图片：<input type="file"  name="MachineFileName"  id="detail4" value=""   >
@@ -213,7 +213,7 @@
                                     <span class="itemInfo" style="margin-left: 260px">部件编号：<a style="font-weight:normal;color: #0050fa; "><%=machine[j].componentId%></a></span>
                                 </div>
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
-                                    <span class="itemInfo" >更新日期：<a style="font-weight: normal;color: #0050fa;"><%=machine[j].cUpdateTime%></a></span>
+                                    <span class="itemInfo" >更新日期：<a style="font-weight: normal;color: #0050fa;"><%=machine[j].cUpdateTime.getFullYear()%>-<%=machine[j].cUpdateTime.getMonth()+1%>-<%=machine[j].cUpdateTime.getDate()%></a></span>
                                     <span class="itemInfo" style="margin-left: 260px">成本：<a style="font-weight:normal;color: #0050fa; "><%=machine[j].cost%></a></span>
                                     <span class="itemInfo" style="margin-left: 420px">类型：<a style="font-weight: normal; color: #0050fa;"><%=machine[j].categoryName%></a></span>
                                 </div>

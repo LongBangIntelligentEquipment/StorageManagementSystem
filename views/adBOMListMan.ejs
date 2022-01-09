@@ -149,13 +149,14 @@
         }
 
 
-
         function displaySearchResult() {
             var searchResult='<%=searchResult%>';
+
 
             if(searchResult===''){
 
             }else{
+
                 $('[name=machineBtn]').click()
                 setTimeout("$('[name=componentBtn]').click()" ,"50")
                 setTimeout(" sendMsg('BOMInfo')","500")
@@ -163,7 +164,6 @@
                 setTimeout(" sendMsg('itemInfo')","600")
 
             }
-
 
 
         }
@@ -174,7 +174,7 @@
         function sendMsg(className) {
 
             for(var k=0;k<document.getElementsByClassName(className).length;k++){
-                var originalText = document.getElementsByClassName(className)[k].innerText;
+                var originalText = document.getElementsByClassName(className)[k].innerHTML;
 
                 var text = originalText;
                 var history = document.getElementsByClassName('text');
