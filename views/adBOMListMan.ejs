@@ -205,6 +205,8 @@
 
 
         }
+
+
     </script>
 </head>
 
@@ -266,7 +268,7 @@
                                 style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%= user.userName %></span>
                     </div>
                 </header>
-                <form method="post" action="/adBOMListMan">
+                <form method="post" action="/machineCopy" onsubmit="$('#copyMachineId').removeAttr('disabled')">
                     <div id="copyInputBox" hidden style="position: absolute;width: 50%;height: 60%;margin-left: 15%;z-index: 999">
                         <div class="col-md" >
                             <div class="card" style="border-radius: 10px;overflow: hidden ">
@@ -275,7 +277,7 @@
                                 </div>
                                 <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px ">
                                     <div class="itemDetailsPage" style="width: 100%;margin-left: 3%;margin-top: 5%">
-                                        <div class="itemDetail">复制设备：<a id="showMachineName"></a>&emsp;<input class="itemDetailsInput" id="copyMachineId" value="" disabled></div>
+                                        <div class="itemDetail">复制设备：<a id="showMachineName"></a>&emsp;<input name="copyMachineModel" class="itemDetailsInput" id="copyMachineId" value="" disabled></div>
                                         <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="detail1" style="width: 80%" placeholder="请输入设备名称" required></div>
                                         <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="detail2" style="width: 80%" placeholder="请输入设备型号" required></div>
                                         <div class="itemDetail">设计师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="detail3" required="required" style="height: 35px;color:black;" >
@@ -292,7 +294,7 @@
                                             <tr style="width: 100%">
                                                 <td style="width: 100%;">
                                                     <button class="btn btn-block btn-submit button button--primary smaller" style="float: right;border: 0;margin-right: 10%;background-color: red!important;" type="button" onclick="cancelCopyAct()">取消</button>
-                                                    <button class="btn btn-block btn-submit button button--primary smaller" style="float: right;border: 0;margin-right: 2%;background-color: #00cb46!important;" type="submit" onclick="">确认</button>
+                                                    <button class="btn btn-block btn-submit button button--primary smaller" style="float: right;border: 0;margin-right: 2%;background-color: #00cb46!important;" type="submit" >确认</button>
                                                 </td>
                                             </tr>
                                         </table>
@@ -301,7 +303,6 @@
                             </div>
                         </div>
                     </div>
-
                 </form>
 
                 <form method="post" action="/adBOMListMan">

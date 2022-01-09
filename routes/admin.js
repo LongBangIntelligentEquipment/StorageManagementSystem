@@ -2583,7 +2583,7 @@ router.post('/adBOMListMachineAdd', function (req, res) {
     let updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
 
     let addMachineModel = req.body.addMachineModel;
-    let adMachineName = req.body.addMachineName;
+    let addMachineName = req.body.addMachineName;
     let addMachineDesigner = req.body.addMachineDesigner;
     let addMachineNote = req.body.addMachineNote;
     // let addMachineDesigner = req.session.user.userName;
@@ -2592,7 +2592,7 @@ router.post('/adBOMListMachineAdd', function (req, res) {
 
     let unique = true;
     let checkMachineModelSql = 'SELECT * FROM machine WHERE machineId=\'' + addMachineModel + '\'';
-    let checkMachineName = 'SELECT * FROM machine WHERE machineName=\'' + adMachineName + '\'';
+    let checkMachineName = 'SELECT * FROM machine WHERE machineName=\'' + addMachineName + '\'';
 
     connection.query(checkMachineModelSql, function (err, result1) {
         if (err) {
@@ -2614,7 +2614,7 @@ router.post('/adBOMListMachineAdd', function (req, res) {
                 return res.send('机械添加失败：您所添加的机械【机械名称】已存在于机械列表中。')
             } else if (unique) {
                 let addSql1 = 'INSERT INTO machine (machineId,machineName,updateTime,designer,note) VALUES(?,?,?,?,?)';
-                let addSqlParams1 = [addMachineModel, adMachineName, updateTime, addMachineDesigner, addMachineNote];
+                let addSqlParams1 = [addMachineModel, addMachineName, updateTime, addMachineDesigner, addMachineNote];
                 connection.query(addSql1, addSqlParams1, function (err) {
                     if (err) {
                         console.log('[INSERT ERROR] - ', err.message);
@@ -2622,7 +2622,7 @@ router.post('/adBOMListMachineAdd', function (req, res) {
                         return;
                     }
                     // --添加事件更新到首页--
-                    addNote('设备事件更新', adMachineName, addMachineModel, '添加新设备');
+                    addNote('设备事件更新', addMachineName, addMachineModel, '添加新设备');
                     res.redirect('/adBOMListMan');
                 });
             }
@@ -3449,9 +3449,8 @@ function copyComponent(componentId, componentName, componentModel, componentType
 //   ---复制机械---
 /* POST machineCopy */
 router.post('/machineCopy', function(req, res) {
-    let url=URL.parse(req.url,true).query;
     var userId, copyMachineId, machineName, machineModel, machineDesigner, machineNote;
-    copyMachineId = url.machineId;
+    copyMachineId = req.body.copyMachineModel;
     // userId = req.session.user.userId;
     machineName = req.body.addMachineName;
     machineModel = req.body.addMachineModel;
@@ -3479,9 +3478,40 @@ function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, 
         'FROM machine\n' +
         'INNER JOIN component\n' +
         'ON component.machineId = machine.machineId\n' +
+        'INNER JOIN user\n' +
+        'ON component.userId = user.userId\n' +
         'WHERE machine.machineId = ' + '"' + copyMachineId + '";';
 
+    connection.query( copyMachineSql,function (err, machineComponents) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            return;
+        }
+        let newMachineSql = 'INSERT INTO machine (machineId,machineName,updateTime,designer,note) VALUES(?,?,?,?,?)';
+        let newMachineParams = [machineModel, machineName, updateTime, machineDesigner, machineNote];
+        connection.query(newMachineSql, newMachineParams, function (err) {
+            if (err) {
+                console.log('[INSERT ERROR] 添加复制设备错误 - ', err.message);
+                return;
+            }
+            // --添加事件更新到首页--
+            // addNote('设备事件更新', machineName, machineModel, '添加复制设备');
 
+            var componentId, componentName, componentModel, componentType, componentNote, componentFileName, userId, i;
+            for (i=0;i<machineComponents.length;i++){
+                componentId = machineComponents[i].componentId;
+                componentName = machineComponents[i].componentName;
+                componentModel = machineComponents[i].componentModel;
+                componentType = machineComponents[i].categoryId;
+                componentNote = machineComponents[i].componentNote;
+                componentFileName = machineComponents[i].fileName;
+                userId = machineComponents[i].userId;
+                copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineModel, userId, i);
+            }
+
+        });
+
+    });
 }
 
 
