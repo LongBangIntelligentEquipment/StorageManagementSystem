@@ -525,7 +525,7 @@
                     </tr>
                 </table>
             </form>
-            <form method="post" onsubmit="return comfirmAgain()">
+            <form method="post" onsubmit="return comfirmAgain()" action="/componentCopy?componentId=<%=component[0].componentId%>">
                 <div id="copyInputBox" hidden style="position: absolute;margin-top: -400px;width: 50%;height: 60%;margin-left: 15%;z-index: 999">
                     <div class="col-md" >
                         <div class="card" style="border-radius: 10px;overflow: hidden ">
