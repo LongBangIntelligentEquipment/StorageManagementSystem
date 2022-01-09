@@ -2429,7 +2429,8 @@ router.get('/ajaxComponents', function(req, res) {
         'ON component.machineId = machine.machineId\n' +
         'INNER JOIN user \n' +
         'ON component.userId = user.userId\n' +
-        'WHERE component.machineId = ' + '"' + machineId + '"'
+        'WHERE component.machineId = ' + '"' + machineId + '"\n' +
+        'ORDER BY categoryId'
 
     connection.query( sql,function (err, component) {
         if (err) {
@@ -2705,7 +2706,9 @@ router.get('/adBOMListMachineMan', function (req, res) {
         'ON component.categoryId = category.categoryId\n' +
         'INNER JOIN user\n' +
         'ON component.userId = user.userId\n' +
-        'WHERE machine.machineId =' + '\'' + machineId + '\'';
+        'WHERE machine.machineId =' + '\'' + machineId + '\'' + '\n' +
+        'ORDER BY component.categoryId';
+
     // 设备无部件
     let machineSql = 'SELECT machineId, machineName, updateTime AS mUpdateTime, machine.note AS mNote, designer\n' +
         'FROM machine\n' +
@@ -2940,7 +2943,8 @@ router.get('/adBOMList', function (req, res) {
         'ON component.categoryId = category.categoryId\n' +
         'INNER JOIN user\n' +
         'ON component.userId = user.userId\n' +
-        'WHERE componentId =' + '\'' + url.componentId + '\'';
+        'WHERE componentId =' + '\'' + url.componentId + '\'' + '\n' +
+        'ORDER BY itemType';
     // 部件无物料
     let componentSql = 'SELECT componentId, componentModel, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName, machineName, machine.machineId\n' +
         'FROM component\n' +
@@ -3513,13 +3517,6 @@ function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, 
 
     });
 }
-
-
-
-
-
-
-// ORDER BY componentType
 
 
 
