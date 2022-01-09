@@ -676,7 +676,7 @@ footer {
   border:0px;
 }
 
-.itemInfo{
+.itemInfo,.componentInfo{
   position: absolute;
   font-weight: bold;
 }
@@ -863,3 +863,6 @@ input[type="checkbox"]:checked+label::before{
 }
 
 
+.text {
+  background: orange;
+}

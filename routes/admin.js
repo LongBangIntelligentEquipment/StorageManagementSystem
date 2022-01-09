@@ -1761,8 +1761,6 @@ router.post('/adOrder', function(req, res, next) {
     var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
     if(req.body.approveButton){
 
-
-
         ChangeState(true,'hasOrder',1,url);
 
 
@@ -2304,13 +2302,7 @@ router.post('/adItemOrder', function(req, res, next) {
 
         return res.redirect('adItemOrderEnter?itemId='+url.itemId);
 
-
-
     });
-
-
-
-
 });
 
 
@@ -2376,7 +2368,8 @@ router.get('/adBOMListMan', function(req, res) {
             res.render('adBOMListMan', {
                 user:req.session.user,
                 machine: result0,
-                users: users
+                users: users,
+                searchResult:''
             });
         });
     });
@@ -2390,9 +2383,9 @@ router.post('/adBOMListMan', function(req, res,){
     let searchText =  '\'\%%' + req.body.searchText + '%\'';
     let userSql = 'SELECT userName,role FROM user;';
     if(req.body.indexOfButton){
-        sql='SELECT machine.machineId, machineName, machine.updateTime, designer, machine.note\n' +
+        sql='SELECT machine.machineId, machineName, machine.updateTime, designer, machineCost, machine.note\n' +
             'FROM machine\n' +
-            'INNER JOIN component\n' +
+            'LEFT JOIN component\n' +
             'ON component.machineId = machine.machineId\n' +
             'LEFT JOIN component_has_item\n' +
             'ON component_has_item.component_componentId = component.componentId\n' +
@@ -2401,13 +2394,15 @@ router.post('/adBOMListMan', function(req, res,){
             'WHERE machine.machineId LIKE '+searchText+' OR machine.machineName LIKE '+searchText+' OR machine.note LIKE '+searchText+' OR componentModel LIKE '+searchText+' OR componentName LIKE '+searchText+' OR component.note LIKE '+searchText+' OR item.itemName LIKE '+searchText+' OR item.itemId LIKE '+searchText+'\n'+
             'GROUP BY machine.machineId;';
     }
-    connection.query(sql,function (err,result) {
+    var searchResult=req.body.searchText;
+
+    connection.query(sql,function (err,machine) {
         if(err){
             console.log('[SELECT ERROR] - ',err.message);
             res.send('搜索出错：' + '\n' + err);
             return;
         }
-        connection.query(userSql,function (err, result1) {
+        connection.query(userSql,function (err, users) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
                 res.send(err);
@@ -2415,8 +2410,9 @@ router.post('/adBOMListMan', function(req, res,){
             }
             res.render('adBOMListMan', {
                 user:req.session.user,
-                machine: result,
-                users: result1
+                machine: machine,
+                users: users,
+                searchResult:searchResult
             });
         });
 
@@ -2445,22 +2441,22 @@ router.get('/ajaxComponents', function(req, res) {
 
         var HTMLtext='';
         for(var j=0;j<component.length;j++){
-            HTMLtext += '<table cellspacing="0" cellpadding="0" style="width: 100%;">\n'+
+            HTMLtext += '<table class="noteButton2" cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n'+
                 '                        <tr class="noteButton2" style="width: 87%;" id="'+machineId+'component'+j+'" >\n' +
                 '                            <td style="width: 80%;">\n' +
                 '                                <button class="noteButton2" name="componentBtn" id="'+machineId+component[j].componentId+'" value=0 style="padding-left: 80px;" type="button" onclick="showItems('+j+','+'\''+machineId+'\''+','+'\''+component[j].componentId+'\''+')">\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
-                '                                        <span class="itemInfo" style="margin-left: -60px;color: #0050fa;   ">部件&nbsp;'+parseInt(j+1)+'</span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: -20px">部件名称：<a style="font-weight: normal;color: #0050fa;">' + component[j].componentName + '</a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 200px">制表人：<a style="font-weight:normal;color: #0050fa; ">' + component[j].userName + '</a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; ">' + component[j].updateTime.getFullYear()+'-'+component[j].updateTime.getMonth()+1+'-'+component[j].updateTime.getDate()+ '</a></span>\n' +
+                '                                        <span class="componentInfo" style="margin-left: -60px;color: #0050fa;   ">部件&nbsp;'+parseInt(j+1)+'</span>\n' +
+                '                                        <span class="componentInfo" style="margin-left: -20px">部件名称：<a style="font-weight: normal;color: #0050fa;">' + component[j].componentName + '</a></span>\n' +
+                '                                        <span class="componentInfo" style="margin-left: 200px">制表人：<a style="font-weight:normal;color: #0050fa; ">' + component[j].userName + '</a></span>\n' +
+                '                                        <span class="componentInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; ">' + component[j].updateTime.getFullYear()+'-'+component[j].updateTime.getMonth()+1+'-'+component[j].updateTime.getDate()+ '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
-                '                                        <span class="itemInfo" style="margin-left: -20px">部件型号：<a style="font-weight:normal;color: #0050fa; ">' + component[j].componentModel + '</a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + component[j].cost + '</a></span>\n' +
+                '                                        <span class="componentInfo" style="margin-left: -20px">部件型号：<a style="font-weight:normal;color: #0050fa; ">' + component[j].componentModel + '</a></span>\n' +
+                '                                        <span class="componentInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + component[j].cost + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">\n' +
-                '                                        <span class="itemInfo" style="margin-left: -20px" >备注：<a style="font-weight: normal;color: red;">' + component[j].cNote + '</a></span>\n' +
+                '                                        <span class="componentInfo" style="margin-left: -20px" >备注：<a style="font-weight: normal;color: red;">' + component[j].cNote + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                </button>\n' +
                 '                            </td>\n' +
@@ -2474,12 +2470,12 @@ router.get('/ajaxComponents', function(req, res) {
                 '                            </table> \n'+
                 '                            </td>\n' +
                 '                        </tr>\n'+
-                '<tr style="width: 100%;">' +
 
-                '                                    <table cellspacing="0" cellpadding="0" id="'+machineId+component[j].componentId+'itemBox'+'"  style="width: 100%">\n' +
-                '                                    </table>\n' +
 
-                '</tr>'+
+                '                                    <tr cellspacing="0" cellpadding="0" id="'+machineId+component[j].componentId+'itemBox'+'"  style="width: 100%">\n' +
+                '                                    </tr>\n' +
+
+
             '</table>'
         }
         res.json({
@@ -2515,37 +2511,39 @@ router.get('/ajaxItems', function(req, res) {
         }
         var HTMLtext='';
         for(var j=0;j<item.length;j++){
-            HTMLtext += '                        <tr class="noteButton3" id="'+machineId+componentId+'item'+j+'" style="width: 100%;" >\n' +
+            HTMLtext +=  '<table cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n'+
+                '                        <tr class="noteButton3" id="'+machineId+componentId+'item'+j+'" style="width: 100%;" >\n' +
                 '                            <td style="width: 87%; ">\n' +
                 '                                <button class="noteButton3"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adItem?itemId='+item[j].itemId+'&returnSql=\'+document.URL.split(\'sql=\')[1]">\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 50px ">\n' +
-                '                                        <span class="itemInfo" style="margin-left: -60px;color: #0050fa;   ">物料&nbsp;'+parseInt(j+1)+'</span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: -20px">物料名称：<a style="font-weight: normal;color: #0050fa;">' + item[j].itemName + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: -90px;color: #0050fa;   ">物料&nbsp;'+parseInt(j+1)+'</span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: -50px">物料名称：<a style="font-weight: normal;color: #0050fa;">' + item[j].itemName + '</a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 200px">物料编号：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemId + '</a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 430px">区域：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemArea + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 470px">区域：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemArea + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 50px ">\n' +
-                '                                        <span class="itemInfo" style="margin-left: -20px">型号(图号)：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemId + '</a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 200px">类别：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemType + '</a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemPrice + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: -50px">型号(图号)：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemId + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 250px">类别：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemType + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 380px">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemPrice + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 50px" id="">\n' +
-                '                                        <span class="itemInfo" style="margin-left: -20px" >所需数量：<a style="font-weight: normal;color: #0050fa;">' + item[j].itemQuantity + '</a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 200px">备注：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemNote + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: -50px" >所需数量：<a style="font-weight: normal;color: #0050fa;">' + item[j].itemQuantity + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 80px">备注：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemNote + '</a></span>\n' +
                 '                                    </div>\n' +
                 '                                </button>\n' +
                 '                            </td>\n' +
-                '                            <td style="width: 13%!important; margin-left: -100px">\n' +
+                '                            <td style="width: 13%;">\n' +
                 '                                <table cellspacing="0" cellpadding="0" style="width: 100%">\n' +
-                '                                    <tr style="width: 100%">\n' +
-                '                                            <button class="itemButton1" type="button" onclick="window.open(\'uploads/'+item[j].itemFileName+'\')"><img src=\'images/checkDrawing.png\' height="37px" width="40px"></button>\n' +
+                '                                    <tr style="width: 100%;">\n' +
+                '                                            <button class="itemButton1" type="button" style="margin-left: -70px" onclick="window.open(\'uploads/'+item[j].itemFileName+'\')"><img src=\'images/checkDrawing.png\' height="37px" width="40px"></button>\n' +
                 '</tr>\n'+
                 '<tr>\n'+
-                '                                            <button class="itemButton2" type="button" onclick="window.open(\'/qrCodePrint?itemId='+item[j].itemId+'\')"><img src=\'images/checkQRcode.png\' height="23px" width="23px"></button>\n' +
+                '                                            <button class="itemButton2" type="button" style="margin-left: -70px" onclick="window.open(\'/qrCodePrint?itemId='+item[j].itemId+'\')"><img src=\'images/checkQRcode.png\' height="23px" width="23px"></button>\n' +
                 '                                    </tr>\n' +
                 '                                </table>\n' +
                 '                            </td>\n' +
-                '                        </tr>\n'
+                '                        </tr>\n'+
+                '</table>'
         }
 
         res.json({
@@ -3065,7 +3063,7 @@ router.get('/ajaxSearchItem', function(req, res) {
 
     searchSql = 'SELECT itemId, itemModel, itemName, itemNote, itemType, itemNum, itemUnit, itemSupplier\n' +
         'FROM item\n' +
-        'WHERE itemId LIKE "%主轴%" OR itemModel LIKE "'+ searchText + '" OR itemName LIKE "'+ searchText + '" OR itemNote LIKE "'+ searchText + '";'
+        'WHERE itemId LIKE "'+ searchText + '" OR itemModel LIKE "'+ searchText + '" OR itemName LIKE "'+ searchText + '" OR itemNote LIKE "'+ searchText + '";'
 
 
     connection.query(searchSql,function (err, item) {
