@@ -318,7 +318,8 @@
                         <table class="noteButton" style="width: 100%;font-size: 1rem;">
                             <tr style="width: 100%;">
                                 <td style="width: 82%;">
-                                    <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponents('<%=i%>','<%=machine[i].machineId%>')">
+
+                                      <button class="noteButton" name="machineBtn" id="machineBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showComponents('<%=i%>','<%=machine[i].machineId%>')">
                                         <div  style= "font-size: 0.7rem; height: 35px; ">
                                             <span class="BOMInfo" name="machineName" style="margin-left: -50px; color: #0050fa "><%=machine[i].machineName%></span>
                                             <span class="BOMInfo" style="margin-left: 430px">更新日期：<a  style="font-weight:normal;color: #0050fa; "><%=machine[i].updateTime.getFullYear()%>-<%=machine[i].updateTime.getMonth()+1%>-<%=machine[i].updateTime.getDate()%>  </a></span>
@@ -333,6 +334,7 @@
                                             <span class="BOMInfo" style="margin-left: -50px">备注： <a style="font-weight: normal;color: red;!important;"><%=machine[i].note%></a></span>
                                         </div>
                                     </button>
+
                                 </td>
 
                                 <td style="width: 18%">
