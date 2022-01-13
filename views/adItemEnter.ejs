@@ -115,24 +115,23 @@
                                 <div class="itemDetail">名称：<%=itemList.itemName%></div>
                                 <div class="itemDetail">物料编号：<input class="itemDetailsInput" name="updateId" id="detail2" value="<%=itemList.itemId%>" placeholder="<%=itemList.itemId%>" disabled="true"></div>
                                 <div class="itemDetail">型号(图号)：<input class="itemDetailsInput" name="updateModel" id="detail3" value="<%=itemList.itemModel%>" placeholder="<%=itemList.itemModel%>" disabled="true"></div>
+                                <%if (itemList.itemType){%>
                                 <div class="itemDetail" >类型：<%=itemList.itemType%></div>
                                 <div class="itemDetail" >库存总数：<span id="totalNum"><%=itemList.itemNum%></span><%=itemList.itemUnit%></div>
                                 <div class="itemDetail">临时进仓总数：<span style="color: orange"><%=itemList.itemTemNum%></span><%=itemList.itemUnit%></div>
                                 <div class="itemDetail">区域：<%=itemList.itemArea%></div>
-
-                                <div class="itemDetail" id="price" style="display: none">购入价：<%=orderPrice%></div>
-                                <style onload="Authority('系统管理员','price')"></style>
-
                                 <div class="itemDetail">数量预警：<input class="itemDetailsInput" id="detail5" value="<%=itemList.itemAlarmSetting%>" disabled="true" style="width: 300px"></div>
                                 <div class="itemDetail">报警：
                                     <%for(let j=0;j<itemStateList.length;j++){%>
                                     <a style="font-weight:bold;" id="itemState<%=j%>" onload="stateColor(this.id)" ><%=itemStateList[j]%></a>&emsp;
                                     <style onload="stateColor('itemState<%=j%>')"></style>
-                                    <% }%>
+                                    <%}%>
                                 </div>
                                 <div class="itemDetail" >备注：<%=itemList.itemNote%></div>
                                 <style onload="NumAlarm()"></style>
-
+                                <%}%>
+                                <div class="itemDetail" id="price" style="display: none">购入价：<%=orderPrice%></div>
+                                <style onload="Authority('系统管理员','price')"></style>
                             </div>
                         </td>
                         <td>

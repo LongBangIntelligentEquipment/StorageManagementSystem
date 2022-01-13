@@ -155,32 +155,16 @@
 
         function confirmAgain() {
             if(document.getElementById('confirmButton1').style.display===''&&document.getElementById('refuseButton').style.display==='none'){
-                if (window.confirm("请确认采购信息，并且确认已经联系供货商订货?")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return window.confirm("请确认采购信息，并且确认已经联系供货商订货?");
             }else if (document.getElementById('confirmButton1').style.display==='none'&&document.getElementById('refuseButton').style.display===''){
-                if (window.confirm("请确认是否拒绝该订单?")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return window.confirm("请确认是否拒绝该订单?");
             }else  if(document.getElementById('confirmButton2').style.display===''&&document.getElementById('refuseButton').style.display==='none'){
-                if (window.confirm("请确认编辑内容?")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return window.confirm("请确认编辑内容?");
             }else  if(document.getElementById('cancelOrderButton').style.display===''&&document.getElementById('confirmButton2').style.display==='none'&&document.getElementById('pendingNum').innerText>0){
                 alert('请在取消订单前清空待检物料（进仓或退回待检数量）');
                 return false;
             } else  if(document.getElementById('cancelOrderButton').style.display===''&&document.getElementById('confirmButton2').style.display==='none'&&document.getElementById('pendingNum').innerText<=0){
-                if (window.confirm("请确认是否取消该订单?")) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return window.confirm("请确认是否取消该订单?");
             }
             else {
                 return false;
@@ -310,12 +294,12 @@
                             <div class="itemDetail">待检数量：<span id="pendingNum" style="color: orange"><%=orderList[0].pendingNum%></span><%=orderList[0].itemUnit%></div>
                             <div class="itemDetail" >退回数量：<span id="returnNum" style="color: #fe007b"><%=orderList[0].returnNum%></span><%=orderList[0].itemUnit%></div>
                             </div>
-                                <button class="btn btn-block btn-submit button button--primary " type="button"  onclick="location.href='/adItem?itemId=<%=orderList[0].itemId%>&returnSql='+document.URL.split('sql=')[1]"  style="width: 200px;margin-top: 60px;background-color: #fe007b!important;height: 50px;">物料详情</button>
-
-
+                            <%if (notificationList){%>
+                            <button class="btn btn-block btn-submit button button--primary " type="button"  onclick="location.href='/adItem?itemId=<%=orderList[0].itemId%>&returnSql='+document.URL.split('sql=')[1]"  style="width: 200px;margin-top: 60px;background-color: #fe007b!important;height: 50px;">物料详情</button>
+                            <%}%>
                                 <div style="width: 200px;" id="accountButtons"> <style onload="AntiInfoDisplay('申请中','已拒绝','已完成','已取消','orderState','accountButtons')"></style>
                                 <button class="btn btn-block btn-submit button button--primary " type="button" id="directlyExit" onclick="location.href='/adOrderFix?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>'" style="background-color: red!important;height: 50px;width: 200px;">退回</button>
-                                <button class="btn btn-block btn-submit button button--primary " type="button" id="temEnter" onclick="location.href='/adItemTemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].supplier%>'" style="background-color: orange!important;height: 50px;">临时进仓</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="temEnter" onclick="location.href='/adItemTemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].itemSupplier%>'" style="background-color: orange!important;height: 50px;">临时进仓</button>
                             </div>
 
                         </td>
@@ -346,7 +330,7 @@
                             </div>
                         </td>
                         <td>
-                            <button class="btn btn-block btn-submit button button--primary " id="enter" type="button"  onclick="location.href='/adItemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].supplier%>'" style="display:none;background-color: mediumseagreen!important;height: 50px;margin-top: 0px;width: 200px">进仓</button>
+                            <button class="btn btn-block btn-submit button button--primary " id="enter" type="button"  onclick="location.href='/adItemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].itemSupplier%>'" style="display:none;background-color: mediumseagreen!important;height: 50px;margin-top: 0px;width: 200px">进仓</button>
                             <style onload="Authority('已下单','已到货','有退回',false,'orderState','enter','系统管理员','仓库管理员',false,false)"></style>
                         </td>
                     </tr>
@@ -354,20 +338,12 @@
                     <style onload="AntiInfoDisplay(false,'技术员','普通权限员',false,'role','directlyExit')"></style>
                     <style onload="AntiInfoDisplay(false,'技术员','普通权限员',false,'role','temEnter')"></style>
 
-
-
-
-
-
-
                 </table>
 
-
+                <%if (notificationList){%>
                 <div class="pageCard" style="border-top: 0.1rem solid #404142;">
                     <div class="pageTitle">
                         <div style="margin-bottom: 15px;font-weight: bold">订单动态：</div>
-
-
                     </div>
                     <%for(let i = 0; i < notificationList.length ;i++) { %>
                         <div style="margin-left: -50px;font-size: 1rem;margin-top: 5px">
@@ -389,33 +365,21 @@
                                 <div style="height: 19px">
                                     <span style="margin-left: 120px;"><img src='images/timeLine.png' height="100%" width="10px"></span>
                                 </div>
-
                             </div>
                         </div>
                     <% } %>
                     <a style="margin-left: 264.5px"><img src='images/timeLineEnd.png' height="20px" width="20px"></a>
-
                 </div>
+                <% } %>
             </form>
-
-
-
-
         </main>
     </div>
 </section>
-
-
-
 
 <footer class="footer" role="contentinfo">
     <div class="container">
         <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
     </div>
 </footer>
-
-
-</body>
-
 </body>
 </html>

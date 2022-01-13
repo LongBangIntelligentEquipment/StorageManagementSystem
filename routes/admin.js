@@ -49,7 +49,13 @@ function getInfo(url,callback){
     var statesList=[];
     var sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId='+'\''+url.itemId+'\'';
 
-
+    var orderId = url.orderId;
+    if (orderId.toString().substring(0,3) === 'ONE') {
+        sql = 'SELECT * \n' +
+            'FROM orderlist\n' +
+            'JOIN item_one\n' +
+            'ON orderlist.orderId = item_one.orderId\n' +
+            'WHERE orderlist.orderId = ' + '"' + orderId + '";';}
 
     //console.log(url)
 
@@ -870,21 +876,21 @@ router.get('/adItemTemEnter', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
     var orderId=url.orderId;
     var checksql='SELECT * FROM orderlist WHERE orderId='+'\''+url.orderId+'\'';
-        connection.query(checksql,function (err, result1) {
+        connection.query(checksql,function (err, order) {
             if(err){
                 console.log('[SELECT ERROR] - ',err.message);
                 return;
             }
-            getInfo(url,function (err,result) {
+            getInfo(url,function (err,item) {
                 // console.log(result)
                 return  res.render('adItemTemEnter', {
-                    itemList:result.item,
-                    itemStateList:result.itemStateList,
+                    itemList:item.item,
+                    itemStateList:item.itemStateList,
                     orderId:orderId,
-                    totalNum:result1[0].totalNum,
-                    getNum:result1[0].getNum,
-                    pendingNum:result1[0].pendingNum,
-                    returnNum:result1[0].returnNum,
+                    totalNum:order[0].totalNum,
+                    getNum:order[0].getNum,
+                    pendingNum:order[0].pendingNum,
+                    returnNum:order[0].returnNum,
                     supplier:url.supplier,
                     user:req.session.user
                 });
@@ -905,87 +911,71 @@ router.post('/adItemTemEnter', function(req, res, next) {
     var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
     //console.log(dateOutput)
 
+    var orderId, modSql, modSqlParams, checksql, flashUrl;
+    orderId=url.orderId;
 
-        orderId=url.orderId;
-        var checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
-        connection.query(checksql,function (err, result1) {
-            if(err){
-                console.log('[SELECT ERROR] - ',err.message);
-                return;
-            }
-            if(req.body.enterModel==='临时进仓'){
-
-                if(result1[0].totalNum<parseInt( result1[0].getNum)+parseInt( result1[0].pendingNum)+parseInt( result1[0].returnNum)+parseInt(req.body.saveNum) ){
-                    return  res.send('临时进仓失败：进仓数量超过应收数量。');
-                }else{
-                    var modSql = 'UPDATE orderlist SET pendingNum = ? WHERE orderId = '+'\''+url.orderId+'\'';
-                    var modSqlParams = [parseInt( result1[0].pendingNum)+parseInt(req.body.saveNum) ];
-
+    if (orderId.toString().substring(0,3) === 'ONE') {
+        checksql = 'SELECT * \n' +
+            'FROM orderlist\n' +
+            'JOIN item_one\n' +
+            'ON orderlist.orderId = item_one.orderId\n' +
+            'WHERE orderlist.orderId = ' + '"' + orderId + '";';
+    } else {
+        checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+orderId+'\'';
+    }
+    connection.query(checksql,function (err, orderItem) {
+        if(err){
+            console.log('[SELECT ERROR] - ',err.message);
+            return;
+        }
+        if(req.body.enterModel==='临时进仓'){
+            if(orderItem[0].totalNum<parseInt( orderItem[0].getNum)+parseInt( orderItem[0].pendingNum)+parseInt( orderItem[0].returnNum)+parseInt(req.body.saveNum) ){
+                return  res.send('临时进仓失败：进仓数量超过应收数量。');
+            }else{
+                modSql = 'UPDATE orderlist SET pendingNum = ? WHERE orderId = '+'\''+orderId+'\'';
+                modSqlParams = [parseInt( orderItem[0].pendingNum)+parseInt(req.body.saveNum)];
 //改
-                    connection.query(modSql,modSqlParams,function (err, result) {
-                        if(err){
-                            console.log('[UPDATE ERROR] - ',err.message);
-                            return;
-                        }
-
-                    });
-                    itemEnter();
-                    OrderState(result1[0].itemName);
-                    addNotification('已临时进仓',req.body.saveNum);
-
-                    var flashUrl='adOrder?orderId='+result1[0].orderId;
-                    return res.redirect('flash?url='+flashUrl)
-                }
-            }else if(req.body.enterModel==='退还进仓至临时仓库'){
-                if(req.body.saveNum>result1[0].returnNum){
-                    return  res.send('临时进仓失败：临时进仓数量超过退回数量。');
-                }else{
-                    var modSql = 'UPDATE orderlist SET pendingNum = ?, returnNum=? WHERE orderId = '+'\''+url.orderId+'\'';
-                    var modSqlParams = [parseInt(result1[0].pendingNum)+parseInt(req.body.saveNum) ,parseInt(result1[0].returnNum)- parseInt(req.body.saveNum)];
-//改
-
-                    connection.query(modSql,modSqlParams,function (err, result) {
-                        if(err){
-                            console.log('[UPDATE ERROR] - ',err.message);
-                            return;
-                        }
-
-                    });
-                    itemEnter();
-                    OrderState(result1[0].itemName);
-                    addNotification('已退还进仓至临时仓库',req.body.saveNum);
-                    var flashUrl='adOrder?orderId='+result1[0].orderId;
-                    return res.redirect('flash?url='+flashUrl)
-                }
+                connection.query(modSql,modSqlParams,function (err) {
+                    if(err){
+                        console.log('[UPDATE ERROR] - ',err.message);
+                    }
+                });
             }
-        });
+        }else if(req.body.enterModel==='退还进仓至临时仓库'){
+            if(req.body.saveNum>orderItem[0].returnNum){
+                return  res.send('临时进仓失败：临时进仓数量超过退回数量。');
+            }else{
+                var modSql = 'UPDATE orderlist SET pendingNum = ?, returnNum=? WHERE orderId = '+'\''+orderId+'\'';
+                var modSqlParams = [parseInt(orderItem[0].pendingNum)+parseInt(req.body.saveNum) ,parseInt(orderItem[0].returnNum)- parseInt(req.body.saveNum)];
+//改
+                connection.query(modSql,modSqlParams,function (err) {
+                    if(err){
+                        console.log('[UPDATE ERROR] - ',err.message);
+                    }
+                });
+            }
+        }
+
+        if (orderId.toString().substring(0,3) !== 'ONE') {
+            itemEnter();
+            addNotification('已临时进仓',req.body.saveNum);
+        }
+
+        OrderState(orderItem[0].itemName);
+
+        flashUrl='adOrder?orderId='+orderItem[0].orderId;
+        return res.redirect('flash?url='+flashUrl)
+
+    });
 
 
     function itemEnter() {
-
-        // //查===
-        // var  sql2 = 'SELECT * FROM item WHERE itemId='+'\''+url.itemId+'\'';
-        // connection.query(sql2,function (err, result) {
-        //     if(err){
-        //         console.log('[SELECT ERROR] - ',err.message);
-        //         return;
-        //     }
-        //
-        //     console.log(result[0].itemPrice)
-        //
-        //
-        //
-         var  addSqlParams = [url.itemId, '临时进仓',dateOutput, req.body.saveManager,req.body.saveDeliver,req.body.saveNote,url.orderId,'未处理','null','unll','null',req.body.saveNum,'1111-01-01 01:01:01',0];
-
+        var  addSqlParams = [url.itemId, '临时进仓',dateOutput, req.body.saveManager,req.body.saveDeliver,req.body.saveNote,url.orderId,'未处理','null','unll','null',req.body.saveNum,'1111-01-01 01:01:01',0];
         connection.query(addSql,addSqlParams,function (err, result) {
             if(err){
                 console.log('[INSERT ERROR] - ',err.message);
-                return;
             }
-
         });
-
-
         //改====
         var  sql = 'SELECT * FROM item WHERE itemId='+'\''+url.itemId+'\''; //select id,name From websites=rowDataPacket{id,name}
         connection.query(sql,function (err, result) {
@@ -993,23 +983,15 @@ router.post('/adItemTemEnter', function(req, res, next) {
                 console.log('[SELECT ERROR] - ',err.message);
                 return;
             }
-
             var modSql = 'UPDATE item SET itemTemNum = ? WHERE itemId = '+'\''+url.itemId+'\'';
             var updateNum=result[0].itemTemNum+parseInt(req.body.saveNum) ;
-
             var modSqlParams = [updateNum];
-            connection.query(modSql,modSqlParams,function (err, result) {
+            connection.query(modSql,modSqlParams,function (err) {
                 if(err){
                     console.log('[UPDATE ERROR] - ',err.message);
-                    return;
                 }
-
-
             });
-
         });
-        // });
-
     }
 
     function addNotification(enterModel,addSqlInput) {
@@ -1025,16 +1007,11 @@ router.post('/adItemTemEnter', function(req, res, next) {
                 }
                 var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
                 var  addSqlParams =[dateOutput, '采购事件更新',enterModel,addSqlInput,result0[0].itemId,url.orderId ];
-                // console.log(addSqlParams)
-                connection.query(addSql,addSqlParams,function (err, result) {
+                connection.query(addSql,addSqlParams,function (err) {
                     if(err){
                         console.log('[INSERT ERROR] - ',err.message);
-                        return;
                     }
-
                 });
-
-
             });
         });
     }
@@ -1052,39 +1029,25 @@ router.post('/adItemTemEnter', function(req, res, next) {
                    modSql = 'UPDATE orderlist SET state = ? WHERE orderId = '+'\''+url.orderId+'\'';
                    modSqlParams = ['已到货'];
                 }
-
 //改
-                connection.query(modSql,modSqlParams,function (err, result) {
+                connection.query(modSql,modSqlParams,function (err) {
                     if(err){
                         console.log('[UPDATE ERROR] - ',err.message);
                         return;
                     }
-
                 });
-                addNote('采购事件更新',itemName,url.orderId,'已到货')
-
-
-
-
+                addNote('采购事件更新',itemName,url.orderId,'已到货');
             }
         });
     }
 
 });
 
-
-
-
-
-
-
-
 /* GET adItemEnter */
 router.get('/adItemEnter', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
     var orderId='无（直接进仓）';
     var supplier='';
-
 
     if(url.orderId!==undefined){
         orderId=url.orderId;
@@ -1144,11 +1107,22 @@ router.post('/adItemEnter', function(req, res, next) {
 
     //console.log(dateOutput)
     var orderId='无（直接进仓）';
+    var checkSql, modSql, modSqlParams, flashUrl;
 
     if(url.orderId!==undefined){
         orderId=url.orderId;
-        var checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
-        connection.query(checksql,function (err, result1) {
+
+        if (url.orderId.toString().substring(0,3) === 'ONE') {
+            checkSql = 'SELECT * \n' +
+                'FROM orderlist\n' +
+                'JOIN item_one\n' +
+                'ON orderlist.orderId = item_one.orderId\n' +
+                'WHERE orderlist.orderId = ' + '"' + url.orderId + '";';
+        } else {
+            checkSql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
+        }
+
+        connection.query(checkSql,function (err, result1) {
             if(err){
                 console.log('[SELECT ERROR] - ',err.message);
                 return;
@@ -1158,31 +1132,33 @@ router.post('/adItemEnter', function(req, res, next) {
                 if(result1[0].totalNum<parseInt( result1[0].getNum)+parseInt( result1[0].pendingNum)+parseInt( result1[0].returnNum)+parseInt(req.body.saveNum) ){
                     return  res.send('进仓失败：进仓数量超过应收数量。');
                 }else{
-                    var modSql = 'UPDATE orderlist SET getNum = ? WHERE orderId = '+'\''+url.orderId+'\'';
-                    var modSqlParams = [parseInt( result1[0].getNum)+parseInt(req.body.saveNum) ];
+                    modSql = 'UPDATE orderlist SET getNum = ? WHERE orderId = '+'\''+url.orderId+'\'';
+                    modSqlParams = [parseInt( result1[0].getNum)+parseInt(req.body.saveNum) ];
 
 //改
-                    connection.query(modSql,modSqlParams,function (err, result) {
+                    connection.query(modSql,modSqlParams,function (err, ) {
                         if(err){
                             console.log('[UPDATE ERROR] - ',err.message);
-                            return;
                         }
-
                     });
-                    itemEnter();
-                    addNotification('已进仓',req.body.saveNum);
+
+                    if (url.orderId.toString().substring(0,3) !== 'ONE') {
+                        itemEnter();
+                        addNotification('已进仓',req.body.saveNum);
+                    }
+
                     OrderCompeleted(result1[0].itemName);
 
 
-                    var flashUrl='adOrder?orderId='+url.orderId;
+                    flashUrl='adOrder?orderId='+url.orderId;
                     return res.redirect('flash?url='+flashUrl)
                 }
             }else if(req.body.enterModel==='验收进仓'){
                 if(req.body.saveNum>result1[0].pendingNum){
                     return  res.send('进仓失败：验收数量超过待检数量。');
                 }else{
-                    var modSql = 'UPDATE orderlist SET getNum = ?, pendingNum=? WHERE orderId = '+'\''+url.orderId+'\'';
-                    var modSqlParams = [parseInt(result1[0].getNum)+parseInt(req.body.saveNum) ,parseInt(result1[0].pendingNum)- parseInt(req.body.saveNum)];
+                    modSql = 'UPDATE orderlist SET getNum = ?, pendingNum=? WHERE orderId = '+'\''+url.orderId+'\'';
+                    modSqlParams = [parseInt(result1[0].getNum)+parseInt(req.body.saveNum) ,parseInt(result1[0].pendingNum)- parseInt(req.body.saveNum)];
 //改
                     if(parseInt(req.body.saveNum)===result1[0].pendingNum){
                         var modSql2='UPDATE record SET state = ? WHERE orderId ='+'\''+url.orderId+'\'' ;
@@ -1214,11 +1190,14 @@ router.post('/adItemEnter', function(req, res, next) {
 
                     });
 
-                    itemEnter();
-                    addNotification('已验收进仓',req.body.saveNum);
+                    if (url.orderId.toString().substring(0,3) !== 'ONE') {
+                        itemEnter();
+                        addNotification('已验收进仓',req.body.saveNum);
+                    }
+
                     OrderCompeleted(result1[0].itemName);
 
-                    var flashUrl='adOrder?orderId='+url.orderId;
+                    flashUrl='adOrder?orderId='+url.orderId;
                     return res.redirect('flash?url='+flashUrl)
                 }
             }else if(req.body.enterModel==='退还进仓'){
@@ -1226,8 +1205,8 @@ router.post('/adItemEnter', function(req, res, next) {
                     return  res.send('进仓失败：退还数量超过退回数量。');
                 }
                 else {
-                    var modSql = 'UPDATE orderlist SET getNum = ?, returnNum=? WHERE orderId = '+'\''+url.orderId+'\'';
-                    var modSqlParams = [parseInt(result1[0].getNum)+parseInt(req.body.saveNum) ,parseInt(result1[0].returnNum)- parseInt(req.body.saveNum)];
+                    modSql = 'UPDATE orderlist SET getNum = ?, returnNum=? WHERE orderId = '+'\''+url.orderId+'\'';
+                    modSqlParams = [parseInt(result1[0].getNum)+parseInt(req.body.saveNum) ,parseInt(result1[0].returnNum)- parseInt(req.body.saveNum)];
 
 //改
                     connection.query(modSql,modSqlParams,function (err, result) {
@@ -1237,13 +1216,16 @@ router.post('/adItemEnter', function(req, res, next) {
                         }
 
                     });
-                    itemEnter();
-                    addNotification('已退还进仓',req.body.saveNum);
+
+                    if (url.orderId.toString().substring(0,3) !== 'ONE') {
+                        itemEnter();
+                        addNotification('已退还进仓',req.body.saveNum);
+                    }
+
                     OrderCompeleted(result1[0].itemName);
 
 
-
-                    var flashUrl='adOrder?orderId='+url.orderId;
+                    flashUrl='adOrder?orderId='+url.orderId;
                     return res.redirect('flash?url='+flashUrl)
                 }
             }
@@ -1251,9 +1233,7 @@ router.post('/adItemEnter', function(req, res, next) {
     } else{
        itemEnter()
 
-
-
-        var flashUrl='adItem?itemId='+url.itemId+'&returnSql='+url.returnSql+'&itemModel='+url.itemModel;
+        flashUrl='adItem?itemId='+url.itemId+'&returnSql='+url.returnSql+'&itemModel='+url.itemModel;
         return res.redirect(flashUrl)
     }
 
@@ -1390,8 +1370,6 @@ router.post('/adItemEnter', function(req, res, next) {
                 addNotification('已完成', ' ')
                 addNote('采购事件更新',itemName,url.orderId,'已完成')
 
-
-
             }else{
                 if(parseInt(result[0].returnNum) ===0){
                         var modSql = 'UPDATE orderlist SET state = ? WHERE orderId = '+'\''+url.orderId+'\'';
@@ -1413,11 +1391,6 @@ router.post('/adItemEnter', function(req, res, next) {
 
                     });
                     addNote('采购事件更新',itemName,url.orderId,'已到货')
-
-
-
-
-
                 }
             }
 
@@ -1591,11 +1564,6 @@ router.post('/adItemReturn', function(req, res, next) {
 //====改
 });
 
-
-
-
-
-
 /* GET adItemReturnSelect */
 router.get('/adItemReturnSelect', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
@@ -1622,53 +1590,33 @@ router.get('/adItemReturnSelect', function(req, res, next) {
 
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* GET adOrderMan*/
 router.get('/adOrderMan', function(req, res, next) {
-    var sql;
-    var url=URL.parse(req.url,true).query;
-    //console.log(url)
-    if(url.sql===undefined){
-        sql='SELECT *  ,CASE  WHEN state = \'申请中\' OR state = \'已下单\' OR state = \'有退回\' OR (state = \'已到货\' AND getNum+pendingNum != totalNum) THEN 1\n' +
-            'WHEN (state = \'已到货\' AND getNum+pendingNum = totalNum) THEN 2\n' +
-            'WHEN state = \'已取消\'  THEN 3\n' +
-            'WHEN state = \'已拒绝\'  THEN 4\n' +
-            'WHEN state = \'已完成\' THEN 5\n' +
-            'END AS order_param \n' +
-            'FROM orderlist,item\n' +
-            'WHERE orderlist.itemId=item.itemId\n' +
-            'ORDER BY  order_param,commingDate,orderDate ASC';
-        //sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId  ORDER BY orderlist.orderDate DESC';
-    }else {
-        sql=url.sql;
-    }
+    var sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, item.itemModel, item.itemName, applyNote, replyNote, orderlist.totalNum, item_one.itemSupplier AS oneItemSupplier, item.itemSupplier, item_one.itemName AS oneItemName, item_one.itemModel AS oneItemModel,\n' +
+        'CASE  \n' +
+        'WHEN state = \'申请中\' OR state = \'已下单\' OR state = \'有退回\' OR (state = \'已到货\' AND getNum+pendingNum != totalNum) THEN 1\n' +
+        'WHEN (state = \'已到货\' AND getNum+pendingNum = totalNum)\n' +
+        ' THEN 2\n' +
+        'WHEN state = \'已取消\'  THEN 3\n' +
+        'WHEN state = \'已拒绝\'  THEN 4\n' +
+        'WHEN state = \'已完成\' THEN 5\n' +
+        'END AS order_param\n' +
+        'FROM orderlist\n' +
+        'LEFT JOIN item\n' +
+        'ON orderlist.itemId = item.itemId\n' +
+        'LEFT JOIN item_one\n' +
+        'ON orderlist.orderId = item_one.orderId\n' +
+        'ORDER BY  order_param,commingDate DESC,orderDate ASC;'
 
     connection.query( sql,function (err, result) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
         }
-
-
-       // console.log(result)
         res.render('adOrderMan', {
             orderList:result,
             user:req.session.user
         });
-
     });
-
 });
 
 router.post('/adOrderMan', function(req, res, next) {
@@ -1678,36 +1626,36 @@ router.post('/adOrderMan', function(req, res, next) {
 
     switch (stateJudge) {
         case '0':  sql=undefined; break;
-        case '1':  sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已下单\' ORDER BY orderlist.orderDate DESC'; break;
-        case '2':  sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'申请中\' ORDER BY orderlist.orderDate DESC'; break;
-        case '3':  sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已拒绝\' ORDER BY orderlist.orderDate DESC'; break;
-        case '4':  sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已到货\' ORDER BY orderlist.orderDate DESC'; break;
-        case '5':  sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'有退回\' ORDER BY orderlist.orderDate DESC'; break;
-        case '6':  sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已完成\' ORDER BY orderlist.orderDate DESC'; break;
-        case '7':  sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已取消\' ORDER BY orderlist.orderDate DESC'; break;
+        case '1':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已下单\' ORDER BY orderlist.orderDate DESC'; break;
+        case '2':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'申请中\' ORDER BY orderlist.orderDate DESC'; break;
+        case '3':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已拒绝\' ORDER BY orderlist.orderDate DESC'; break;
+        case '4':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已到货\' ORDER BY orderlist.orderDate DESC'; break;
+        case '5':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'有退回\' ORDER BY orderlist.orderDate DESC'; break;
+        case '6':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已完成\' ORDER BY orderlist.orderDate DESC'; break;
+        case '7':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已取消\' ORDER BY orderlist.orderDate DESC'; break;
 
     }
 
 
-    //console.log(indexOf);
-
     if(req.body.indexOfButton){
 
-        sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND (orderlist.orderId Like' +indexOf+' OR item.itemName Like '+indexOf+' OR item.itemId Like '+indexOf+' OR item.itemSupplier Like '+indexOf+' OR orderlist.applyNote Like '+indexOf+' OR orderlist.replyNote Like '+indexOf+')';
+        sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND (orderlist.orderId Like' +indexOf+' OR item.itemName Like '+indexOf+' OR item.itemId Like '+indexOf+' OR item.itemSupplier Like '+indexOf+' OR orderlist.applyNote Like '+indexOf+' OR orderlist.replyNote Like '+indexOf+')';
     }
 
     switch (req.body.order) {
         case '0':sql=undefined;break
-        case '1':sql='sql=SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId  ORDER BY orderlist.orderDate DESC';break
+        case '1':sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId  ORDER BY orderlist.orderDate DESC';break
     }
 
-
-
-    //console.log(sql);
-
-
-    var returnURL = '/adOrderMan?' +sql;
-    res.redirect(returnURL)
+    connection.query( sql,function (err, result) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+        }
+        res.render('adOrderMan', {
+            orderList:result,
+            user:req.session.user
+        });
+    });
 
 });
 
@@ -1715,40 +1663,61 @@ router.post('/adOrderMan', function(req, res, next) {
 /* GET adOrder*/
 router.get('/adOrder', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
-    var sql='SELECT * FROM orderlist,item,itemstate WHERE item.itemId=itemstate.itemId AND orderlist.itemId=item.itemId AND orderlist.orderId='+'\''+url.orderId+'\'';
+    var sql, orderId;
+    orderId = url.orderId;
 
-    connection.query( sql,function (err, result1) {
-        if (err) {
-            console.log('[SELECT ERROR] - ', err.message);
-        }
-        var sql1='SELECT * FROM notification WHERE notification.orderId='+'\''+url.orderId+'\''+'ORDER BY noteDate DESC';
+    if (orderId.toString().substring(0,3) === 'ONE') {
+        sql = 'SELECT * \n' +
+            'FROM orderlist\n' +
+            'JOIN item_one\n' +
+            'ON orderlist.orderId = item_one.orderId\n' +
+            'WHERE orderlist.orderId = ' + '"' + orderId + '";';
 
-        connection.query( sql1,function (err, result2) {
+        connection.query(sql, function (err, result1) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
             }
-
-            ChangeState(result1[0].itemTemNum>0,'hasUncheck',1,result1[0]);
-            if(result1[0].itemTemNum>0&&result1[0].hasUncheck===0){
-                addNote('物料事件更新',result1[0].itemName,result1[0].itemId,'存在未检测');
-            }
-            ChangeState(result1[0].itemTemNum<=0,'hasUncheck',0,result1[0]);
-            if(result1[0].itemTemNum<=0&&result1[0].hasUncheck===1){
-                addNote('物料事件更新',result1[0].itemName,result1[0].itemId,'取消存在未检测状态');
-            }
-
-           // console.log(result2);
             res.render('adOrder', {
-                orderList:result1,
-                notificationList:result2,
-                user:req.session.user
+                orderList: result1,
+                notificationList : false,
+                user: req.session.user
             });
-
         });
-    });
+    } else {
+        sql = 'SELECT * FROM orderlist,item,itemstate WHERE item.itemId=itemstate.itemId AND orderlist.itemId=item.itemId AND orderlist.orderId=' + '\'' + url.orderId + '\'';
+        connection.query(sql, function (err, result1) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+            }
+            var sql1 = 'SELECT * FROM notification WHERE notification.orderId=' + '\'' + url.orderId + '\'' + 'ORDER BY noteDate DESC';
+
+            connection.query(sql1, function (err, result2) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                }
+
+                ChangeState(result1[0].itemTemNum > 0, 'hasUncheck', 1, result1[0]);
+                if (result1[0].itemTemNum > 0 && result1[0].hasUncheck === 0) {
+                    addNote('物料事件更新', result1[0].itemName, result1[0].itemId, '存在未检测');
+                }
+                ChangeState(result1[0].itemTemNum <= 0, 'hasUncheck', 0, result1[0]);
+                if (result1[0].itemTemNum <= 0 && result1[0].hasUncheck === 1) {
+                    addNote('物料事件更新', result1[0].itemName, result1[0].itemId, '取消存在未检测状态');
+                }
+
+                // console.log(result2);
+                res.render('adOrder', {
+                    orderList: result1,
+                    notificationList: result2,
+                    user: req.session.user
+                });
+
+            });
+        });
+    }
 });
 
-
+/* POST adOrder*/
 router.post('/adOrder', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
     var  saveDate= new Date();
@@ -1759,146 +1728,168 @@ router.post('/adOrder', function(req, res, next) {
     var min=parseInt(saveDate.getMinutes());
     var sec=parseInt(saveDate.getSeconds());
     var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
+    var orderSql, orderId, arriveDateInput, applyNum, confirmNoteInput, purchasePrice;
+    orderId = url.orderId;
+    arriveDateInput = req.body.arriveDateInput;
+    applyNum = req.body.applyNum
+    confirmNoteInput = req.body.confirmNoteInput
+    purchasePrice = req.body.purchasePrice
+
     if(req.body.approveButton){
+        if (orderId.toString().substring(0,3) === 'ONE') {
+            orderSql = 'SELECT * \n' +
+                'FROM orderlist\n' +
+                'JOIN item_one\n' +
+                'ON orderlist.orderId = item_one.orderId\n' +
+                'WHERE orderlist.orderId = ' + '"' + orderId + '";';
+            connection.query(orderSql, function (err, order) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                    return;
+                }
+                if(!arriveDateInput){arriveDateInput=order[0].commingDate;}
+                var modSql = 'UPDATE orderlist SET state = ?,commingDate = ?,totalNum=?,orderDate=?,replyNote=?, price=? WHERE orderId = '+'\''+orderId+'\'';
+                var modSqlParams = ['已下单', arriveDateInput,applyNum,dateOutput,confirmNoteInput, purchasePrice];
+//改
+                connection.query(modSql,modSqlParams,function (err) {
+                    if(err){
+                        console.log('[UPDATE ERROR] - ',err.message);
+                    }
+                });
+                addNote('采购事件更新',order[0].itemName,orderId,'已下单');
+            });
+        } else {
+            ChangeState(true,'hasOrder',1,url);
 
-        ChangeState(true,'hasOrder',1,url);
-
-
-        var countSql='SELECT * FROM notification';
-        var checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
-        connection.query( checksql,function (err, result0) {
-            if (err) {
-                console.log('[SELECT ERROR] - ', err.message);
-            }
-            connection.query( countSql,function (err, result1) {
+            var countSql='SELECT * FROM notification';
+            var checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
+            connection.query( checksql,function (err, result0) {
                 if (err) {
                     console.log('[SELECT ERROR] - ', err.message);
                 }
-
-                var arriveDateInput=req.body.arriveDateInput;
-                if( req.body.arriveDateInput===''){
-                    arriveDateInput=result0[0].commingDate;
-                }
-                var modSql = 'UPDATE orderlist SET state = ?,commingDate = ?,totalNum=?,orderDate=?,replyNote=?, price=? WHERE orderId = '+'\''+url.orderId+'\'';
-                var modSqlParams = ['已下单', arriveDateInput,req.body.applyNum,dateOutput,req.body.confirmNoteInput, req.body.purchasePrice];
-//改
-                connection.query(modSql,modSqlParams,function (err, result) {
-                    if(err){
-                        console.log('[UPDATE ERROR] - ',err.message);
-                        return;
+                connection.query( countSql,function (err, result1) {
+                    if (err) {
+                        console.log('[SELECT ERROR] - ', err.message);
                     }
-                    //更改物料价格
-                    var itemId = result0[0].itemId;
-                    var modSql = 'UPDATE item SET itemPrice=? WHERE itemId = '+'"'+itemId+'";';
-                    var modSqlParams = [req.body.purchasePrice];
-                    connection.query(modSql,modSqlParams,function (err) {
+                    if(!arriveDateInput){arriveDateInput=result0[0].commingDate;}
+                    var modSql = 'UPDATE orderlist SET state = ?,commingDate = ?,totalNum=?,orderDate=?,replyNote=?, price=? WHERE orderId = '+'\''+orderId+'\'';
+                    var modSqlParams = ['已下单', arriveDateInput,applyNum,dateOutput,confirmNoteInput, purchasePrice];
+//改
+                    connection.query(modSql,modSqlParams,function (err, result) {
                         if(err){
                             console.log('[UPDATE ERROR] - ',err.message);
                             return;
                         }
-                        //更新部件价格
-                        updateComponentCost(false, itemId);
+                        //更改物料价格
+                        var itemId = result0[0].itemId;
+                        var modSql = 'UPDATE item SET itemPrice=? WHERE itemId = '+'"'+itemId+'";';
+                        var modSqlParams = [req.body.purchasePrice];
+                        connection.query(modSql,modSqlParams,function (err) {
+                            if(err){
+                                console.log('[UPDATE ERROR] - ',err.message);
+                                return;
+                            }
+                            //更新部件价格
+                            updateComponentCost(false, itemId);
+                        });
                     });
+
+                    ChangeState(true,'hasOrder',1,url);
+
+                    var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
+                    var  addSqlParams = [dateOutput, '采购事件更新','已下单',req.body.applyNum,result0[0].itemId,orderId];
+                    //console.log(addSqlParams)
+                    connection.query(addSql,addSqlParams,function (err, result) {
+                        if(err){
+                            console.log('[INSERT ERROR] - ',err.message);
+                        }
+                    });
+                    addNote('采购事件更新',result0[0].itemName,orderId,'已下单')
                 });
-
-                ChangeState(true,'hasOrder',1,url);
-
-
-                var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
-                var  addSqlParams = [dateOutput, '采购事件更新','已下单',req.body.applyNum,result0[0].itemId,url.orderId];
-                //console.log(addSqlParams)
-                connection.query(addSql,addSqlParams,function (err, result) {
-                    if(err){
-                        console.log('[INSERT ERROR] - ',err.message);
-                        return;
-                    }
-
-
-
-                });
-                addNote('采购事件更新',result0[0].itemName,url.orderId,'已下单')
-
-
-
-
             });
-        });
-
+        }
     }
 
     if(req.body.confirmButton){
-        var modSql = 'UPDATE orderlist SET commingDate = ? WHERE orderId = '+'\''+url.orderId+'\'';
+        var modSql = 'UPDATE orderlist SET commingDate = ? WHERE orderId = '+'\''+orderId+'\'';
         var modSqlParams = [req.body.arriveDateInput];
 //改
         connection.query(modSql,modSqlParams,function (err, result) {
             if(err){
                 console.log('[UPDATE ERROR] - ',err.message);
-                return;
             }
-
         });
     }
+
     function StopOrder(state) {
-        var modSql = 'UPDATE orderlist SET state = ? WHERE orderId = '+'\''+url.orderId+'\'';
+        var modSql = 'UPDATE orderlist SET state = ? WHERE orderId = '+'\''+orderId+'\'';
         var modSqlParams = [state];
 //改
-        connection.query(modSql,modSqlParams,function (err, result) {
+        connection.query(modSql,modSqlParams,function (err) {
             if(err){
                 console.log('[UPDATE ERROR] - ',err.message);
-                return;
             }
-
-
         });
 
-        var countSql='SELECT * FROM notification';
-        var checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
-        connection.query( checksql,function (err, result0) {
-            if (err) {
-                console.log('[SELECT ERROR] - ', err.message);
-            }
-            connection.query( countSql,function (err, result1) {
+        if (orderId.toString().substring(0,3) === 'ONE'){
+            orderSql = 'SELECT * \n' +
+                'FROM orderlist\n' +
+                'JOIN item_one\n' +
+                'ON orderlist.orderId = item_one.orderId\n' +
+                'WHERE orderlist.orderId = ' + '"' + orderId + '";';
+            connection.query(orderSql, function (err, order) {
                 if (err) {
                     console.log('[SELECT ERROR] - ', err.message);
+                    return;
                 }
-                var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
-                var  addSqlParams = [dateOutput, '采购事件更新',state,' ',result0[0].itemId,url.orderId ];
-                console.log(addSqlParams)
-                connection.query(addSql,addSqlParams,function (err, result) {
-                    if(err){
-                        console.log('[INSERT ERROR] - ',err.message);
+                addNote('采购事件更新',order[0].itemName,orderId,state)
+            });
+        } else {
+
+            var countSql='SELECT * FROM notification';
+            var checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+orderId+'\'';
+            connection.query( checksql,function (err, result0) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                    return;
+                }
+                connection.query( countSql,function (err, result1) {
+                    if (err) {
+                        console.log('[SELECT ERROR] - ', err.message);
                         return;
                     }
+                    var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
+                    var  addSqlParams = [dateOutput, '采购事件更新',state,' ',result0[0].itemId,orderId ];
+                    connection.query(addSql,addSqlParams,function (err) {
+                        if(err){
+                            console.log('[INSERT ERROR] - ',err.message);
+                        }
 
+                    });
+                    addNote('采购事件更新',result0[0].itemName,orderId,state)
+
+                    var checksql='SELECT * FROM orderlist WHERE (state=\'已下单\'OR state=\'申请中\' OR state=\'已到货\' OR state=\'有退回\') AND itemId='+'\''+result0[0].itemId+'\'';
+                    connection.query( checksql,function (err, result2) {
+                        //console.log("@@@"+result2.length)
+                        if(result2.length===0){
+                            var modSql = 'UPDATE itemstate SET hasOrder=? WHERE itemId = '+'\''+result0[0].itemId+'\'';
+                            var modSqlParams = [0];
+    //改
+                            connection.query(modSql,modSqlParams,function (err, result) {
+                                if(err){
+                                    console.log('[UPDATE ERROR] - ',err.message);
+                                    return;
+                                }
+                                addNote('物料事件更新',result0[0].itemName,result0[0].itemId,'取消有订单未处理状态')
+
+                            });
+                        }
+                    })
                 });
-                addNote('采购事件更新',result0[0].itemName,url.orderId,state)
-
-
-
-                var checksql='SELECT * FROM orderlist WHERE (state=\'已下单\'OR state=\'申请中\' OR state=\'已到货\' OR state=\'有退回\') AND itemId='+'\''+result0[0].itemId+'\'';
-                connection.query( checksql,function (err, result2) {
-                    //console.log("@@@"+result2.length)
-                    if(result2.length===0){
-                        var modSql = 'UPDATE itemstate SET hasOrder=? WHERE itemId = '+'\''+result0[0].itemId+'\'';
-                        var modSqlParams = [0];
-//改
-                        connection.query(modSql,modSqlParams,function (err, result) {
-                            if(err){
-                                console.log('[UPDATE ERROR] - ',err.message);
-                                return;
-                            }
-                            addNote('物料事件更新',result0[0].itemName,result0[0].itemId,'取消有订单未处理状态')
-
-                        });
-                    }
-                })
-
-
-
             });
-        });
-    }
 
+        }
+    }
 
     if(req.body.refuseButton){
         StopOrder('已拒绝')
@@ -1916,30 +1907,38 @@ router.post('/adOrder', function(req, res, next) {
 /* GET adOrderFix*/
 router.get('/adOrderFix', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
-    var sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.orderId='+'\''+url.orderId+'\'';
+    var orderId, orderSql;
 
-    connection.query( sql,function (err, result1) {
-        if (err) {
-            console.log('[SELECT ERROR] - ', err.message);
-        }
-        var sql1='SELECT * FROM notification WHERE notification.orderId='+'\''+url.orderId+'\''+'ORDER BY noteDate DESC';
+    orderId = url.orderId;
 
-        connection.query( sql1,function (err, result2) {
+    if (orderId.toString().substring(0,3) === 'ONE') {
+        orderSql = 'SELECT * \n' +
+            'FROM orderlist\n' +
+            'JOIN item_one\n' +
+            'ON orderlist.orderId = item_one.orderId\n' +
+            'WHERE orderlist.orderId = ' + '"' + orderId + '";';
+        connection.query(orderSql, function (err, order) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+                return;
+            }
+            res.render('adOrderFix', {
+                orderList: order,
+                user: req.session.user
+            });
+        });
+    } else {
+        var orderSql = 'SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.orderId=' + '\'' + orderId + '\'';
+        connection.query(orderSql, function (err, order) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
             }
-
-            // console.log(result2);
             res.render('adOrderFix', {
-                orderList:result1,
-                notificationList:result2,
-                user:req.session.user
+                orderList: order,
+                user: req.session.user
             });
-
         });
-
-    });
-
+    }
 });
 
 
@@ -1955,60 +1954,61 @@ router.post('/adOrderFix', function(req, res, next) {
     var min=parseInt(saveDate.getMinutes());
     var sec=parseInt(saveDate.getSeconds());
     var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
-    //console.log(dateOutput)
 
-
+    var orderId, orderSql, modSql, modSqlParams, isFirstSQL;
     orderId=url.orderId;
-    var checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
-    connection.query(checksql,function (err, result1) {
+
+    if (orderId.toString().substring(0,3) === 'ONE') {
+        orderSql = 'SELECT * \n' +
+            'FROM orderlist\n' +
+            'JOIN item_one\n' +
+            'ON orderlist.orderId = item_one.orderId\n' +
+            'WHERE orderlist.orderId = ' + '"' + orderId + '";';
+    } else {
+        orderSql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+orderId+'\'';
+    }
+
+    connection.query(orderSql,function (err, order) {
         if(err){
             console.log('[SELECT ERROR] - ',err.message);
             return;
         }
         if(req.body.enterModel==='直接退回'){
-
-            if(result1[0].totalNum<parseInt( result1[0].getNum)+parseInt( result1[0].pendingNum)+parseInt( result1[0].returnNum)+parseInt(req.body.saveNum) ){
+            if(order[0].totalNum<parseInt( order[0].getNum)+parseInt( order[0].pendingNum)+parseInt( order[0].returnNum)+parseInt(req.body.saveNum) ){
                 return  res.send('退回失败：退回数量超出数额。');
             }else{
-                var modSql = 'UPDATE orderlist SET returnNum = ? WHERE orderId = '+'\''+url.orderId+'\'';
-                var modSqlParams = [parseInt( result1[0].returnNum)+parseInt(req.body.saveNum) ];
-
+                modSql = 'UPDATE orderlist SET returnNum = ? WHERE orderId = '+'\''+orderId+'\'';
+                modSqlParams = [parseInt( order[0].returnNum)+parseInt(req.body.saveNum) ];
 //改
-                connection.query(modSql,modSqlParams,function (err, result) {
+                connection.query(modSql,modSqlParams,function (err) {
                     if(err){
                         console.log('[UPDATE ERROR] - ',err.message);
-                        return;
                     }
-
                 });
-                OrderState(result1[0].itemName);
-                var isFirstSQL='SELECT sum( case when noteState=\'已退回(首次检测)\' or noteState=\'已从临时仓库退回(首次检测)\' then 1 else 0 end) as returnTimes FROM notification WHERE orderId=\''+url.orderId+'\'';
-                connection.query(isFirstSQL,function (err, result2) {
-                    if(err){
-                        console.log('[SELECT ERROR] - ',err.message);
-                        return;
-                    }
-
-
-                    if(result2[0].returnTimes>0){
-                        addNotification('已退回',req.body.saveNum);
-                    }else{
-                        addNotification('已退回(首次检测)',req.body.saveNum);
-                    }
-
-
-                });
-
-
+                OrderState(order[0].itemName);
+                if (orderId.toString().substring(0,3) !== 'ONE') {
+                    isFirstSQL='SELECT sum( case when noteState=\'已退回(首次检测)\' or noteState=\'已从临时仓库退回(首次检测)\' then 1 else 0 end) as returnTimes FROM notification WHERE orderId=\''+orderId+'\'';
+                    connection.query(isFirstSQL,function (err, result2) {
+                        if(err){
+                            console.log('[SELECT ERROR] - ',err.message);
+                            return;
+                        }
+                        if(result2[0].returnTimes>0){
+                            addNotification('已退回',req.body.saveNum);
+                        }else{
+                            addNotification('已退回(首次检测)',req.body.saveNum);
+                        }
+                    });
+                }
                 var flashUrl='adOrder?orderId='+url.orderId;
                 return res.redirect('flash?url='+flashUrl)
             }
         }else if(req.body.enterModel==='从临时仓库退回'){
-            if(req.body.saveNum>result1[0].pendingNum){
+            if(req.body.saveNum>order[0].pendingNum){
                 return  res.send('退回失败：退回数量超过临时仓库中该物料的数量。');
             }else{
-                var modSql = 'UPDATE orderlist SET  returnNum=? ,pendingNum = ? WHERE orderId = '+'\''+url.orderId+'\'';
-                var modSqlParams = [parseInt(result1[0].returnNum)+parseInt(req.body.saveNum) ,parseInt(result1[0].pendingNum)- parseInt(req.body.saveNum)];
+                modSql = 'UPDATE orderlist SET  returnNum=? ,pendingNum = ? WHERE orderId = '+'\''+url.orderId+'\'';
+                modSqlParams = [parseInt(order[0].returnNum)+parseInt(req.body.saveNum) ,parseInt(order[0].pendingNum)- parseInt(req.body.saveNum)];
 //改
 
                 connection.query(modSql,modSqlParams,function (err, result) {
@@ -2016,21 +2016,19 @@ router.post('/adOrderFix', function(req, res, next) {
                         console.log('[UPDATE ERROR] - ',err.message);
                         return;
                     }
-
                 });
 
-                var modSql3='UPDATE item SET itemTemNum=? WHERE itemId='+'\''+result1[0].itemId+'\''
-                var modSqlParams3 = [parseInt(result1[0].itemTemNum)-req.body.saveNum];
+                var modSql3='UPDATE item SET itemTemNum=? WHERE itemId='+'\''+order[0].itemId+'\''
+                var modSqlParams3 = [parseInt(order[0].itemTemNum)-req.body.saveNum];
 
                 connection.query(modSql3,modSqlParams3,function (err, result) {
                     if(err){
                         console.log('[UPDATE ERROR] - ',err.message);
                         return;
                     }
-
                 });
 
-                if(parseInt(req.body.saveNum)===result1[0].pendingNum){
+                if(parseInt(req.body.saveNum)===order[0].pendingNum){
                     var modSql2='UPDATE record SET state = ? WHERE orderId ='+'\''+url.orderId+'\'' ;
                     var modSqlParams2 = ['已处理'];
 
@@ -2042,7 +2040,7 @@ router.post('/adOrderFix', function(req, res, next) {
 
                     });
                 }
-                OrderState(result1[0].itemName);
+                OrderState(order[0].itemName);
                 var isFirstSQL='SELECT sum( case when noteState=\'已退回(首次检测)\' or noteState=\'已从临时仓库退回(首次检测)\' then 1 else 0 end) as returnTimes FROM notification WHERE orderId=\''+url.orderId+'\'';
                 connection.query(isFirstSQL,function (err, result2) {
                     if(err){
@@ -2095,20 +2093,19 @@ router.post('/adOrderFix', function(req, res, next) {
 
     function OrderState(itemName) {
         var checksql='SELECT * FROM orderlist WHERE orderId='+'\''+url.orderId+'\'';
-        connection.query( checksql,function (err, result) {
-
+        connection.query( checksql,function (err) {
+            if(err){
+                console.log('[SELECT ERROR] - ',err.message);
+            }
                 var modSql = 'UPDATE orderlist SET state = ? WHERE orderId = '+'\''+url.orderId+'\'';
                 var modSqlParams = ['有退回'];
-
 //改
-                connection.query(modSql,modSqlParams,function (err, result) {
+                connection.query(modSql,modSqlParams,function (err) {
                     if(err){
                         console.log('[UPDATE ERROR] - ',err.message);
-                        return;
                     }
-
                 });
-            addNote('采购事件更新',itemName,url.orderId,'有退回')
+            addNote('采购事件更新',itemName,orderId,'有退回')
 
 
         });
@@ -2222,7 +2219,7 @@ router.get('/adItemOrder', function(req, res, next) {
 });
 
 
-
+/* POST adItemOrder*/
 router.post('/adItemOrder', function(req, res, next) {
     //增
     var url=URL.parse(req.url,true).query;
@@ -2234,7 +2231,7 @@ router.post('/adItemOrder', function(req, res, next) {
     var min=saveDate.getMinutes();
     var sec=saveDate.getSeconds();
     var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
-    var checkSql='SELECT orderId FROM orderlist WHERE orderId LIKE '+'\'\%%'+year.toString()+month.toString() +day.toString()+'%\'';
+    var checkSql='SELECT orderId FROM orderlist WHERE orderId LIKE '+'"%'+year.toString()+month.toString() +day.toString()+'%"' + ' OR orderId LIKE '+'"%'+ 'ONE'+year.toString()+month.toString() +day.toString()+'%"';
 
     connection.query( checkSql,function (err, result1) {
         if (err) {
@@ -2303,6 +2300,90 @@ router.post('/adItemOrder', function(req, res, next) {
         return res.redirect('adItemOrderEnter?itemId='+url.itemId);
 
     });
+});
+
+/*                            ***************************************************一次性订单***************************************************                  */
+router.get('/adItemOrderOne', function(req, res) {
+    res.render('adItemOrderOne', {
+        user:req.session.user
+    });
+});
+
+router.post('/adItemOrderOne', function(req, res) {
+    var  saveDate= new Date();
+    var year= saveDate.getFullYear();
+    var month=saveDate.getMonth()+1;
+    var day=saveDate.getDate();
+    var hour=saveDate.getHours();
+    var min=saveDate.getMinutes();
+    var sec=saveDate.getSeconds();
+    var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
+    var checkSql='SELECT orderId FROM orderlist WHERE orderId LIKE '+'"%'+year.toString()+month.toString() +day.toString()+'%"' + ' OR orderId LIKE '+'"%'+ 'ONE'+year.toString()+month.toString() +day.toString()+'%"';
+
+    var state, applyDate, orderDate, commingDate, applyNote, replyNote, applier, itemId, itemModel, itemName, itemSupplier, totalNum, price, unit;
+
+    applyDate = dateOutput;
+    commingDate = req.body.commingDate;
+    applyNote = req.body.applyNote;
+    applier = req.body.applier;
+    itemId = req.body.itemId;
+    itemModel = req.body.itemModel;
+    itemName = req.body.itemName;
+    itemName = req.body.itemSupplier;
+    totalNum = req.body.applyNum;
+    itemPrice = req.body.itemPrice;
+    itemUnit = req.body.itemUnit;
+
+    state = '申请中';
+    orderDate = dateOutput;
+    replyNote = '';
+
+
+    connection.query( checkSql,function (err, result1) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+        }
+        var addId;
+        if(result1.length===0){
+            addId=1;
+        }else {
+            addId=result1.length+1;
+        }
+        var prefixId;
+        var orderId;
+        if(addId<10){
+            prefixId='00';
+            orderId='ONE'+year.toString()+month.toString() +day.toString()+prefixId+addId;
+        }else if(addId<100&&addId>=10){
+            prefixId='0';
+            orderId='ONE'+year.toString()+month.toString() +day.toString()+prefixId+addId;
+        }else{
+            orderId='ONE'+year.toString()+month.toString() +day.toString()+addId;
+        }
+
+        var  addOrderSql = 'INSERT INTO orderlist(orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,getNum,pendingNum,returnNum,itemPrice,itemUnit) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+        var  addOrderSqlParams = [orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,0,0,0,itemPrice,itemUnit];
+        console.log('addOrderSql: ' + addOrderSql);
+        console.log('addOrderSqlParams: ' + addOrderSqlParams);
+        connection.query(addOrderSql,addOrderSqlParams,function (err) {
+            if(err){
+                console.log('[INSERT ERROR] - ',err.message);
+            }
+            let addItemSql = 'INSERT INTO item_one(itemId, itemModel, itemName, itemSupplier, orderId) VALUES (?,?,?,?)';
+            let addItemSqlParams = [itemId, itemModel, itemName, itemSupplier, orderId];
+            console.log('addItemSql: ' + addItemSql);
+            console.log('addItemSqlParams: ' + addItemSqlParams);
+            connection.query(addItemSql,addItemSqlParams,function (err) {
+                if(err){
+                    console.log('[INSERT ERROR] - ',err.message);
+                    return;
+                }
+                addNote('采购事件更新',itemName,orderId,'申请中');
+            });
+        });
+    });
+
+    res.redirect('/adOrderMan');
 });
 
 
@@ -2438,10 +2519,9 @@ router.get('/ajaxComponents', function(req, res) {
             res.send(err);
             return;
         }
-
-
         var HTMLtext='';
         for(var j=0;j<component.length;j++){
+            if (!component[j].cNote){component[j].cNote=''}
             HTMLtext += '<table class="noteButton2" cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n'+
                 '                        <tr class="noteButton2" style="width: 87%;" id="'+machineId+'component'+j+'" >\n' +
                 '                            <td style="width: 80%;">\n' +
@@ -2842,7 +2922,7 @@ router.post('/adBOMListComponentAdd', upload.single('BomListFileName'), function
                 return;
             }
             // --添加事件更新到首页--
-            addNote('部件事件更新', addComponentName, addComponentModel, '添加新部件到' + addToMachineId);
+            addNote('部件事件更新', addComponentName, addComponentModel, '添加新部件');
 
             res.redirect('/adBOMListMachineMan?machineId=' + addToMachineId);
         });
@@ -2946,7 +3026,7 @@ router.get('/adBOMList', function (req, res) {
         'WHERE componentId =' + '\'' + url.componentId + '\'' + '\n' +
         'ORDER BY itemType';
     // 部件无物料
-    let componentSql = 'SELECT componentId, componentModel, componentName, updateTime, component.state, note, component.categoryId, category.categoryName, cost, fileName, userName, machineName, machine.machineId\n' +
+    let componentSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, cost, fileName, userName, machineName, machine.machineId\n' +
         'FROM component\n' +
         'LEFT JOIN category\n' +
         'ON component.categoryId = category.categoryId\n' +
@@ -3262,6 +3342,8 @@ router.get('/ajaxSaveEdit', function(req, res) {
                     res.send(false);
                 }
             }
+            // --添加事件更新到首页--
+            // addNote('部件事件更新', componentId, componentId, '添修改部件');
         });
     }
 })
@@ -3413,7 +3495,7 @@ function copyComponent(componentId, componentName, componentModel, componentType
     connection.query( componentSql,function (err, componentItems) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
-            return false;
+            return;
         }
         var newComponentCost = componentItems[0].cost;
         if (!componentFileName){componentFileName = 'null'}
@@ -3422,14 +3504,16 @@ function copyComponent(componentId, componentName, componentModel, componentType
         connection.query( insertSql, insertParam,function (err) {
             if (err) {
                 console.log('[INSERT ERROR] 增加复制部件错误！ - ', err.message);
-                return false;
+                return;
             }
+            // --添加事件更新到首页--
+            addNote('部件事件更新', componentName, componentModel, '添加新部件');
             updateMachineCost(machineId);
             let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
             connection.query( 'SELECT LAST_INSERT_ID() AS newComponentId;', function (err, newComponentIds) {
                 if (err) {
                     console.log('查找插入ID错误！ - ', err.message);
-                    return false;
+                    return;
                 }
                 let newComponentId = newComponentIds[0].newComponentId - count;
                 for (let i = 0; i < componentItems.length; i++) {
@@ -3440,7 +3524,6 @@ function copyComponent(componentId, componentName, componentModel, componentType
                     connection.query(addSql, addSqlParams, function (err) {
                         if (err) {
                             console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
-                            return false;
                         }
                     });
                 }
@@ -3499,7 +3582,7 @@ function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, 
                 return;
             }
             // --添加事件更新到首页--
-            // addNote('设备事件更新', machineName, machineModel, '添加复制设备');
+            addNote('设备事件更新', machineName, machineModel, '添加复制设备');
 
             var componentId, componentName, componentModel, componentType, componentNote, componentFileName, userId, i;
             for (i=0;i<machineComponents.length;i++){
@@ -3512,9 +3595,7 @@ function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, 
                 userId = machineComponents[i].userId;
                 copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineModel, userId, i);
             }
-
         });
-
     });
 }
 
