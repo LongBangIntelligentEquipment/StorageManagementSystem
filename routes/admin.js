@@ -49,22 +49,21 @@ function getInfo(url,callback){
     var statesList=[];
     var sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId='+'\''+url.itemId+'\'';
 
-    var orderId = url.orderId;
-    if (orderId.toString().substring(0,3) === 'ONE') {
-        sql = 'SELECT * \n' +
-            'FROM orderlist\n' +
-            'JOIN item_one\n' +
-            'ON orderlist.orderId = item_one.orderId\n' +
-            'WHERE orderlist.orderId = ' + '"' + orderId + '";';}
-
-    //console.log(url)
+    if (url.orderId) {
+        if (url.orderId.toString().substring(0,3) === 'ONE'){
+            sql = 'SELECT * \n' +
+                'FROM orderlist\n' +
+                'JOIN item_one\n' +
+                'ON orderlist.orderId = item_one.orderId\n' +
+                'WHERE orderlist.orderId = ' + '"' + url.orderId + '";';
+        }
+    }
 
 
     connection.query( sql, function (err, result) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
         }
-
 
             states=[];
             statesCounter=-1;
@@ -779,7 +778,6 @@ router.get('/adItemExit', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
     getInfo(url,function (err,result) {
         // console.log(result)
-
         return  res.render('adItemExit', {
             itemList:result.item,
             itemStateList:result.itemStateList,
@@ -2322,7 +2320,7 @@ router.post('/adItemOrderOne', function(req, res) {
     var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
     var checkSql='SELECT orderId FROM orderlist WHERE orderId LIKE '+'"%'+year.toString()+month.toString() +day.toString()+'%"' + ' OR orderId LIKE '+'"%'+ 'ONE'+year.toString()+month.toString() +day.toString()+'%"';
 
-    var state, applyDate, orderDate, commingDate, applyNote, replyNote, applier, itemId, itemModel, itemName, itemSupplier, totalNum, price, unit;
+    var state, applyDate, orderDate, commingDate, applyNote, replyNote, applier, itemId, itemModel, itemName, itemSupplier, totalNum, itemPrice, itemUnit;
 
     applyDate = dateOutput;
     commingDate = req.body.commingDate;
@@ -2331,7 +2329,7 @@ router.post('/adItemOrderOne', function(req, res) {
     itemId = req.body.itemId;
     itemModel = req.body.itemModel;
     itemName = req.body.itemName;
-    itemName = req.body.itemSupplier;
+    itemSupplier = req.body.itemSupplier;
     totalNum = req.body.applyNum;
     itemPrice = req.body.itemPrice;
     itemUnit = req.body.itemUnit;
@@ -2363,18 +2361,15 @@ router.post('/adItemOrderOne', function(req, res) {
             orderId='ONE'+year.toString()+month.toString() +day.toString()+addId;
         }
 
-        var  addOrderSql = 'INSERT INTO orderlist(orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,getNum,pendingNum,returnNum,itemPrice,itemUnit) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-        var  addOrderSqlParams = [orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,0,0,0,itemPrice,itemUnit];
-        console.log('addOrderSql: ' + addOrderSql);
-        console.log('addOrderSqlParams: ' + addOrderSqlParams);
+        var  addOrderSql = 'INSERT INTO orderlist(orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,getNum,pendingNum,returnNum,price) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+        var  addOrderSqlParams = [orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,0,0,0,itemPrice];
+
         connection.query(addOrderSql,addOrderSqlParams,function (err) {
             if(err){
                 console.log('[INSERT ERROR] - ',err.message);
             }
-            let addItemSql = 'INSERT INTO item_one(itemId, itemModel, itemName, itemSupplier, orderId) VALUES (?,?,?,?)';
-            let addItemSqlParams = [itemId, itemModel, itemName, itemSupplier, orderId];
-            console.log('addItemSql: ' + addItemSql);
-            console.log('addItemSqlParams: ' + addItemSqlParams);
+            let addItemSql = 'INSERT INTO item_one(itemId, itemModel, itemName, itemSupplier, itemUnit, orderId) VALUES (?,?,?,?,?,?)';
+            let addItemSqlParams = [itemId, itemModel, itemName, itemSupplier, itemUnit, orderId];
             connection.query(addItemSql,addItemSqlParams,function (err) {
                 if(err){
                     console.log('[INSERT ERROR] - ',err.message);
@@ -2385,7 +2380,8 @@ router.post('/adItemOrderOne', function(req, res) {
         });
     });
 
-    res.redirect('/adOrderMan');
+    var flashUrl='/adOrderMan';
+    res.redirect(flashUrl)
 });
 
 

@@ -237,13 +237,16 @@
             ul = $('#BOMListItem');
             itemBtn = ul.find('[name = itemButton]:visible');
 
-            console.log(ul[0]);
             console.log(itemBtn);
 
             itemId = itemBtn.find('#itemId');
             itemModel = itemBtn.find('#itemModel');
             itemQty = itemBtn.find('#itemQty');
             itemQty = itemQty.find('input');
+
+            console.log(itemId[0].innerText);
+            console.log(itemBtn[0].innerText);
+            console.log(itemQty[0].innerText);
 
             for (i=0;i<itemBtn.length;i++){
                 itemIdText = itemId[i].innerText;
@@ -270,6 +273,9 @@
         function saveEdit(){
             var items = packData2();
             if (!items){return}
+
+            console.log(item);
+            return;
 
             $.ajax({
                 url: './ajaxSaveEdit',
