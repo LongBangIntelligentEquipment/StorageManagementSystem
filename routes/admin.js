@@ -1224,7 +1224,6 @@ router.post('/adItemEnter', function(req, res, next) {
 
                     OrderCompeleted(result1[0].itemName);
 
-
                     flashUrl='adOrder?orderId='+url.orderId;
                     return res.redirect('flash?url='+flashUrl)
                 }
@@ -1358,14 +1357,17 @@ router.post('/adItemEnter', function(req, res, next) {
                     }
 
                 });
-                var checksql='SELECT * FROM orderlist WHERE (state=\'已下单\'OR state=\'申请中\' OR state=\'已到货\' OR state=\'有退回\') AND itemId='+'\''+result[0].itemId+'\'';
-                connection.query( checksql,function (err, result2) {
 
-                    if(parseInt(result2.length)===0){
-                        ChangeState(true,'hasOrder',0,url);
-                        addNote('物料事件更新',itemName,result[0].itemId,'取消有订单未处理状态')
-                    }
-                })
+                if (orderId.toString().substring(0,3) === 'ONE') {
+                    var checksql = 'SELECT * FROM orderlist WHERE (state=\'已下单\'OR state=\'申请中\' OR state=\'已到货\' OR state=\'有退回\') AND itemId=' + '\'' + result[0].itemId + '\'';
+                    connection.query(checksql, function (err, result2) {
+
+                        if (parseInt(result2.length) === 0) {
+                            ChangeState(true, 'hasOrder', 0, url);
+                            addNote('物料事件更新', itemName, result[0].itemId, '取消有订单未处理状态')
+                        }
+                    })
+                }
 
                 addNotification('已完成', ' ')
                 addNote('采购事件更新',itemName,url.orderId,'已完成')
@@ -2041,22 +2043,22 @@ router.post('/adOrderFix', function(req, res, next) {
                     });
                 }
                 OrderState(order[0].itemName);
-                var isFirstSQL='SELECT sum( case when noteState=\'已退回(首次检测)\' or noteState=\'已从临时仓库退回(首次检测)\' then 1 else 0 end) as returnTimes FROM notification WHERE orderId=\''+url.orderId+'\'';
-                connection.query(isFirstSQL,function (err, result2) {
-                    if(err){
-                        console.log('[SELECT ERROR] - ',err.message);
-                        return;
-                    }
 
+                if (orderId.toString().substring(0,3) !== 'ONE') {
+                    var isFirstSQL = 'SELECT sum( case when noteState=\'已退回(首次检测)\' or noteState=\'已从临时仓库退回(首次检测)\' then 1 else 0 end) as returnTimes FROM notification WHERE orderId=\'' + url.orderId + '\'';
+                    connection.query(isFirstSQL, function (err, result2) {
+                        if (err) {
+                            console.log('[SELECT ERROR] - ', err.message);
+                            return;
+                        }
+                        if (result2[0].returnTimes > 0) {
+                            addNotification('已从临时仓库退回', req.body.saveNum);
+                        } else {
+                            addNotification('已从临时仓库退回(首次检测)', req.body.saveNum);
+                        }
+                    });
+                }
 
-                    if(result2[0].returnTimes>0){
-                        addNotification('已从临时仓库退回',req.body.saveNum);
-                    }else{
-                        addNotification('已从临时仓库退回(首次检测)',req.body.saveNum);
-                    }
-
-
-                });
                 var flashUrl='adOrder?orderId='+url.orderId;
                 return res.redirect('flash?url='+flashUrl)
             }
