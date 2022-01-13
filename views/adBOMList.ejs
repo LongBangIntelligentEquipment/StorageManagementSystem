@@ -155,6 +155,7 @@
         <%for(let i=0; i<component.length; i++) {
             componentCost += component[i].itemPrice * component[i].itemQuantity;
         }%>
+        <%if (!componentCost) {componentCost= 0;}%>
 
         function packData(){
             var confirmTable, itemAddBox, itemBtn, itemNum, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
@@ -230,11 +231,14 @@
         }
 
         function packData2(){
-            var table, itemBtn, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
+            var ul, itemBtn, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
             var itemArray = [], itemIdArray = [], itemModelArray = [], itemQtyArray = [];
 
-            table = $('#BOMListItem tbody:first');
-            itemBtn = table.find('[name = itemButton]:visible');
+            ul = $('#BOMListItem');
+            itemBtn = ul.find('[name = itemButton]:visible');
+
+            console.log(ul[0]);
+            console.log(itemBtn);
 
             itemId = itemBtn.find('#itemId');
             itemModel = itemBtn.find('#itemModel');

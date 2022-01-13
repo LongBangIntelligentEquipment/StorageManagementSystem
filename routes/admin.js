@@ -3133,7 +3133,7 @@ router.get('/ajaxSearchItem', function(req, res) {
                 '                                        <td style="padding: 0px" >\n' +
                 '                                            <div  style= "font-size: 0.7rem; height: 30px;width: 100% ">\n' +
                 '                                                <span class="itemInfo" style="color: #0050fa;position: relative">#'+(j+1)+'</span>\n' +
-                '                                                <span class="itemInfo" style="position: relative">名称：<a style="font-weight: normal;color: #0050fa; position: relative">'+item[j].itemName+'</a></span>\n' +
+                '                                                <span class="itemInfo" style="position: relative">名称：<a style="font-weight: normal;color: #0050fa; position: relative">【'+item[j].itemSupplier+'】'+item[j].itemName+'</a></span>\n' +
                 '                                            </div>\n' +
                 '                                        </td>\n' +
                 '                                        <td id="'+'requiredNum'+j+searchTimes+'" style="display: none" >\n' +
@@ -3469,10 +3469,15 @@ router.post('/componentCopy', function(req, res) {
     componentFileName = req.body.BomListFileName;
     machineIds = req.body.belongMachine;
 
-    for (i=0; i<machineIds.length;i++) {
-        machineId = machineIds[i];
-        copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, i);
+    if (Array.isArray(machineIds)){
+        for (i=0; i<machineIds.length;i++) {
+            machineId = machineIds[i];
+            copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, i);
+        }
+    } else {
+        copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineIds, userId, 0);
     }
+
 
     let flashUrl = '/adBOMListMan';
     res.redirect('flash?url='+flashUrl);
@@ -3508,8 +3513,6 @@ function copyComponent(componentId, componentName, componentModel, componentType
                 console.log('[INSERT ERROR] 增加复制部件错误！ - ', err.message);
                 return;
             }
-            // --添加事件更新到首页--
-            addNote('部件事件更新', componentName, componentModel, '添加新部件');
             updateMachineCost(machineId);
             let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
             connection.query( 'SELECT LAST_INSERT_ID() AS newComponentId;', function (err, newComponentIds) {
@@ -3531,6 +3534,9 @@ function copyComponent(componentId, componentName, componentModel, componentType
                 }
             });
         });
+
+        // --添加事件更新到首页--
+        // addNote('部件事件更新', componentName, componentModel, '添加新部件');
     });
 }
 
