@@ -1,57 +1,132 @@
+<!DOCTYPE html>
 <html>
+
    <head>
        <title></title>
-<style>
-       .showBox {
-          width: 400px;
-         min-height: 100px;
-        padding: 10px;
-              border: 1px solid #000;
-          }
-          .text {
-                                     background: orange;
-                                     }
-              </style>
-   </head>
-    <div class="showBox">唧唧复唧唧，木兰当户织。不闻机杼声，唯闻女叹息。
- 问女何所思，问女何所忆。女亦无所思，女亦无所忆。昨夜见军帖，可汗大点兵，军书十二卷，卷卷有爷名。阿爷无大儿，木兰无长兄，愿为市鞍马，从此替爷征。
-  东市买骏马，西市买鞍鞯，南市买辔头，北市买长鞭。旦辞爷娘去，暮宿黄河边，不闻爷娘唤女声，但闻黄河流水鸣溅溅。旦辞黄河去，暮至黑山头，不闻爷娘唤女声，但闻燕山胡骑鸣啾啾。
-    </div>
-     <p>
-       <input placeholder="请输入关键字" class="inputEl"/>
-        <button onclick="sendMsg()">查找</button>
-     </p>
-   <script>
-        var originalText = document.getElementsByClassName('showBox')[0].innerText;
-         function sendMsg() {
-                 var text = originalText;
-               var history = document.getElementsByClassName('text');
-                if (history.length > 0) {
-                            text = originalText;
+
+
+
+       <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+       <script language="javascript">
+           var node = document.querySelector("#container");
+           var draging = null;
+           //使用事件委托，将li的事件委托给ul
+           function dragstart_handler(event) {
+               //console.log("start");
+               //firefox设置了setData后元素才能拖动！！！！
+               event.dataTransfer.setData("te", event.target.innerHTML); //不能使用text，firefox会打开新tab
+               //event.dataTransfer.setData("self", event.target);
+               draging = event.target;
+           }
+           function dragover_handler(event) {
+               //console.log("onDrop over");
+               event.preventDefault();
+               var target = event.target;
+               //因为dragover会发生在ul上，所以要判断是不是li
+               if (target.nodeName === "DIV") {
+                   if (target !== draging) {
+                       var targetRect = target.getBoundingClientRect();
+                       var dragingRect = draging.getBoundingClientRect();
+                       if (target) {
+                           if (target.animated) {
+                               return;
+                           }
                        }
-                    var inputValue = document.getElementsByClassName('inputEl')[0].value;
-                   var found = findAll(text, inputValue);
-                 for (var i = 0; i < text.length; i++) {
-                         for (var j in found) {
-                             if (i == found[j]) {
-                                         text = originalText.split(inputValue).join(`<span class="text">${inputValue}</span>`);
-                                   }
-                            }
-                      }
-                  document.getElementsByClassName('showBox')[0].innerHTML = text;
-                 document.getElementsByClassName('inputEl')[0].value = "";
-            function findAll(str, x) {
-                   var results = [];
-                     var len = str.length;
-                     var pos = 0;
-                     while (pos < len) {
-                           pos = str.indexOf(x, pos);
-                            if (pos === -1)
-                                   break;
-                           results.push(pos);
-                             pos = pos + 1;
-                        }
-                     return results;
-                 }}
-        </script>
+                       if (_index(draging) < _index(target)) {
+                           target.parentNode.insertBefore(draging, target.nextSibling);
+                       } else {
+                           target.parentNode.insertBefore(draging, target);
+                       }
+                       _animate(dragingRect, draging);
+                       _animate(targetRect, target);
+                   }
+               }
+
+           }
+           //获取元素在父元素中的index
+           function _index(el) {
+               var index = 0;
+
+               if (!el || !el.parentNode) {
+                   return -1;
+               }
+
+               while (el && (el = el.previousElementSibling)) {
+                   //console.log(el);
+                   index++;
+               }
+
+               return index;
+           }
+
+           function _animate(prevRect, target) {
+               var ms = 300;
+
+               if (ms) {
+                   var currentRect = target.getBoundingClientRect();
+
+                   if (prevRect.nodeType === 1) {
+                       prevRect = prevRect.getBoundingClientRect();
+                   }
+
+                   _css(target, 'transition', 'none');
+                   _css(target, 'transform', 'translate3d(' +
+                       (prevRect.left - currentRect.left) + 'px,' +
+                       (prevRect.top - currentRect.top) + 'px,0)'
+                   );
+
+                   target.offsetWidth; // 触发重绘
+                   //放在timeout里面也可以
+                   // setTimeout(function() {
+                   //     _css(target, 'transition', 'all ' + ms + 'ms');
+                   //     _css(target, 'transform', 'translate3d(0,0,0)');
+                   // }, 0);
+                   _css(target, 'transition', 'all ' + ms + 'ms');
+                   _css(target, 'transform', 'translate3d(0,0,0)');
+
+                   clearTimeout(target.animated);
+                   target.animated = setTimeout(function() {
+                       _css(target, 'transition', '');
+                       _css(target, 'transform', '');
+                       target.animated = false;
+                   }, ms);
+               }
+           }
+           //给元素添加style
+           function _css(el, prop, val) {
+               var style = el && el.style;
+
+               if (style) {
+                   if (val === void 0) {
+                       if (document.defaultView && document.defaultView.getComputedStyle) {
+                           val = document.defaultView.getComputedStyle(el, '');
+                       } else if (el.currentStyle) {
+                           val = el.currentStyle;
+                       }
+
+                       return prop === void 0 ? val : val[prop];
+                   } else {
+                       if (!(prop in style)) {
+                           prop = '-webkit-' + prop;
+                       }
+
+                       style[prop] = val + (typeof val === 'string' ? '' : 'px');
+                   }
+               }
+           }
+       </script>
+
+   </head>
+
+
+   <body>
+
+   <a ondragstart="dragstart_handler(event)" ondragover="dragover_handler(event)">
+       <div class="ele" draggable="true">1</div>
+       <div class="ele" draggable="true">2</div>
+       <div class="ele" draggable="true">3</div>
+       <div class="ele" draggable="true">4</div>
+   </a>
+   </body>
+
  </html>

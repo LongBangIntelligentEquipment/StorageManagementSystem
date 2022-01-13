@@ -574,6 +574,8 @@ footer {
 
 .noteButton3:hover{
   background-color: #f3ffe3 !important;
+  height: 100%;
+  margin: 0;
 }
 
 .indexOf{
@@ -865,4 +867,14 @@ input[type="checkbox"]:checked+label::before{
 
 .text {
   background: orange;
+}
+
+li{
+  list-style-image: url("../images/order.png") ;
+
+}
+
+li:hover{
+
+  list-style-image: url("../images/order1.png") ;
 }

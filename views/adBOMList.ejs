@@ -29,6 +29,14 @@
                     return false
                 }
         }
+        function btnEdi(length,actId){
+            for(var i=0;i<length;i++){
+                var elementId='#'+actId+i;
+                $(elementId).removeAttr('disabled');
+                $(elementId).attr('style','outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;')
+
+            }
+        }
 
         function detailEditable(){
             if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
@@ -95,26 +103,25 @@
 
         }
 
-        function btnEdi(length,actId){
-            for(var i=0;i<length;i++){
-                var elementId='#'+actId+i;
-                $(elementId).removeAttr('disabled');
-                $(elementId).attr('style','outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;')
-            }
-        }
+
 
         function editItemBtn() {
             var editItemBtn='[name=editItemBtn]';
             var itemButton='[name=itemButton]';
             $(editItemBtn).removeAttr('hidden');
             $(itemButton).attr('disabled','disabled');
-            $("#editBomBtn").attr('hidden','hidden')
+            $("#editBomBtn").attr('hidden','hidden');
+            $('#BOMListItem').attr('style','width: 100%;font-size: 1rem;padding-left: 60px')
+
 
             var componentLength='<%=component.length%>'
             for(var i=0;i<parseInt(componentLength);i++){
-            var requireNum="#"+'requireNum'+i
-            $(requireNum).removeAttr('disabled');
-            $(requireNum).attr('style','width: 50px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;height: 100%')
+                var requireNum="#"+'requireNum'+i;
+                $(requireNum).removeAttr('disabled');
+                $(requireNum).attr('style','width: 50px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;height: 100%')
+
+                var itemId="#"+'item'+i;
+                $(itemId).attr('draggable','true')
             }
             $('#addBomBtn').attr('hidden','hidden')
         }
@@ -126,12 +133,16 @@
             $(editItemBtn).attr('hidden','hidden');
             $(itemButton).removeAttr('disabled');
             $("#editBomBtn").removeAttr('hidden')
+            $('#BOMListItem').attr('style','width: 100%;font-size: 1rem; padding-left: 0px')
 
             var componentLength='<%=component.length%>'
             for(var i=0;i<parseInt(componentLength);i++){
                 var requireNum="#"+'requireNum'+i
                 $(requireNum).attr('disabled','disabled')
                 $(requireNum).attr('style','height:100%')
+
+                var itemId="#"+'item'+i;
+                $(itemId).attr('draggable','false')
             }
             $('#addBomBtn').removeAttr('hidden')
 
@@ -431,6 +442,122 @@
             $('#bodyPage').removeAttr('style')
         }
 
+
+        var draging = null;
+
+        function dragstart_handler(event) {
+            //console.log("start");
+            //firefox设置了setData后元素才能拖动！！！！
+            event.dataTransfer.setData("te", event.target.innerHTML); //不能使用text，firefox会打开新tab
+            //event.dataTransfer.setData("self", event.target);
+            draging = event.target;
+        }
+
+        function dragover_handler(event) {
+            //console.log("onDrop over");
+            event.preventDefault();
+            var target = event.target;
+            //因为dragover会发生在ul上，所以要判断是不是li
+            console.log(target.nodeName)
+            if (target.nodeName === "LI") {
+                if (target !== draging) {
+                    var targetRect = target.getBoundingClientRect();
+                    var dragingRect = draging.getBoundingClientRect();
+                    if (target) {
+                        if (target.animated) {
+                            return;
+                        }
+                    }
+                    if (_index(draging) < _index(target)) {
+                        target.parentNode.insertBefore(draging, target.nextSibling);
+                    } else {
+                        target.parentNode.insertBefore(draging, target);
+                    }
+                    _animate(dragingRect, draging);
+                    _animate(targetRect, target);
+                }
+            }
+
+        }
+        //获取元素在父元素中的index
+        function _index(el) {
+            var index = 0;
+
+            if (!el || !el.parentNode) {
+                return -1;
+            }
+
+            while (el && (el = el.previousElementSibling)) {
+                //console.log(el);
+                index++;
+            }
+
+            return index;
+        }
+
+        function _animate(prevRect, target) {
+            var ms = 300;
+
+            if (ms) {
+                var currentRect = target.getBoundingClientRect();
+
+                if (prevRect.nodeType === 1) {
+                    prevRect = prevRect.getBoundingClientRect();
+                }
+
+                _css(target, 'transition', 'none');
+                _css(target, 'transform', 'translate3d(' +
+                    (prevRect.left - currentRect.left) + 'px,' +
+                    (prevRect.top - currentRect.top) + 'px,0)'
+                );
+
+                target.offsetWidth; // 触发重绘
+                //放在timeout里面也可以
+                // setTimeout(function() {
+                //     _css(target, 'transition', 'all ' + ms + 'ms');
+                //     _css(target, 'transform', 'translate3d(0,0,0)');
+                // }, 0);
+                _css(target, 'transition', 'all ' + ms + 'ms');
+                _css(target, 'transform', 'translate3d(0,0,0)');
+
+                clearTimeout(target.animated);
+                target.animated = setTimeout(function() {
+                    _css(target, 'transition', '');
+                    _css(target, 'transform', '');
+                    target.animated = false;
+                }, ms);
+            }
+        }
+        //给元素添加style
+        function _css(el, prop, val) {
+            var style = el && el.style;
+
+            if (style) {
+                if (val === void 0) {
+                    if (document.defaultView && document.defaultView.getComputedStyle) {
+                        val = document.defaultView.getComputedStyle(el, '');
+                    } else if (el.currentStyle) {
+                        val = el.currentStyle;
+                    }
+
+                    return prop === void 0 ? val : val[prop];
+                } else {
+                    if (!(prop in style)) {
+                        prop = '-webkit-' + prop;
+                    }
+
+                    style[prop] = val + (typeof val === 'string' ? '' : 'px');
+                }
+            }
+        }
+
+
+
+
+
+
+
+
     </script>
 
 </head>
@@ -472,7 +599,8 @@
                     <tr>
                         <td >
                             <div style="width: 450px;margin-top: -10px">
-                                <div class="itemDetail">详细信息：</div>
+                                <a style="margin-top: 5px;font-size: 1.2rem;color:  #0050fa;"  href="/adBOMListMachineMan?machineId=<%=component[0].machineId%>"><%=component[0].machineName%><br><%=component[0].machineId%></a>
+                                <div class="itemDetail">部件信息：</div>
                                 <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="<%=component[0].componentName%>" disabled></div>
                                 <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=component[0].componentModel%>" disabled></div>
                                 <div class="itemDetail" id="typeSelect">类型：<select class="itemDetailsInput" name="BomListType" id="detail2" required="required" disabled style="height: 35px;width: 130px;" >
@@ -489,7 +617,7 @@
                                 </div>
 
                                 <div class="itemDetail">制表人：<input class="itemDetailsInput" name="BomListMaker"  value="<%=component[0].userName%>" disabled ></div>
-                                <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="BomListUpdateTime"  value="<%=component[0].updateTime%>" disabled ></div>
+                                <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="BomListUpdateTime"  value="<%=component[0].updateTime.getFullYear()%>-<%=component[0].updateTime.getMonth()+1%>-<%=component[0].updateTime.getDate()%>" disabled ></div>
                                 <div class="itemDetail" >部件成本：<input class="itemDetailsInput" name="BomListCost" value="<%=componentCost%>" disabled ></div>
 
                                 <div class="itemDetail">备注：<input class="itemDetailsInput" name="BomListNote" id="detail3" value="<%=component[0].note%>" disabled ></div>
@@ -558,6 +686,9 @@
                                         <div id="shellBox" style="margin-top: 3%">
                                             请选择所属设备<a style="color: red; font-size: x-large">*</a>：
                                             <% for (let i = 0; i < machine.length; i++){ %>
+                                                <%  if(machine[i].machineId===component[0].machineId){%>
+                                                <%continue;%>
+                                                <% }%>
                                                 <div style="margin-bottom: 5px">
                                                     <input  type="checkbox" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
                                                     <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
@@ -630,44 +761,60 @@
             </div>
 
             <div id="BomListDetail" >
-                <table id="BOMListItem" style="width: 100%;font-size: 1rem;">
-                    <%if (component[0].itemId){%>
-                    <div style="margin-bottom: 10px;font-weight: bold;font-size: 1.3rem;margin-left: 30px;">BOM表详情：(<%=component.length%>种物料)</div>
-                    <%for(let j = 0 ; j < component.length ; j++) { %>
-                    <tr id="item<%=j%>" style="width: 100%;">
-                        <td style="width: 87%">
-                            <button class="noteButton3" name="itemButton" style="padding-left: 80px;" type="button" onclick="location.href='/adItem?itemId=<%=component[j].itemId%>&returnSql='+document.URL.split('sql=')[1]">
-                                <div  style= "font-size: 0.7rem; height: 30px; ">
-                                    <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
-                                    <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=component[j].itemName%></a></span>
-                                    <span class="itemInfo" style="margin-left: 260px">物料编号：<a id="itemId" style="font-weight:normal;color: #0050fa; "><%=component[j].itemId%></a></span>
-                                </div>
-                                <div  style= "font-size: 0.7rem; height: 30px; ">
-                                    <span class="itemInfo" >型号（图号）：<a id="itemModel" style="font-weight: normal;color: #0050fa;"><%=component[j].itemModel%></a></span>
-                                    <span class="itemInfo" style="margin-left: 350px">单价：<a style="font-weight:normal;color: #0050fa; "><%=component[j].itemPrice%></a></span>
-                                </div>
-                                <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                    <span class="itemInfo" >类型：<a style="font-weight: normal;color: red;"><%=component[j].itemType%></a></span>
-                                    <span class="itemInfo" style="margin-left: 120px">所需数量/总数：<a id="itemQty" style="font-weight:normal;color: #0050fa; "><input class="itemDetailsInput" onkeyup = "value=value.replace(/[^\d]/g,'')" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
-                                    <span class="itemInfo" style="margin-left: 350px">备注：<a style="font-weight:normal;color: red; "><%=component[j].itemNote%></a></span>
-                                </div>
-                            </button>
-                        </td>
-                        <td style="width: 13%">
-                            <table cellspacing="0" cellpadding="0" style="width: 100%">
-                                <tr>
-                                    <td>
-                                        <a name="editItemBtn" hidden><button class="itemButton4" style="height: 90px;border: 0" type="button" onclick="removeItem(<%=j%>)" ><img src='images/bin.png' height="30px" width="30px"></button></a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <% }} else {%>
-                        此部件未添加物料
-                    <%}%>
-                    </tr>
-                </table>
+
+
+
+                        <%if (component[0].itemId){%>
+                        <div style="margin-bottom: 10px;font-weight: bold;font-size: 1.3rem;margin-left: 30px;">BOM表详情：(<%=component.length%>种物料)</div>
+
+                <ul  id="BOMListItem" ondragstart="dragstart_handler(event);" ondragover="dragover_handler(event)" style=" width: 100%;font-size: 1rem; padding-left: 0px" >
+                        <%for(let j = 0 ; j < component.length ; j++) { %>
+
+                            <li  class="noteButton3" draggable="false" id="item<%=j%>" style="width: 100%;  ">
+                                <table  cellspacing="0" cellpadding="0" draggable="false" style="width: 100%;">
+                                    <tr  cellspacing="0" cellpadding="0" draggable="false" style="width: 100%;">
+                                        <td  cellspacing="0" cellpadding="0" draggable="false" style="width: 87%" >
+
+                                            <button draggable="false"  class="noteButton3" name="itemButton" style="padding-left: 80px;" type="button" onclick="location.href='/adItem?itemId=<%=component[j].itemId%>&returnSql='+document.URL.split('sql=')[1]">
+                                                <div draggable="false"  style= "font-size: 0.7rem; height: 30px; ">
+                                                    <span draggable="false" class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
+                                                    <span draggable="false" class="itemInfo" >名称：<a draggable="false" style="font-weight: normal;color: #0050fa;"><%=component[j].itemName%></a></span>
+                                                    <span draggable="false" class="itemInfo" style="margin-left: 260px">物料编号：<a draggable="false" id="itemId" style="font-weight:normal;color: #0050fa; "><%=component[j].itemId%></a></span>
+                                                </div>
+                                                <div draggable="false" style= "font-size: 0.7rem; height: 30px; ">
+                                                    <span draggable="false" class="itemInfo" >型号（图号）：<a draggable="false" id="itemModel" style="font-weight: normal;color: #0050fa;"><%=component[j].itemModel%></a></span>
+                                                    <span draggable="false" class="itemInfo" style="margin-left: 350px">单价：<a draggable="false" style="font-weight:normal;color: #0050fa; "><%=component[j].itemPrice%></a></span>
+                                                </div>
+                                                <div draggable="false" style= "font-size: 0.7rem; height: 30px;" id="">
+                                                    <span draggable="false" class="itemInfo" >类型：<a draggable="false" style="font-weight: normal;color: #0050fa;"><%=component[j].itemType%></a></span>
+                                                    <span draggable="false" class="itemInfo" style="margin-left: 120px">所需数量/总数：<a draggable="false" id="itemQty" style="font-weight:normal;color: #0050fa; "><input draggable="false" class="itemDetailsInput" onkeyup = "value=value.replace(/[^\d]/g,'')" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
+                                                    <span draggable="false" class="itemInfo" style="margin-left: 350px">备注：<a draggable="false" style="font-weight:normal;color: red; "><%=component[j].itemNote%></a></span>
+                                                </div>
+                                            </button>
+
+
+                                        </td>
+                                        <td draggable="false" style="width: 13%">
+                                            <table draggable="false" cellspacing="0" cellpadding="0" style="width: 100%">
+                                                <tr draggable="false">
+                                                    <td draggable="false">
+                                                        <a draggable="false" name="editItemBtn" hidden><button class="itemButton4" style="height: 90px;border: 0" type="button" onclick="removeItem(<%=j%>)" ><img draggable="false" draggable="false" src='images/bin.png' height="30px" width="30px"></button></a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </li>
+
+                        <% }} else {%>
+                            此部件未添加物料
+                        <%}%>
+
+
+                    </ul>
+
+
             </div>
             <div><a name="editItemBtn" hidden>
                     <button class="searchInputBoxButton" type="button" onclick="saveEdit()" style="position: absolute!important; margin-top: 10px; margin-left:60%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;">保存&emsp;BOM表</button>
@@ -722,5 +869,4 @@
 
 </body>
 
-</body>
 </html>

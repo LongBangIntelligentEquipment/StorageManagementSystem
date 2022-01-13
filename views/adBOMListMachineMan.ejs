@@ -140,7 +140,7 @@
                     <tr>
                         <td >
                             <div style="width: 450px;margin-top: -10px">
-                                <div class="itemDetail">设备详细信息：</div>
+                                <div class="itemDetail">设备信息：</div>
                                 <div class="itemDetail">名称：<input class="itemDetailsInput" name="MachineName" id="detail0" value="<%=machine[0].machineName%>" disabled ></div>
                                 <div class="itemDetail">型号：<input class="itemDetailsInput" name="MachineModel" id="detail1" value="<%=machine[0].machineId%>" disabled  ></div>
                                 <div class="itemDetail">设计师：<select class="itemDetailsInput" name="MachineDesigner" id="detail2" disabled required="required"  >
@@ -210,7 +210,7 @@
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
                                     <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
                                     <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"><%=machine[j].componentName%></a></span>
-                                    <span class="itemInfo" style="margin-left: 260px">部件编号：<a style="font-weight:normal;color: #0050fa; "><%=machine[j].componentId%></a></span>
+                                    <span class="itemInfo" style="margin-left: 260px">部件编号：<a style="font-weight:normal;color: #0050fa; "><%=machine[j].componentModel%></a></span>
                                 </div>
                                 <div  style= "font-size: 0.7rem; height: 30px; ">
                                     <span class="itemInfo" >更新日期：<a style="font-weight: normal;color: #0050fa;"><%=machine[j].cUpdateTime.getFullYear()%>-<%=machine[j].cUpdateTime.getMonth()+1%>-<%=machine[j].cUpdateTime.getDate()%></a></span>
