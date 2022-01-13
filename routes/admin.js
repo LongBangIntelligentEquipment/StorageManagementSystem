@@ -2580,7 +2580,8 @@ router.get('/ajaxItems', function(req, res) {
         'ON component.categoryId = category.categoryId\n' +
         'INNER JOIN user\n' +
         'ON component.userId = user.userId\n' +
-        'WHERE component.componentId = ' + '"' + componentId + '"'
+        'WHERE component.componentId = ' + '"' + componentId + '"\n' +
+        'ORDER BY itemOrderBy, itemType';
 
     connection.query( sql,function (err, item) {
         if (err) {
@@ -3022,7 +3023,7 @@ router.get('/adBOMList', function (req, res) {
         'INNER JOIN user\n' +
         'ON component.userId = user.userId\n' +
         'WHERE componentId =' + '\'' + url.componentId + '\'' + '\n' +
-        'ORDER BY itemType';
+        'ORDER BY itemOrderBy, itemType';
     // 部件无物料
     let componentSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, cost, fileName, userName, machineName, machine.machineId\n' +
         'FROM component\n' +
@@ -3317,14 +3318,14 @@ router.get('/ajaxSaveEdit', function(req, res) {
         res.send(false);
         return;
     }
-    let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
+    let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity, itemOrderBy) VALUES(?,?,?,?,?)'
 
     for (let i = 0; i < itemLength; i++) {
         let itemId = items[0][i]
         let itemModel = items[1][i]
         let itemQty = items[2][i]
 
-        var addSqlParams = [componentId, itemId, itemModel, itemQty];
+        var addSqlParams = [componentId, itemId, itemModel, itemQty, i];
 
         connection.query(addSql, addSqlParams, function (err) {
             if (err) {
@@ -3490,7 +3491,7 @@ function copyComponent(componentId, componentName, componentModel, componentType
     sec = saveDate.getSeconds();
     updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
 
-    let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, cost\n' +
+    let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, itemOrderBy, cost\n' +
         'FROM component\n' +
         'INNER JOIN component_has_item\n' +
         'ON component_has_item.component_componentId = component.componentId\n' +
@@ -3510,7 +3511,7 @@ function copyComponent(componentId, componentName, componentModel, componentType
                 return;
             }
             updateMachineCost(machineId);
-            let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity) VALUES(?,?,?,?)'
+            let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity, itemOrderBy) VALUES(?,?,?,?,?)'
             connection.query( 'SELECT LAST_INSERT_ID() AS newComponentId;', function (err, newComponentIds) {
                 if (err) {
                     console.log('查找插入ID错误！ - ', err.message);
@@ -3521,7 +3522,8 @@ function copyComponent(componentId, componentName, componentModel, componentType
                     let itemId = componentItems[i].item_itemId;
                     let itemModel = componentItems[i].item_itemModel;
                     let itemQty = componentItems[i].itemQuantity;
-                    let addSqlParams = [newComponentId, itemId, itemModel, itemQty];
+                    let itemOrderBy = componentItems[i].itemOrderBy;
+                    let addSqlParams = [newComponentId, itemId, itemModel, itemQty, itemOrderBy];
                     connection.query(addSql, addSqlParams, function (err) {
                         if (err) {
                             console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
