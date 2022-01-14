@@ -602,7 +602,7 @@
             </header>
 
             <form method="post" >
-                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage" >
                     <tr>
                         <td >
                             <div style="width: 450px;margin-top: -10px">
@@ -625,7 +625,7 @@
 
                                 <div class="itemDetail">制表人：<input class="itemDetailsInput" name="BomListMaker"  value="<%=component[0].userName%>" disabled ></div>
                                 <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="BomListUpdateTime"  value="<%=component[0].updateTime.getFullYear()%>-<%=component[0].updateTime.getMonth()+1%>-<%=component[0].updateTime.getDate()%>" disabled ></div>
-                                <div class="itemDetail" >部件成本：<input class="itemDetailsInput" name="BomListCost" value="<%=componentCost%>" disabled ></div>
+                                <div class="itemDetail" >部件成本：<input class="itemDetailsInput" name="BomListCost" value="<%=componentCost%>元" disabled ></div>
 
                                 <div class="itemDetail">备注：<input class="itemDetailsInput" name="BomListNote" id="detail3" value="<%=component[0].note%>" disabled ></div>
                                 <div class="itemDetail" id="updateFile" style="display: none">重新上传图片：<input type="file"  name="BomListFileName"  id="detail4" value=""  style="width: 310px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" >
@@ -693,9 +693,9 @@
                                         <div id="shellBox" style="margin-top: 3%">
                                             请选择所属设备<a style="color: red; font-size: x-large">*</a>：
                                             <% for (let i = 0; i < machine.length; i++){ %>
-                                                <%  if(machine[i].machineId===component[0].machineId){%>
-                                                <%continue;%>
-                                                <% }%>
+<!--                                                <%  if(machine[i].machineId===component[0].machineId){%>  设备查重-->
+<!--                                                <%continue;%>-->
+<!--                                                <% }%>-->
                                                 <div style="margin-bottom: 5px">
                                                     <input  type="checkbox" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
                                                     <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>

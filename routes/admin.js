@@ -65,6 +65,7 @@ function getInfo(url,callback){
             console.log('[SELECT ERROR] - ', err.message);
         }
 
+
             states=[];
             statesCounter=-1;
             if(result[0].hasOrder===1){
@@ -778,6 +779,7 @@ router.get('/adItemExit', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
     getInfo(url,function (err,result) {
         // console.log(result)
+
         return  res.render('adItemExit', {
             itemList:result.item,
             itemStateList:result.itemStateList,
@@ -2337,6 +2339,10 @@ router.post('/adItemOrderOne', function(req, res) {
     state = '申请中';
     orderDate = dateOutput;
     replyNote = '';
+
+    if(itemModel===undefined){
+        itemModel=itemId;
+    }
 
 
     connection.query( checkSql,function (err, result1) {

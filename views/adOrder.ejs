@@ -297,9 +297,12 @@
                             <%if (notificationList){%>
                             <button class="btn btn-block btn-submit button button--primary " type="button"  onclick="location.href='/adItem?itemId=<%=orderList[0].itemId%>&returnSql='+document.URL.split('sql=')[1]"  style="width: 200px;margin-top: 60px;background-color: #fe007b!important;height: 50px;">物料详情</button>
                             <%}%>
-                                <div style="width: 200px;" id="accountButtons"> <style onload="AntiInfoDisplay('申请中','已拒绝','已完成','已取消','orderState','accountButtons')"></style>
-                                <button class="btn btn-block btn-submit button button--primary " type="button" id="directlyExit" onclick="location.href='/adOrderFix?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>'" style="background-color: red!important;height: 50px;width: 200px;">退回</button>
-                                <button class="btn btn-block btn-submit button button--primary " type="button" id="temEnter" onclick="location.href='/adItemTemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].itemSupplier%>'" style="background-color: orange!important;height: 50px;">临时进仓</button>
+
+                            <div style="width: 200px;" id="accountButtons"> <style onload="AntiInfoDisplay('申请中','已拒绝','已完成','已取消','orderState','accountButtons')"></style>
+                                    <button class="btn btn-block btn-submit button button--primary " type="button" id="directlyExit" onclick="location.href='/adOrderFix?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>'" style="background-color: red!important;height: 50px;width: 200px;">退回</button>
+                                    <button class="btn btn-block btn-submit button button--primary " type="button" id="temEnter" onclick="location.href='/adItemTemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].itemSupplier%>'" style="background-color: orange!important;height: 50px;">临时进仓</button>
+                                    <button class="btn btn-block btn-submit button button--primary " id="enter" type="button"  onclick="location.href='/adItemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].itemSupplier%>'" style="display:none;background-color: mediumseagreen!important;height: 50px;margin-top: 0px;width: 200px">进仓</button>
+                                    <style onload="Authority('已下单','已到货','有退回',false,'orderState','enter','系统管理员','仓库管理员',false,false)"></style>
                             </div>
 
                         </td>
@@ -330,8 +333,7 @@
                             </div>
                         </td>
                         <td>
-                            <button class="btn btn-block btn-submit button button--primary " id="enter" type="button"  onclick="location.href='/adItemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].itemSupplier%>'" style="display:none;background-color: mediumseagreen!important;height: 50px;margin-top: 0px;width: 200px">进仓</button>
-                            <style onload="Authority('已下单','已到货','有退回',false,'orderState','enter','系统管理员','仓库管理员',false,false)"></style>
+
                         </td>
                     </tr>
 

@@ -83,27 +83,25 @@
             </header>
 
             <form method="post" onsubmit="return confirmAgain()">
-                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
-                    <tr>
-                        <td >
-                            <div style="width: 450px; margin-top: -10px">
-                                <div class="itemDetail">下单信息：</div>
-                                <div class="itemDetail">供应商：<input class="input" name="itemSupplier" value="" style="height: 35px;width: 100px;"></div>
-                                <div class="itemDetail">名称：<input class="input" name="itemName" value="" style="height: 35px;width: 100px;" required></div>
-                                <div class="itemDetail">物料编号：<input class="input" name="itemId" value="" style="height: 35px;width: 100px;"></div>
-                                <div class="itemDetail">型号(图号)：<input class="input" name="itemModel" value="" style="height: 35px;width: 100px;"></div>
-                                <div class="itemDetail">数量：<input name="applyNum" type="text" class="input" style="height: 35px;width: 100px;" required></div>
-                                <div class="itemDetail">单价：<input name="itemPrice" type="text" class="input" style="height: 35px;width: 100px;" required></div>
-                                <div class="itemDetail">单位：<input name="itemUnit" type="text" class="input" style="height: 35px;width: 100px;" required></div>
-                                <div class="itemDetail">申请人：<input name="applier" type="text" class="input" style="height: 35px;width: 120px" value="<%=user.userName%>" required></div>
-                                <div class="itemDetail" >申请备注：<input name="applyNote" type="text" class="input" style="height: 35px;width: 565px"></div>
-                                <div class="itemDetail" >到货预期设置：<input name="commingDate" type="date" class="input" style="height: 35px;width: 565px" required></div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
 
-                <button class="btn btn-block btn-submit button button--primary smaller" type="submit"  style=" background-color: #fe007b!important;position: absolute!important; margin-top: 30px; margin-left: 585px;" >申请下单</button>
+                            <div class="itemDetailsPage" style="width: 550px; margin-top: -10px">
+                                <div class="itemDetail">下单信息：</div>
+                                <div class="itemDetail">供应商：<input class="itemDetailsInput addItemInfo" type="text" name="itemSupplier" value="" style="height: 35px;width: 80%;" required></div>
+                                <div class="itemDetail">名称：<input class="itemDetailsInput addItemInfo" type="text" name="itemName" value="" style="height: 35px;width: 80%;" required></div>
+                                <div class="itemDetail">物料编号：<input class="itemDetailsInput addItemInfo" type="text" name="itemId" value="" style="height: 35px;width: 80%;" required></div>
+                                <div class="itemDetail">型号(图号)：<input class="itemDetailsInput addItemInfo" type="text" name="itemModel" value="" style="height: 35px;width: 80%;"></div>
+                                <div class="itemDetail">数量：<input class="itemDetailsInput addItemInfo" type="text" name="applyNum" style="height: 35px;width: 20%;" required></div>
+                                <div class="itemDetail">单价：<input class="itemDetailsInput addItemInfo" type="text" name="itemPrice" style="height: 35px;width: 20%;" required></div>
+                                <div class="itemDetail">单位：<input class="itemDetailsInput addItemInfo" type="text" name="itemUnit"   style="height: 35px;width: 20%;" required></div>
+                                <div class="itemDetail" >到货预期设置：<input class="itemDetailsInput addItemInfo" type="date" name="commingDate" style="height: 35px;width: 35%" required></div>
+
+                                <div class="itemDetail">申请人：<input class="itemDetailsInput addItemInfo" type="text" name="applier"  style="height: 35px;width: 20%" value="<%=user.userName%>" required></div>
+                                <div class="itemDetail" >申请备注：<input class="itemDetailsInput addItemInfo" type="text" name="applyNote"  style="height: 35px;width: 80%"></div>
+                                <button class="btn btn-block btn-submit button button--primary smaller" type="submit" name=""  style=" background-color: #fe007b!important;position: absolute!important; margin-top: 30px; width: 40%" >申请下单</button>
+
+                            </div>
+
+
             </form>
         </main>
     </div>
