@@ -59,9 +59,7 @@
             }
         }
 
-
     </script>
-
 </head>
 <body >
 
@@ -107,7 +105,6 @@
                             <button class="filterButton" type="button" onclick="display('typeOption2','typeOption1')"> —排序—<span style="float: right;margin-right: 4px">▼</span></button>
                         </a>
 
-
                         <input class="indexOf" name="indexOf" style="margin-left: 4px;width: 320px" placeholder="根据订单号/物料名称/型号(图号)/供货商/备注进行搜索">
                         <button class="searchInputBoxButton" name="indexOfButton" value="true" type="submit" style="margin-left: 320px">搜&emsp;索</button>
                         <button class="searchBarButton" onclick="location.href='/adItemOrderOne'" type="button" style="margin-left: 420px;">一次性订单</button>
@@ -128,7 +125,6 @@
                             <button  class="filterButton filterOption" name="order" value="1" type="submit"style="border-bottom-left-radius: 0.3rem;border-bottom-right-radius: 0.3rem" >按下单日期排序</button>
                         </div>
 
-
                     </div>
                     <div  style="margin-left: 30px;color: #0050fa; font-weight: bold; font-size: small; ">订单数量：<%=orderList.length%></div>
                     <%for(let i = 0 ; i < orderList.length ; i++) { %>
@@ -147,62 +143,32 @@
                                         <style onload="overDate('overDate<%=i%>','overDays<%=i%>')"></style>
                                     </div>
                                     <div  style= "font-size: 0.7rem; height: 30px; ">
-                                        <%var itemName, itemModel, itemSupplier;%>
-                                        <%if (!orderList[i].itemName){
-                                            itemName = orderList[i].oneItemName;
-                                            itemModel = orderList[i].oneItemModel;
-                                            itemSupplier = orderList[i].oneItemSupplier;
-                                        } else {
-                                            itemName = orderList[i].itemName;
-                                            itemModel = orderList[i].itemId;
-                                            itemSupplier = orderList[i].itemSupplier;
-                                        }
-                                        %>
-                                        <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=itemName%></a></span>
-                                        <span class="itemInfo" style="margin-left: 170px">型号（图号）：<a style="font-weight:normal;color: #0050fa; "><%=itemModel%></a></span>
+                                        <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].itemName + orderList[i].oneItemName%></a></span>
+                                        <span class="itemInfo" style="margin-left: 170px">型号（图号）：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].itemModel + orderList[i].oneItemModel%>%></a></span>
                                         <span class="itemInfo" style="margin-left: 480px">订单数量：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].totalNum%></a></span>
                                     </div>
                                     <div  style= "font-size: 0.7rem; height: 30px; ">
-                                        <span class="itemInfo"  >供货商：<a style="font-weight: normal;color: #0050fa;"><%=itemSupplier%></a></span>
+                                        <span class="itemInfo"  >供货商：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].itemSupplier + orderList[i].oneItemSupplier%>%></a></span>
                                         <span class="itemInfo" style="margin-left: 170px">申请备注：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].applyNote%></a></span>
                                         <span class="itemInfo" style="margin-left: 480px" >审批备注：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].replyNote%></a></span>
                                     </div>
-
                                 </button>
                             </td>
 
                         </tr>
                     </table>
-
-
-
-
-
-
                     <% } %>
-
-
                 </div>
             </form>
-
-
-
-
         </main>
     </div>
 </section>
-
-
-
 
 <footer class="footer" role="contentinfo">
     <div class="container">
         <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
     </div>
 </footer>
-
-
-</body>
 
 </body>
 </html>

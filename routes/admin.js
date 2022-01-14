@@ -1179,18 +1179,17 @@ router.post('/adItemEnter', function(req, res, next) {
                         }
 
                     });
-                    var modSql3='UPDATE item SET itemTemNum=? WHERE itemId='+'\''+result1[0].itemId+'\''
-                    var modSqlParams3 = [parseInt(result1[0].itemTemNum)-req.body.saveNum];
-
-                    connection.query(modSql3,modSqlParams3,function (err, result) {
-                        if(err){
-                            console.log('[UPDATE ERROR] - ',err.message);
-                            return;
-                        }
-
-                    });
 
                     if (url.orderId.toString().substring(0,3) !== 'ONE') {
+
+                        var modSql3='UPDATE item SET itemTemNum=? WHERE itemId='+'\''+result1[0].itemId+'\''
+                        var modSqlParams3 = [parseInt(result1[0].itemTemNum)-req.body.saveNum];
+                        connection.query(modSql3,modSqlParams3,function (err, result) {
+                            if(err){
+                                console.log('[UPDATE ERROR] - ',err.message);
+                            }
+                        });
+
                         itemEnter();
                         addNotification('已验收进仓',req.body.saveNum);
                     }
@@ -1337,10 +1336,10 @@ router.post('/adItemEnter', function(req, res, next) {
         var sec=parseInt(saveDate.getSeconds());
         var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
         var checksql='SELECT * FROM orderlist WHERE orderId='+'\''+url.orderId+'\'';
+        var modSql, modSqlParams;
         connection.query( checksql,function (err, result) {
             if(result[0].totalNum===result[0].getNum){
-                var modSql;
-                var modSqlParams;
+
                 if(result[0].totalNum===result[0].getNum+result[0].pendingNum&&result[0].arriveDate===null){
                     modSql = 'UPDATE orderlist SET state = ?,arriveDate=? WHERE orderId = '+'\''+url.orderId+'\'';
                     modSqlParams = ['已完成',dateOutput];
@@ -1358,24 +1357,23 @@ router.post('/adItemEnter', function(req, res, next) {
 
                 });
 
-                if (orderId.toString().substring(0,3) === 'ONE') {
+                if (orderId.toString().substring(0,3) !== 'ONE') {
                     var checksql = 'SELECT * FROM orderlist WHERE (state=\'已下单\'OR state=\'申请中\' OR state=\'已到货\' OR state=\'有退回\') AND itemId=' + '\'' + result[0].itemId + '\'';
                     connection.query(checksql, function (err, result2) {
-
                         if (parseInt(result2.length) === 0) {
                             ChangeState(true, 'hasOrder', 0, url);
                             addNote('物料事件更新', itemName, result[0].itemId, '取消有订单未处理状态')
+                        } else {
                         }
+                        addNotification('已完成', ' ')
+                        addNote('采购事件更新',itemName,url.orderId,'已完成')
                     })
                 }
 
-                addNotification('已完成', ' ')
-                addNote('采购事件更新',itemName,url.orderId,'已完成')
-
             }else{
                 if(parseInt(result[0].returnNum) ===0){
-                        var modSql = 'UPDATE orderlist SET state = ? WHERE orderId = '+'\''+url.orderId+'\'';
-                        var modSqlParams = ['已到货'];
+                        modSql = 'UPDATE orderlist SET state = ? WHERE orderId = '+'\''+url.orderId+'\'';
+                        modSqlParams = ['已到货'];
                         if(result[0].totalNum===result[0].getNum+result[0].pendingNum&&result[0].arriveDate===null){
                             modSql = 'UPDATE orderlist SET state = ?,arriveDate=? WHERE orderId = '+'\''+url.orderId+'\'';
                             modSqlParams = ['已到货',dateOutput];
@@ -1399,8 +1397,6 @@ router.post('/adItemEnter', function(req, res, next) {
         });
     }
 //====改
-
-
 });
 
 
@@ -1594,7 +1590,9 @@ router.get('/adItemReturnSelect', function(req, res, next) {
 
 /* GET adOrderMan*/
 router.get('/adOrderMan', function(req, res, next) {
-    var sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, item.itemModel, item.itemName, applyNote, replyNote, orderlist.totalNum, item_one.itemSupplier AS oneItemSupplier, item.itemSupplier, item_one.itemName AS oneItemName, item_one.itemModel AS oneItemModel,\n' +
+    var sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum,' +
+        'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,' +
+        'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel,\n' +
         'CASE  \n' +
         'WHEN state = \'申请中\' OR state = \'已下单\' OR state = \'有退回\' OR (state = \'已到货\' AND getNum+pendingNum != totalNum) THEN 1\n' +
         'WHEN (state = \'已到货\' AND getNum+pendingNum = totalNum)\n' +
@@ -1610,12 +1608,12 @@ router.get('/adOrderMan', function(req, res, next) {
         'ON orderlist.orderId = item_one.orderId\n' +
         'ORDER BY  order_param,commingDate DESC,orderDate ASC;'
 
-    connection.query( sql,function (err, result) {
+    connection.query( sql,function (err, orderList) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
         }
         res.render('adOrderMan', {
-            orderList:result,
+            orderList: orderList,
             user:req.session.user
         });
     });
@@ -2344,7 +2342,6 @@ router.post('/adItemOrderOne', function(req, res) {
         itemModel=itemId;
     }
 
-
     connection.query( checkSql,function (err, result1) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
@@ -2387,7 +2384,7 @@ router.post('/adItemOrderOne', function(req, res) {
     });
 
     var flashUrl='/adOrderMan';
-    res.redirect(flashUrl)
+    res.redirect('flash?url=' + flashUrl);
 });
 
 
@@ -3331,7 +3328,7 @@ router.get('/ajaxSaveEdit', function(req, res) {
         let itemModel = items[1][i]
         let itemQty = items[2][i]
 
-        var addSqlParams = [componentId, itemId, itemModel, itemQty, i];
+        var addSqlParams = [componentId, itemId, itemModel, itemQty, i+1];
 
         connection.query(addSql, addSqlParams, function (err) {
             if (err) {
