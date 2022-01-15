@@ -1892,11 +1892,33 @@ router.post('/adOrder', function(req, res, next) {
     }
 
     if(req.body.refuseButton){
-        StopOrder('已拒绝')
+        var modSql = 'UPDATE orderlist SET replyNote=? WHERE orderId = '+'\''+orderId+'\'';
+        var modSqlParams = [req.body.confirmNoteInput];
+        //改
+        connection.query(modSql,modSqlParams,function (err, result) {
+            if(err){
+                console.log('[UPDATE ERROR] - ',err.message);
+                return;
+            }
+
+            StopOrder('已拒绝')
+        });
+
+
     }
 
     if(req.body.cancelOrderButton){
-        StopOrder('已取消')
+        var modSql = 'UPDATE orderlist SET replyNote=? WHERE orderId = '+'\''+orderId+'\'';
+        var modSqlParams = [req.body.confirmNoteInput];
+        //改
+        connection.query(modSql,modSqlParams,function (err, result) {
+            if(err){
+                console.log('[UPDATE ERROR] - ',err.message);
+                return;
+            }
+
+            StopOrder('已取消')
+        });
     }
     var flashUrl='adOrder?orderId=' +url.orderId;
     res.redirect('flash?url='+flashUrl)
@@ -2535,7 +2557,8 @@ router.get('/ajaxComponents', function(req, res) {
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
                 '                                        <span class="componentInfo" style="margin-left: -20px">部件型号：<a style="font-weight:normal;color: #0050fa; ">' + component[j].componentModel + '</a></span>\n' +
-                '                                        <span class="componentInfo" style="margin-left: 430px">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + component[j].cost + '</a></span>\n' +
+                '                                        <span class="componentInfo" id="'+machineId+'componentCostRow'+j+'" style="margin-left: 430px; display: none;">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + component[j].cost + '</a></span>\n' +
+                '                                            <style onload="Authority(\'系统管理员\',\''+machineId+'componentCostRow'+j+'\')"></style>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">\n' +
                 '                                        <span class="componentInfo" style="margin-left: -20px" >备注：<a style="font-weight: normal;color: red;">' + component[j].cNote + '</a></span>\n' +
@@ -2607,7 +2630,8 @@ router.get('/ajaxItems', function(req, res) {
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 50px ">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -50px">型号(图号)：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemId + '</a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 250px">类别：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemType + '</a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 380px">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemPrice + '</a></span>\n' +
+                '                                        <span class="itemInfo" id="'+machineId+componentId+'itemCostRow'+j+'" style="margin-left: 380px; display: none;">物料成本：<a style="font-weight:normal;color: #0050fa; ">' + item[j].itemPrice + '</a></span>\n' +
+                '                                            <style onload="Authority(\'系统管理员\',\''+machineId+componentId+'itemCostRow'+j+'\')"></style>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; margin-left: 50px" id="">\n' +
                 '                                        <span class="itemInfo" style="margin-left: -50px" >所需数量：<a style="font-weight: normal;color: #0050fa;">' + item[j].itemQuantity + '</a></span>\n' +

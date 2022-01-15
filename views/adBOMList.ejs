@@ -78,14 +78,16 @@
             }
         }
 
-        function Authority(role,ojId) {
-            if(document.getElementById('role').innerText===role){
-                document.getElementById(ojId).style.display='';
+        function Authority(role, ojId) {
+            var sessionRole='<%= user.role %>'
+
+            if ( sessionRole=== role) {
+                $(ojId).removeAttr('hidden')
             }
-            if(document.getElementById('role').innerText==='系统管理员'){
-                document.getElementById('authority').style.display='';
-            }else{
-                document.getElementById('authority').style.display='none';
+            if (document.getElementById('role').innerText === '系统管理员') {
+                document.getElementById('authority').style.display = '';
+            } else {
+                document.getElementById('authority').style.display = 'none';
             }
         }
 
@@ -572,7 +574,7 @@
 <div id="blankCover" style="position: absolute;background-color: rgba(255,255,255,0.5);width: 100%;height: 100%;z-index: 998" hidden></div>
 
 
-<section class="functionBoard" >
+<section class="functionBoard" style="height: 100%;">
     <div class="functionBoard left">
         <div>
             <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
@@ -587,10 +589,9 @@
         </div>
 
     </div>
-    </div>
 
-    <div class="functionBoard right">
-        <main role="main" class="container mt-3 mb-3">
+    <div class="functionBoard right" style="height: 100%;">
+        <main role="main" class="container mt-3 mb-3" style="height: 100%;">
 
             <header role="banner">
                 <div class="headcontainer">
@@ -625,8 +626,9 @@
 
                                 <div class="itemDetail">制表人：<input class="itemDetailsInput" name="BomListMaker"  value="<%=component[0].userName%>" disabled ></div>
                                 <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="BomListUpdateTime"  value="<%=component[0].updateTime.getFullYear()%>-<%=component[0].updateTime.getMonth()+1%>-<%=component[0].updateTime.getDate()%>" disabled ></div>
-                                <div class="itemDetail" >部件成本：<input class="itemDetailsInput" name="BomListCost" value="<%=componentCost%>元" disabled ></div>
-
+                                <div class="itemDetail" id="componentCostRow" hidden >部件成本：<input class="itemDetailsInput" name="BomListCost" value="<%=componentCost%>元" disabled ></div>
+                                <style onload="Authority('系统管理员','#componentCostRow')"></style>
+                                <style onload="Authority('技术员','#componentCostRow')"></style>
                                 <div class="itemDetail">备注：<input class="itemDetailsInput" name="BomListNote" id="detail3" value="<%=component[0].note%>" disabled ></div>
                                 <div class="itemDetail" id="updateFile" style="display: none">重新上传图片：<input type="file"  name="BomListFileName"  id="detail4" value=""  style="width: 310px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" >
                                     <div style="color: red">请上传图片格式文件</div>
@@ -642,17 +644,18 @@
                     </tr>
                     <tr>
                         <td >
-                            <a id="editButtonControl"><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: none;" >编辑</button></a>
+                            <a id="editButtonControl" hidden><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()"  >编辑</button></a>
+                            <style onload="Authority('系统管理员','#editButtonControl')"></style>
+                            <style onload="Authority('技术员','#editButtonControl')"></style>
                             <a id="cancelEditButtonControl" hidden> <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="cancelDetailEditable()" style="background-color: #fa5000!important;" >取消编辑</button></a>
 
-                            <style onload="Authority('系统管理员','editButton')"></style>
-                            <style onload="Authority('仓库管理员','editButton')"></style>
-                            <style onload="Authority('技术员','editButton')"></style>
                             <a hidden id="confirmEditButton"> <button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" style="margin-left: 2%">确定</button></a>
 
                             <a hidden id="componentDelButton"><button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick='confirmAgainDelete()' style="background-color: red!important; margin-left: 30%;" ><img src='images/bin.png' height="30px" width="30px"></button></a>
 
-                            <a id="copyButtonControl"><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="copyAct('<%=component[0].componentModel%>','<%=component[0].componentName%>')" style="background-color: #00cb46!important;margin-left:50%; " ><img src='images/copy.png' height="30px" width="30px"></button></a>
+                            <a id="copyButtonControl" hidden><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="copyAct('<%=component[0].componentModel%>','<%=component[0].componentName%>')" style="background-color: #00cb46!important;margin-left:50%; " ><img src='images/copy.png' height="30px" width="30px"></button></a>
+                            <style onload="Authority('系统管理员','#copyButtonControl')"></style>
+                            <style onload="Authority('技术员','#copyButtonControl')"></style>
 
                         </td>
                     </tr>
@@ -717,102 +720,102 @@
                 </div>
                 </div>
             </form>
+            <div class="pageCard" style="border-top: 0.1rem solid #404142;height: 100%">
+                <div  class="pageTitle" >
+                    <div  style="font-weight: bold;width: 340px;font-size: 1.3rem;color: #404143">BOM表详情/一键出仓记录:</div>
+                    <input   type="checkbox" id="checkboxswitch" onchange="slideSwitch()" class="onoff sw1" style="background-color: transparent!important;margin-left: 325px;"  >
 
-
-
-
-        <div class="pageCard" style="border-top: 0.1rem solid #404142;">
-            <div class="pageTitle">
-                <div style="font-weight: bold;width: 340px;font-size: 1.3rem;color: #404143">BOM表详情/一键出仓记录:</div>
-                <input  type="checkbox" id="checkboxswitch" onchange="slideSwitch()" class="onoff sw1" style="background-color: transparent!important;margin-left: 325px;"  >
-            </div>
-            <div id="BomEditBtn" style="margin-left: -320px;margin-top: 15px;margin-bottom: 40px">
-                <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑&emsp;BOM表</button></a>
-                <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>
-                <a id="addBomBtn"><button  class="searchInputBoxButton" type="button" onclick="addItemsScreenDisplay()" style="position: absolute!important; margin-top: -45px; margin-left: 480px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button></a>
-                <button class="searchInputBoxButton" id="addItemsScreenDisplayBtn" type="button" onclick="CancelItemsScreenDisplay()" style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;display: none" >&emsp;取消添加&emsp;</button>
-            </div>
-
-            <div id="addItemsScreen" style="display: none">
-                <div  style="font-weight: bold;font-size: 1.3rem;margin-left: 30px;">物料添加框：</div>
-                <div id="itemSearchBox" style="margin-top: 10px;margin-left: 20px" >
-                    <input class="indexOf" id="searchText" name="searchText" style="margin-left: 4px;width: 45%" placeholder="根据物料的名称/型号/备注搜索">
-                    <button class="searchInputBoxButton" value="1" name="indexOfButton" type="button" onclick="searchItems()" style="margin-left: 45.2%" >搜&emsp;索</button>
                 </div>
 
-                <table id="addItemsBox" style="padding-top: 50px;width: 100%;">
-                    <tr style="width: 100%">
-                        <td id="searchResultBox" >
-                            <div class="col-md" >
-                                <div class="card" style="border-radius: 10px;overflow: hidden ">
-                                    <div class="card-header text-center">
-                                        <h2 id="searchResultHeader">搜索结果</h2>
+
+
+                <div id="BomListDetail" style="height: 100%;">
+                    <div id="BomEditBtn" hidden style="margin-left: -320px;">
+                        <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style=" margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑&emsp;BOM表</button></a>
+                        <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style=" margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>
+                        <a id="addBomBtn"><button  class="searchInputBoxButton" type="button" onclick="addItemsScreenDisplay()" style=" margin-top: -45px; margin-left: 480px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button></a>
+                        <button class="searchInputBoxButton" id="addItemsScreenDisplayBtn" type="button" onclick="CancelItemsScreenDisplay()" style=" margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;display: none" >&emsp;取消添加&emsp;</button>
+                    </div>
+                    <style onload="Authority('系统管理员','#BomEditBtn')"></style>
+                    <style onload="Authority('系统管理员','#BomEditBtn')"></style>
+
+                    <div id="addItemsScreen" style="display: none">
+                        <div  style="font-weight: bold;font-size: 1.3rem;margin-left: 30px;">物料添加框：</div>
+                        <div id="itemSearchBox" style="margin-top: 10px;margin-left: 20px" >
+                            <input class="indexOf" id="searchText" name="searchText" style="margin-left: 4px;width: 45%" placeholder="根据物料的名称/型号/备注搜索">
+                            <button class="searchInputBoxButton" value="1" name="indexOfButton" type="button" onclick="searchItems()" style="margin-left: 45.2%" >搜&emsp;索</button>
+                        </div>
+
+                        <table id="addItemsBox" style="padding-top: 50px;width: 100%;height: 100%">
+                            <tr style="width: 100%">
+                                <td id="searchResultBox" >
+                                    <div class="col-md" >
+                                        <div class="card" style="border-radius: 10px;overflow: hidden ">
+                                            <div class="card-header text-center">
+                                                <h2 id="searchResultHeader">搜索结果</h2>
+                                            </div>
+                                            <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px "></div>
+                                        </div>
                                     </div>
-                                    <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px "></div>
-                                </div>
-                            </div>
-                        </td>
-                        <td id="comfirmAddBox" style="width: 50%" >
-                            <div class="col-md" style="">
-                                <div class="card" style="border-radius: 10px;overflow: hidden;">
-                                    <div class="card-header text-center">
-                                        <h2>添加物料</h2>
+                                </td>
+                                <td id="comfirmAddBox" style="width: 50%" >
+                                    <div class="col-md" style="">
+                                        <div class="card" style="border-radius: 10px;overflow: hidden;">
+                                            <div class="card-header text-center">
+                                                <h2>添加物料</h2>
+                                            </div>
+                                            <div id="itemAddBox" class="card-body" style="height: 400px;overflow:auto ;padding: 0px;"></div>
+                                        </div>
                                     </div>
-                                    <div id="itemAddBox" class="card-body" style="height: 400px;overflow:auto ;padding: 0px;"></div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-                <button class="searchInputBoxButton" type="button" onclick="saveAdd()" style="margin-top: -55px; margin-left: 72%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;"  >保存&emsp;添加表</button>
-            </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <button class="searchInputBoxButton" type="button" onclick="saveAdd()" style="margin-top: -55px; margin-left: 72%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;"  >保存&emsp;添加表</button>
+                    </div>
 
-            <div id="BomListDetail" >
+                    <%if (component[0].itemId){%>
+                    <div style="margin-bottom: 10px;font-weight: bold;font-size: 1.3rem;margin-left: 30px;">BOM表详情：(<%=component.length%>种物料)</div>
 
-
-
-                        <%if (component[0].itemId){%>
-                        <div style="margin-bottom: 10px;font-weight: bold;font-size: 1.3rem;margin-left: 30px;">BOM表详情：(<%=component.length%>种物料)</div>
-
-                <ul  id="BOMListItem" ondragstart="dragstart_handler(event);" ondragover="dragover_handler(event)" style=" width: 100%;font-size: 1rem; padding-left: 0px" >
+                    <ul  id="BOMListItem" ondragstart="dragstart_handler(event);" ondragover="dragover_handler(event)" style=" width: 100%;font-size: 1rem; padding-left: 0px" >
                         <%for(let j = 0 ; j < component.length ; j++) { %>
 
-                            <li  class="noteButton3" draggable="false" id="item<%=j%>" style="width: 100%;  ">
-                                <table  cellspacing="0" cellpadding="0" draggable="false" style="width: 100%;">
-                                    <tr  cellspacing="0" cellpadding="0" draggable="false" style="width: 100%;">
-                                        <td  cellspacing="0" cellpadding="0" draggable="false" style="width: 87%" >
+                        <li  class="noteButton3" draggable="false" id="item<%=j%>" style="width: 100%;  ">
+                            <table  cellspacing="0" cellpadding="0" draggable="false" style="width: 100%;">
+                                <tr  cellspacing="0" cellpadding="0" draggable="false" style="width: 100%;">
+                                    <td  cellspacing="0" cellpadding="0" draggable="false" style="width: 87%" >
 
-                                            <button draggable="false"  class="noteButton3" name="itemButton" style="padding-left: 80px;" type="button" onclick="location.href='/adItem?itemId=<%=component[j].itemId%>&returnSql='+document.URL.split('sql=')[1]">
-                                                <div draggable="false"  style= "font-size: 0.7rem; height: 30px; ">
-                                                    <span draggable="false" class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
-                                                    <span draggable="false" class="itemInfo" >名称：<a draggable="false" style="font-weight: normal;color: #0050fa;"><%=component[j].itemName%></a></span>
-                                                    <span draggable="false" class="itemInfo" style="margin-left: 260px">物料编号：<a draggable="false" id="itemId" style="font-weight:normal;color: #0050fa; "><%=component[j].itemId%></a></span>
-                                                </div>
-                                                <div draggable="false" style= "font-size: 0.7rem; height: 30px; ">
-                                                    <span draggable="false" class="itemInfo" >型号（图号）：<a draggable="false" id="itemModel" style="font-weight: normal;color: #0050fa;"><%=component[j].itemModel%></a></span>
-                                                    <span draggable="false" class="itemInfo" style="margin-left: 350px">单价：<a draggable="false" style="font-weight:normal;color: #0050fa; "><%=component[j].itemPrice%></a></span>
-                                                </div>
-                                                <div draggable="false" style= "font-size: 0.7rem; height: 30px;" id="">
-                                                    <span draggable="false" class="itemInfo" >类型：<a draggable="false" style="font-weight: normal;color: #0050fa;"><%=component[j].itemType%></a></span>
-                                                    <span draggable="false" class="itemInfo" style="margin-left: 120px">所需数量/总数：<a draggable="false" id="itemQty" style="font-weight:normal;color: #0050fa; "><input draggable="false" class="itemDetailsInput" onkeyup = "value=value.replace(/[^\d]/g,'')" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
-                                                    <span draggable="false" class="itemInfo" style="margin-left: 350px">备注：<a draggable="false" style="font-weight:normal;color: red; "><%=component[j].itemNote%></a></span>
-                                                </div>
-                                            </button>
+                                        <button draggable="false"  class="noteButton3" name="itemButton" style="padding-left: 80px;" type="button" onclick="location.href='/adItem?itemId=<%=component[j].itemId%>&returnSql='+document.URL.split('sql=')[1]">
+                                            <div draggable="false"  style= "font-size: 0.7rem; height: 30px; ">
+                                                <span draggable="false" class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
+                                                <span draggable="false" class="itemInfo" >名称：<a draggable="false" style="font-weight: normal;color: #0050fa;"><%=component[j].itemName%></a></span>
+                                                <span draggable="false" class="itemInfo" style="margin-left: 260px">物料编号：<a draggable="false" id="itemId" style="font-weight:normal;color: #0050fa; "><%=component[j].itemId%></a></span>
+                                            </div>
+                                            <div draggable="false" style= "font-size: 0.7rem; height: 30px; ">
+                                                <span draggable="false" class="itemInfo" >型号（图号）：<a draggable="false" id="itemModel" style="font-weight: normal;color: #0050fa;"><%=component[j].itemModel%></a></span>
+                                                <span draggable="false" class="itemInfo" id="itemCostRow<%=j%>" hidden style="margin-left: 350px">物料单价：<a draggable="false" style="font-weight:normal;color: #0050fa; "><%=component[j].itemPrice%></a></span>
+                                                <style onload="Authority('系统管理员','#itemCostRow<%=j%>')"></style>
+                                            </div>
+                                            <div draggable="false" style= "font-size: 0.7rem; height: 30px;" id="">
+                                                <span draggable="false" class="itemInfo" >类型：<a draggable="false" style="font-weight: normal;color: #0050fa;"><%=component[j].itemType%></a></span>
+                                                <span draggable="false" class="itemInfo" style="margin-left: 120px">所需数量/总数：<a draggable="false" id="itemQty" style="font-weight:normal;color: #0050fa; "><input draggable="false" class="itemDetailsInput" onkeyup = "value=value.replace(/[^\d]/g,'')" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
+                                                <span draggable="false" class="itemInfo" style="margin-left: 350px">备注：<a draggable="false" style="font-weight:normal;color: red; "><%=component[j].itemNote%></a></span>
+                                            </div>
+                                        </button>
 
 
-                                        </td>
-                                        <td draggable="false" style="width: 13%">
-                                            <table draggable="false" cellspacing="0" cellpadding="0" style="width: 100%">
-                                                <tr draggable="false">
-                                                    <td draggable="false">
-                                                        <a draggable="false" name="editItemBtn" hidden><button class="itemButton4" style="height: 90px;border: 0" type="button" onclick="removeItem(<%=j%>)" ><img draggable="false" draggable="false" src='images/bin.png' height="30px" width="30px"></button></a>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </li>
+                                    </td>
+                                    <td draggable="false" style="width: 13%">
+                                        <table draggable="false" cellspacing="0" cellpadding="0" style="width: 100%">
+                                            <tr draggable="false">
+                                                <td draggable="false">
+                                                    <a draggable="false" name="editItemBtn" hidden><button class="itemButton4" style="height: 90px;border: 0" type="button" onclick="removeItem(<%=j%>)" ><img draggable="false" draggable="false" src='images/bin.png' height="30px" width="30px"></button></a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </li>
 
                         <% }} else {%>
                             此部件未添加物料
@@ -822,44 +825,46 @@
                     </ul>
 
 
+                </div>
+                <div style="margin-bottom: 10%">
+                    <a name="editItemBtn" hidden>
+                        <button class="searchInputBoxButton" type="button" onclick="saveEdit()" style="margin-top: 10px; margin-left:60%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;">保存&emsp;BOM表</button>
+                    </a>
+                </div>
+
+
+
+                <!--            <div id="BomListRecord" style="display: none">-->
+                <!--            <table  style=";width: 100%;font-size: 1rem; background-color:rgb(250, 241, 247)!important; ">-->
+                <!--                <div style="margin-top: -45px;margin-bottom: 30px;font-weight: bold;font-size: 1.3rem;margin-left: 30px">一键出仓记录：</div>-->
+
+                <!--                <%for(let j = 0 ; j < 10 ; j++) { %>-->
+                <!--                <tr id="component<%=j%>"  >-->
+                <!--                    <td style="width: 87%!important;">-->
+                <!--                        <button class="noteButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">-->
+                <!--                            <span class="itemInfo"  style=" font-size: 1rem;margin-left: -50px;color: #0050fa;   ">一键出仓</span>-->
+                <!--                            <div style="margin-left: 50px">-->
+                <!--                            <div  style= "font-size: 0.7rem; height: 30px; ">-->
+                <!--                                <span class="itemInfo" >日期：<a style="font-weight: normal;color: #0050fa;"></a></span>-->
+                <!--                                <span class="itemInfo" style="margin-left: 260px">申请人：<a style="font-weight:normal;color: #0050fa; "></a></span>-->
+                <!--                                <span class="itemInfo" style="margin-left: 530px">经办人：<a style="font-weight:normal;color: #0050fa; "></a></span>-->
+                <!--                            </div>-->
+                <!--                            <div  style= "font-size: 0.7rem; height: 30px; ">-->
+                <!--                                <span class="itemInfo" >报警：<a style="font-weight: normal;color: red;"></a></span>-->
+                <!--                            </div>-->
+
+                <!--                            <div  style= "font-size: 0.7rem; height: 30px;" id="">-->
+                <!--                                <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>-->
+                <!--                            </div>-->
+                <!--                            </div>-->
+                <!--                        </button>-->
+                <!--                    </td>-->
+                <!--                </tr>-->
+                <!--                <% } %>-->
+                <!--            </table>-->
+                <!--            </div>-->
             </div>
-            <div><a name="editItemBtn" hidden>
-                    <button class="searchInputBoxButton" type="button" onclick="saveEdit()" style="position: absolute!important; margin-top: 10px; margin-left:60%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;">保存&emsp;BOM表</button>
-                </a>
-            </div>
 
-
-
-            <div id="BomListRecord" style="display: none">
-            <table  style=";width: 100%;font-size: 1rem; background-color:rgb(250, 241, 247)!important; ">
-                <div style="margin-top: -45px;margin-bottom: 30px;font-weight: bold;font-size: 1.3rem;margin-left: 30px">一键出仓记录：</div>
-
-                <%for(let j = 0 ; j < 10 ; j++) { %>
-                <tr id="component<%=j%>"  >
-                    <td style="width: 87%!important;">
-                        <button class="noteButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">
-                            <span class="itemInfo"  style=" font-size: 1rem;margin-left: -50px;color: #0050fa;   ">一键出仓</span>
-                            <div style="margin-left: 50px">
-                            <div  style= "font-size: 0.7rem; height: 30px; ">
-                                <span class="itemInfo" >日期：<a style="font-weight: normal;color: #0050fa;"></a></span>
-                                <span class="itemInfo" style="margin-left: 260px">申请人：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                                <span class="itemInfo" style="margin-left: 530px">经办人：<a style="font-weight:normal;color: #0050fa; "></a></span>
-                            </div>
-                            <div  style= "font-size: 0.7rem; height: 30px; ">
-                                <span class="itemInfo" >报警：<a style="font-weight: normal;color: red;"></a></span>
-                            </div>
-
-                            <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>
-                            </div>
-                            </div>
-                        </button>
-                    </td>
-                </tr>
-                <% } %>
-            </table>
-            </div>
-        </div>
         </main>
     </div>
 </section>

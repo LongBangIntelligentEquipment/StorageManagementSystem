@@ -34,7 +34,7 @@
             document.getElementById('cancelButton').style.display='';
             document.getElementById('agreeButton').style.display='none';
             document.getElementById('refuseButton').style.display='none';
-
+            document.getElementById('arriveDateDisplay').style.display='';
         }
 
         function Uneditable(){
@@ -44,12 +44,15 @@
             document.getElementById('purchasePrice').style='width:50px';
             document.getElementById('arriveDateInput').disabled=true;
             document.getElementById('arriveDateInput').style='width:155px;';
-            document.getElementById('confirmNote').style.display='none';
+            document.getElementById('confirmNoteInput').disabled='disabled';
+            document.getElementById('confirmNoteInput').style='';
+
             document.getElementById('confirmButton1').style.display='none';
             document.getElementById('confirmButton2').style.display='none';
             document.getElementById('cancelButton').style.display='none';
             document.getElementById('agreeButton').style.display='';
             document.getElementById('refuseButton').style.display='';
+            document.getElementById('arriveDateDisplay').style.display='none';
 
 
         }
@@ -81,7 +84,50 @@
             document.getElementById('confirmButton2').style.display='none';
             document.getElementById('arriveDateInput').style.display='none';
             document.getElementById('arriveDateDisplay').style.display='';
+            document.getElementById('cancelOrderButton').style.display='';
         }
+        
+        function RefuseOrder() {
+            document.getElementById('comfirmRefuseOrder').style.display='';
+            document.getElementById('refuseOrder').style.display='';
+            document.getElementById('refuseButton').style.display='none'
+            document.getElementById('agreeButton').style.display='none'
+            document.getElementById('confirmNote').style.display='';
+            document.getElementById('confirmNoteInput').disabled=false;
+            document.getElementById('confirmNoteInput').style='outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;';
+
+        }
+
+        function CancelRefuseOrder() {
+            document.getElementById('comfirmRefuseOrder').style.display='none';
+            document.getElementById('refuseOrder').style.display='none';
+            document.getElementById('refuseButton').style.display=''
+            document.getElementById('agreeButton').style.display=''
+            document.getElementById('confirmNoteInput').disabled='disabled';
+            document.getElementById('confirmNoteInput').style='';
+
+        }
+
+        function CancelOrder() {
+            document.getElementById('comfirmCancelOrder').style.display='';
+            document.getElementById('cancelOrder').style.display='';
+            document.getElementById('changeDateButton').style.display='none'
+            document.getElementById('cancelOrderButton').style.display='none'
+            document.getElementById('confirmNoteInput').disabled=false;
+            document.getElementById('confirmNoteInput').style='outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;';
+
+        }
+
+        function CancelCancelOrder() {
+            document.getElementById('comfirmCancelOrder').style.display='none';
+            document.getElementById('cancelOrder').style.display='none';
+            document.getElementById('changeDateButton').style.display=''
+            document.getElementById('cancelOrderButton').style.display=''
+            document.getElementById('confirmNoteInput').disabled='disabled';
+            document.getElementById('confirmNoteInput').style='';
+
+        }
+
 
         function InfoDisplay(type1,type2,type3,type4,ojIdJudge,ojId){
             var judge=document.getElementById(ojIdJudge).innerText;
@@ -156,14 +202,14 @@
         function confirmAgain() {
             if(document.getElementById('confirmButton1').style.display===''&&document.getElementById('refuseButton').style.display==='none'){
                 return window.confirm("请确认采购信息，并且确认已经联系供货商订货?");
-            }else if (document.getElementById('confirmButton1').style.display==='none'&&document.getElementById('refuseButton').style.display===''){
+            }else if (document.getElementById('confirmButton1').style.display==='none'&&document.getElementById('comfirmRefuseOrder').style.display===''){
                 return window.confirm("请确认是否拒绝该订单?");
             }else  if(document.getElementById('confirmButton2').style.display===''&&document.getElementById('refuseButton').style.display==='none'){
                 return window.confirm("请确认编辑内容?");
             }else  if(document.getElementById('cancelOrderButton').style.display===''&&document.getElementById('confirmButton2').style.display==='none'&&document.getElementById('pendingNum').innerText>0){
                 alert('请在取消订单前清空待检物料（进仓或退回待检数量）');
                 return false;
-            } else  if(document.getElementById('cancelOrderButton').style.display===''&&document.getElementById('confirmButton2').style.display==='none'&&document.getElementById('pendingNum').innerText<=0){
+            } else  if(document.getElementById('comfirmCancelOrder').style.display===''&&document.getElementById('confirmButton2').style.display==='none'&&document.getElementById('pendingNum').innerText<=0){
                 return window.confirm("请确认是否取消该订单?");
             }
             else {
@@ -261,12 +307,13 @@
                 <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
                     <tr>
                         <td >
-                            <div style="width: 450px">
+                            <div style="width: 450px;height: 570px">
                                 <div class="itemDetail">详细信息：</div>
                                 <div class="itemDetail">采购单号：<%=orderList[0].orderId%></div>
                                 <div class="itemDetail" >订单状态：<span id="orderState"><%=orderList[0].state%></span></div> <style onload="OrderState('orderState')"></style>
                                 <div class="itemDetail">申请日期：<%=orderList[0].applyDate.getFullYear()%>-<%=orderList[0].applyDate.getMonth()+1%>-<%=orderList[0].applyDate.getDate()%> &emsp;<%=orderList[0].applyDate.getHours()%>:<%=orderList[0].applyDate.getMinutes()%>:<%=orderList[0].applyDate.getSeconds()%> </div>
-                                <div class="itemDetail" id="orderDate">下单日期：<%=orderList[0].orderDate.getFullYear()%>-<%=orderList[0].orderDate.getMonth()+1%>-<%=orderList[0].orderDate.getDate()%> &emsp;<%=orderList[0].orderDate.getHours()%>:<%=orderList[0].orderDate.getMinutes()%>:<%=orderList[0].orderDate.getSeconds()%></div> <style onload="AntiInfoDisplay('申请中','已拒绝','已取消',false,'orderState','orderDate')"></style>
+                                <div class="itemDetail" id="orderDate">下单日期：<%=orderList[0].orderDate.getFullYear()%>-<%=orderList[0].orderDate.getMonth()+1%>-<%=orderList[0].orderDate.getDate()%> &emsp;<%=orderList[0].orderDate.getHours()%>:<%=orderList[0].orderDate.getMinutes()%>:<%=orderList[0].orderDate.getSeconds()%></div>
+                                <style onload="AntiInfoDisplay('申请中','已拒绝','已取消',false,'orderState','orderDate')"></style>
                                 <div class="itemDetail" id="arriveDate">到货预期：<input class="itemDetailsInput" name="arriveDateInput" id="arriveDateInput" type="date" value="<%=orderList[0].commingDate.getFullYear()%>-<%=orderList[0].commingDate.getMonth()+1%>-<%=orderList[0].commingDate.getDate()%>" style="display: none;width: 155px"  disabled=""><span id="arriveDateDisplay"><%=orderList[0].commingDate.getFullYear()%>-<%=orderList[0].commingDate.getMonth()+1%>-<%=orderList[0].commingDate.getDate()%></span><span id="overDate" style="color:red;display: none">(已逾期<a id="overDays"><%=parseInt((new Date()-orderList[0].commingDate)/ (1000 * 60 * 60 * 24))%></a>天)</span></div>
                                 <style onload="overDate()"></style>
                                 <style onload="AntiInfoDisplay('已完成','已拒绝','已取消',false,'orderState','arriveDate')"></style>
@@ -279,7 +326,6 @@
                                 <div class="itemDetail">申请人：<%=orderList[0].applier%></div>
                                 <div class="itemDetail" >申请备注：<input class="itemDetailsInput"  value="<%=orderList[0].applyNote%>" disabled="true" ></div>
                                 <div class="itemDetail" id="confirmNote" >审批备注：<input class="itemDetailsInput" name="confirmNoteInput" id="confirmNoteInput" value="<%=orderList[0].replyNote%>" disabled="true"></div>
-                                <style onload="AntiInfoDisplay('申请中','已拒绝','已取消',false,'orderState','confirmNote')"></style>
                                 <style onload="InfoDisplay('申请中','已拒绝','已取消',false,'orderState','orderNum')" ></style>
                                 <style onload="AntiInfoDisplay('仓库管理员','技术员','普通权限员',false,'role','orderPirce')"></style>
                             </div>
@@ -316,19 +362,25 @@
                         <td>
                             <div id="operationButtons" >  <style onload="AntiInfoDisplay('已取消','已拒绝',false,false,'orderState','operationButtons')"></style>
                                 <button class="btn btn-block btn-submit button button--primary " type="button" id="agreeButton" style="background-color: mediumseagreen!important;height: 50px; width: 120px" onclick="editable()" >同意采购</button>
-                                <button class="btn btn-block btn-submit button button--primary " type="button" id="changeDateButton" style="display: none;background-color: orange!important;height: 50px; width: 120px;font-size: 1rem; padding-left: 10px" onclick="editableSingle()" >更改到货预期</button>
-                                <button class="btn btn-block btn-submit button button--primary " type="submit" id="cancelOrderButton" name="cancelOrderButton" value="true" style="display: none;background-color: red!important;margin-left: 10px;height: 50px;width: 120px;font-size: 1rem"  >取消订单</button>
+                               <button class="btn btn-block btn-submit button button--primary " type="submit" value="true" id="comfirmRefuseOrder" name="refuseButton" style="background-color: mediumseagreen!important;height: 50px; width: 120px;display: none;"  >确认</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="submit" value="true" id="comfirmCancelOrder" name="cancelOrderButton"  style="background-color: mediumseagreen!important;height: 50px; width: 120px;display: none;"  >确认</button>
+
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="changeDateButton" style="margin-top: -35px;display: none;background-color: orange!important;height: 50px; width: 120px;font-size: 1rem; padding-left: 10px" onclick="editableSingle()" >更改到货预期</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="cancelOrderButton"  value="true" onclick="CancelOrder()" style="display: none;background-color: red!important;margin-left: 10px;height: 50px;width: 120px;font-size: 1rem;margin-top: -35px;"  >取消订单</button>
 
                                 <style onload="Authority('已下单','有退回','已到货',false,'orderState','cancelOrderButton','系统管理员',false,false,false)"></style>
                                 <style onload="Authority('已下单','有退回','已到货',false,'orderState','changeDateButton','系统管理员','仓库管理员',false,false)"></style>
                                 <style onload="SendAll('totalNum','arriveNum','changeDateButton','arriveDate')"></style>
                                 <style onload="Authority(false,'申请中',false,false,'orderState','agreeButton','系统管理员',false,false,false)"></style>
                                 <button class="btn btn-block btn-submit button button--primary " type="submit" name="approveButton" value="true"  id="confirmButton1"  style="display: none;background-color: mediumseagreen!important;height: 50px; width: 120px" >确认已下单</button>
-                                <button class="btn btn-block btn-submit button button--primary " type="submit" name="confirmButton" value="true"  id="confirmButton2"  style="display: none;background-color: mediumseagreen!important;height: 50px; width: 120px" >确定</button>
-                                <button class="btn btn-block btn-submit button button--primary " type="submit" name="refuseButton" value="true"  id="refuseButton" style="background-color: red!important;margin-left: 10px;height: 50px;width: 120px" >拒绝采购</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="submit" name="confirmButton" value="true"  id="confirmButton2"  style="display: none;background-color: mediumseagreen!important;height: 50px; width: 120px;margin-top: -100px;" >确定更改</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button"  value="true"  id="refuseButton" onclick="RefuseOrder()" style="background-color: red!important;margin-left: 10px;height: 50px;width: 120px" >拒绝采购</button>
+                               <button class="btn btn-block btn-submit button button--primary " type="button"  id="cancelOrder" name="cancelOrder" value="true" onclick="CancelCancelOrder()"  style="background-color: red!important;margin-left: 10px;height: 50px;width: 120px;display: none" >取消</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="refuseOrder" name="refuseOrder" value="true" onclick="CancelRefuseOrder()"  style="background-color: red!important;margin-left: 10px;height: 50px;width: 120px;display: none;" >取消</button>
+
                                 <style onload="Authority(false,'申请中',false,false,'orderState','refuseButton','系统管理员',false,false,false)"></style>
-                                <button class="btn btn-block btn-submit button button--primary " type="button" id="cancelButton" style="display: none;background-color: red!important;margin-left: 10px;height: 50px;width: 120px" onclick="Uneditable() " >取消</button>
-                                <button class="btn btn-block btn-submit button button--primary " type="button" id="cancelChangeButton" style="display: none;background-color: red!important;margin-left: 10px;height: 50px;width: 120px" onclick="UneditableSingle() " >取消</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="cancelButton" style="display: none;background-color: red!important;margin-left: 10px;height: 50px;width: 120px;" onclick="Uneditable() " >取消编辑</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="cancelChangeButton" style="display: none;background-color: red!important;margin-left: 10px;height: 50px;width: 120px;margin-top: -100px;" onclick="UneditableSingle() " >取消更改</button>
 
                             </div>
                         </td>

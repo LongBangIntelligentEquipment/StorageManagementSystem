@@ -119,10 +119,10 @@
     </script>
 
 </head>
-<body >
+<body style="height: 100%">
 
 
-<section class="functionBoard">
+<section class="functionBoard" style="height: 100%">
 
     <div class="functionBoard left">
         <div>
@@ -146,8 +146,8 @@
     </div>
 
 
-    <div class="functionBoard right">
-        <main role="main" class="container mt-3 mb-3">
+    <div class="functionBoard right" style="height: 100%">
+        <main role="main" class="container mt-3 mb-3" style="height: 100%">
 
             <header role="banner">
                 <div class="headcontainer">
@@ -158,7 +158,7 @@
                 </div>
             </header>
 
-            <form>
+            <form style="height: 100%">
                 <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
                     <tr>
                         <td >
@@ -200,24 +200,25 @@
 
                 </table>
 
-                <div class="pageCard" style="border-top: 0.1rem solid #404142;background-color: #DDF2FA!important;margin-bottom: 0">
+                <div class="pageCard" style="border-top: 0.1rem solid #404142;background-color: #DDF2FA!important;height: 100%">
                     <div class="pageTitle">
                         <div style="margin-bottom: 15px;font-weight: bold">归还进仓管理：</div>
-                        <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.history.go(-1)"style="position: absolute!important; margin-top: -45px; margin-left: 560px;" >返回上一页</button>
+                        <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.history.go(-1)"style=" margin-top: -45px;float: left; margin-left: 550px;width: 100px" >返回上一页</button>
 
-                        <div style="margin: 15px; color:red;font-size: 1rem">*请在以下选择需要归还的对象</div>
 
                     </div>
+                    <div style="margin: 15px; color:red;font-size: 1rem">*请在以下选择需要归还的对象</div>
+
                     <%for(let i = 0 ; i < recordList.length ; i++) { %>
 
                         <style onload="InfoDisplay(false,'出仓',false,false,'infoState<%=i%>','outInfo<%=i%>1')"></style>
                         <style onload="InfoDisplay('出仓',false,false,false,'infoState<%=i%>','outInfo<%=i%>2')"></style>
-                        <style onload="InfoBGC('出仓','infoState<%=i%>','inFoBackground<%=i%>','display:width: 100%;font-size: 1rem;height: 100%;background-color: #faf1f7!important;')"></style>
+                        <style onload="InfoBGC('出仓','infoState<%=i%>','inFoBackground<%=i%>','display:width: 100%;font-size: 1rem;background-color: #faf1f7!important;')"></style>
 
 
 
 
-                        <table class="noteButton" id="inFoBackground<%=i%>" style="width: 100%;font-size: 1rem;height: 100%;" cellpadding="0" cellspacing="0">
+                        <table class="noteButton" id="inFoBackground<%=i%>" style="width: 100%;font-size: 1rem;" cellpadding="0" cellspacing="0">
                             <tr >
                                 <td style="width: 87%;">
                                     <button class="noteButton" onclick="location.href='/adItemReturn?itemId=<%=itemList.itemId%>&exitDate=<%=recordList[i].date%>&exitNum=<%=recordList[i].returnNum%>&supplier=<%=recordList[i ].supplier%>&'+document.URL.split('&')[1]+'&'+document.URL.split('&')[2]" style="padding-left: 80px;" type="button">

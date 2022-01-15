@@ -45,7 +45,7 @@
         function Authority() {
 
             if(document.getElementById('role').innerText==='系统管理员'){
-                document.getElementById('authority').style.display='';
+                document.getElementById('authority').style.display='inline';
             }else{
                 document.getElementById('authority').style.display='none';
             }
@@ -55,10 +55,10 @@
 
 
 </head>
-<body >
+<body  style="height: 100%">
 
 
-<section class="functionBoard">
+<section class="functionBoard"  style="height: 100%">
 
     <div class="functionBoard left">
         <div>
@@ -82,8 +82,8 @@
     </div>
 
 
-    <div class="functionBoard right">
-        <main role="main" class="container mt-3 mb-3">
+    <div class="functionBoard right"  style="height: 100%">
+        <main role="main" class="container mt-3 mb-3"  style="height: 100%">
 
             <header role="banner">
                 <div class="headcontainer">
@@ -94,7 +94,7 @@
                 </div>
             </header>
 
-            <form  onsubmit="return confirmAgain()" method="post">
+            <form  onsubmit="return confirmAgain()" method="post"  style="height: 100%">
                 <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
                     <tr>
                         <td >
@@ -142,7 +142,7 @@
 
 
 
-                <div class="pageCard" style="border-top: 0.1rem solid #404142;background-color:#faf1f7!important;position: absolute;width: 77.5%;top:530px;bottom: -130px;height: auto;margin-bottom: 0px ">
+                <div class="pageCard" style="border-top: 0.1rem solid #404142;background-color:#faf1f7!important;width: 100%;height: 100% ">
 
                     <div class="pageTitle">
                         <div style="margin-bottom: 15px;font-weight: bold;font-size: 1.2rem">出仓管理：</div>

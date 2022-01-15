@@ -66,10 +66,10 @@
 
 
 </head>
-<body >
+<body style="width: 100%;height: 100%">
 
 
-<section class="functionBoard">
+<section class="functionBoard" style="width: 100%;height: 100%">
 
     <div class="functionBoard left">
         <div>
@@ -90,11 +90,10 @@
 
 
     </div>
-    </div>
 
 
-    <div class="functionBoard right">
-        <main role="main" class="container mt-3 mb-3">
+    <div class="functionBoard right" style="width: 100%;height: 100%">
+        <main role="main" class="container mt-3 mb-3" style="width: 100%;height: 100%">
 
             <header role="banner">
                 <div class="headcontainer">
@@ -105,11 +104,11 @@
                 </div>
             </header>
 
-            <form  onsubmit="return confirmAgain()" method="post">
+            <form  onsubmit="return confirmAgain()" method="post" style="width: 100%;height: 100%">
                 <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
                     <tr>
                         <td >
-                            <div style="width: 450px; margin-top: -15px">
+                            <div style="width: 450px; margin-top: -15px;height: 450px">
                                 <div class="itemDetail">详细信息：</div>
                                 <div class="itemDetail">供应商：<%=itemList.itemSupplier%></div>
                                 <div class="itemDetail">名称：<%=itemList.itemName%></div>
@@ -156,11 +155,11 @@
 
 
 
-                <div class="pageCard" style="border-top: 0.1rem solid #404142;background-color:#effae4!important;position: absolute;width: 77.5%;top:530px;bottom: -130px;height: auto;margin-bottom: 0px ">
+                <div class="pageCard" style="border-top: 0.1rem solid #404142;background-color:#effae4!important;width: 100%;height: 100% ">
 
                     <div class="pageTitle">
                         <div style="margin-bottom: 15px;font-weight: bold;font-size: 1.2rem">进仓管理：</div>
-                        <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.history.go(-1)"style="position: absolute!important; margin-top: -45px; margin-left: 560px; width: auto" >返回上一页</button>
+                        <button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick="window.history.go(-1)"style=" margin-top: -45px;float: left; margin-left: 550px;width: 100px" >返回上一页</button>
                     </div>
                     <div style="font-weight: bold; color: #666">
                         <span style="margin-left: 30px" >来自订单：<span id="orderId" ><%=orderId%></span></span>
@@ -196,7 +195,7 @@
                         <span style="margin-left: 30px" >备注：<input  name="saveNote" type="text" class="indexOf" style="height: 35px;width: 605px"></span>
                     </div>
                     <div>
-                        <button class="btn btn-block btn-submit button button--primary smaller" type="submit"  style=" margin-top: 30px; margin-left: 50px; width: auto"  >确定</button>
+                        <button class="btn btn-block btn-submit button button--primary smaller" type="submit"  style=" float: left;margin-top: 30px; margin-left: 580px; width: 100px"  >确定</button>
                     </div>
                 </div>
             </form>

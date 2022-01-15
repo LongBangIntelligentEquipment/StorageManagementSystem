@@ -22,8 +22,9 @@
         }
 
         function Authority(role, ojId) {
-            if (document.getElementById('role').innerText === role) {
-                document.getElementById(ojId).style.display = 'display';
+            var sessionId='<%= user.role %>'
+            if ( sessionId=== role) {
+                document.getElementById(ojId).style.display = 'inline';
             }
             if (document.getElementById('role').innerText === '系统管理员') {
                 document.getElementById('authority').style.display = '';
@@ -310,7 +311,11 @@
 
                             <input class="indexOf" name="searchText" id="searchText" value="<%=searchResult%>" style="margin-left: 4px" placeholder="根据机械部件物料的名称/型号/备注搜索机械">
                             <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit">搜&emsp;索</button>
-                            <button class="searchBarButton" onclick="location.href='/adBOMListMachineAdd'" type="button" style="margin-left: 390px;" id="addNewMachineButton">创建设备</button>
+                            <div  style="height: 30px">
+                                <button class="searchBarButton" onclick="location.href='/adBOMListMachineAdd'" type="button" style="margin-left: 390px;display: none" id="addNewMachineButton">创建设备</button>
+                            </div>
+                            <style onload="Authority('系统管理员','addNewMachineButton')"></style>
+                            <style onload="Authority('技术员','addNewMachineButton>')"></style>
                         </div>
 
                         <div class="pageBody" style="width: 100%">
@@ -327,7 +332,8 @@
                                         <div  style= "font-size: 0.7rem; height: 35px; ">
                                             <span class="BOMInfo" style="margin-left: -50px;color: #0050fa"><%=machine[i].machineId%><a style="font-weight:normal;color: #0050fa; "></a></span>
                                             <span class="BOMInfo" style="margin-left: 200px">设计师：<%=machine[i].designer%><a style="font-weight:normal;color: #0050fa; "></a></span>
-                                            <span class="BOMInfo" style="margin-left: 430px">设备成本：<%=machine[i].machineCost%>元<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                            <span class="BOMInfo" id="machineCostRow<%=i%>" style="margin-left: 430px; display: none;">设备成本：<%=machine[i].machineCost%>元<a style="font-weight:normal;color: #0050fa; "></a></span>
+                                            <style onload="Authority('系统管理员','machineCostRow<%=i%>')"></style>
                                         </div>
 
                                         <div  style= "font-size: 0.7rem; height: 30px;" id="">
@@ -344,7 +350,9 @@
                                                 <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/adBOMListMachineMan?machineId=<%=machine[i].machineId%>')"><img src='images/machine.png' height="50px" width="50px"></button>
                                             </td>
                                             <td>
-                                                <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="copyAct('<%=machine[i].machineId%>','<%=machine[i].machineName%>')"><img src='images/copy.png' height="50px" width="50px"></button>
+                                                <button class="itemButton2" id="copyBtn<%=i%>" style="height: 90px;border: 0;display: none" type="button" onclick="copyAct('<%=machine[i].machineId%>','<%=machine[i].machineName%>')"><img src='images/copy.png' height="50px" width="50px"></button>
+                                                <style onload="Authority('系统管理员','copyBtn<%=i%>')"></style>
+                                                <style onload="Authority('技术员','copyBtn<%=i%>')"></style>
                                             </td>
                                         </tr>
                                     </table>
