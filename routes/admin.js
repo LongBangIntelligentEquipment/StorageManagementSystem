@@ -958,10 +958,11 @@ router.post('/adItemTemEnter', function(req, res, next) {
 
         if (orderId.toString().substring(0,3) !== 'ONE') {
             itemEnter();
-            addNotification('已临时进仓',req.body.saveNum);
         }
 
         OrderState(orderItem[0].itemName);
+        addNotification('已临时进仓',req.body.saveNum);
+
 
         flashUrl='adOrder?orderId='+orderItem[0].orderId;
         return res.redirect('flash?url='+flashUrl)
@@ -996,8 +997,15 @@ router.post('/adItemTemEnter', function(req, res, next) {
 
     function addNotification(enterModel,addSqlInput) {
         var countSql='SELECT * FROM notification';
-        var checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
-        connection.query( checksql,function (err, result0) {
+        var checkSql='SELECT * \n' +
+            'FROM orderlist\n' +
+            'LEFT JOIN item\n' +
+            'ON orderlist.itemId = item.itemId\n' +
+            'LEFT JOIN item_one\n' +
+            'ON orderlist.orderId = item_one.orderId\n' +
+            'WHERE orderlist.orderId='+'\''+url.orderId+'\'';
+        var  itemId;
+        connection.query( checkSql,function (err, result0) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
             }
@@ -1006,7 +1014,12 @@ router.post('/adItemTemEnter', function(req, res, next) {
                     console.log('[SELECT ERROR] - ', err.message);
                 }
                 var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
-                var  addSqlParams =[dateOutput, '采购事件更新',enterModel,addSqlInput,result0[0].itemId,url.orderId ];
+                if (result0[0].itemId){
+                    itemId = result0[0].itemId;
+                } else {
+                    itemId = result0[0].itemOneId;
+                }
+                var  addSqlParams =[dateOutput, '采购事件更新',enterModel,addSqlInput,itemId,url.orderId ];
                 connection.query(addSql,addSqlParams,function (err) {
                     if(err){
                         console.log('[INSERT ERROR] - ',err.message);
@@ -1144,11 +1157,10 @@ router.post('/adItemEnter', function(req, res, next) {
 
                     if (url.orderId.toString().substring(0,3) !== 'ONE') {
                         itemEnter();
-                        addNotification('已进仓',req.body.saveNum);
                     }
 
                     OrderCompeleted(result1[0].itemName);
-
+                    addNotification('已进仓',req.body.saveNum);
 
                     flashUrl='adOrder?orderId='+url.orderId;
                     return res.redirect('flash?url='+flashUrl)
@@ -1191,10 +1203,10 @@ router.post('/adItemEnter', function(req, res, next) {
                         });
 
                         itemEnter();
-                        addNotification('已验收进仓',req.body.saveNum);
                     }
 
                     OrderCompeleted(result1[0].itemName);
+                    addNotification('已验收进仓',req.body.saveNum);
 
                     flashUrl='adOrder?orderId='+url.orderId;
                     return res.redirect('flash?url='+flashUrl)
@@ -1218,10 +1230,10 @@ router.post('/adItemEnter', function(req, res, next) {
 
                     if (url.orderId.toString().substring(0,3) !== 'ONE') {
                         itemEnter();
-                        addNotification('已退还进仓',req.body.saveNum);
                     }
 
                     OrderCompeleted(result1[0].itemName);
+                    addNotification('已退还进仓',req.body.saveNum);
 
                     flashUrl='adOrder?orderId='+url.orderId;
                     return res.redirect('flash?url='+flashUrl)
@@ -1301,8 +1313,15 @@ router.post('/adItemEnter', function(req, res, next) {
         var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
         console.log(dateOutput);
         var countSql='SELECT * FROM notification';
-        var checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
-        connection.query( checksql,function (err, result0) {
+        var checkSql='SELECT * \n' +
+            'FROM orderlist\n' +
+            'LEFT JOIN item\n' +
+            'ON orderlist.itemId = item.itemId\n' +
+            'LEFT JOIN item_one\n' +
+            'ON orderlist.orderId = item_one.orderId\n' +
+            'WHERE orderlist.orderId='+'\''+url.orderId+'\'';
+        var  itemId;
+        connection.query( checkSql,function (err, result0) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
             }
@@ -1311,7 +1330,12 @@ router.post('/adItemEnter', function(req, res, next) {
                     console.log('[SELECT ERROR] - ', err.message);
                 }
                 var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
-                var  addSqlParams =[dateOutput, '采购事件更新',enterModel,addSqlInput,result0[0].itemId,url.orderId ];
+                if (result0[0].itemId){
+                    itemId = result0[0].itemId;
+                } else {
+                    itemId = result0[0].itemOneId;
+                }
+                var  addSqlParams =[dateOutput, '采购事件更新',enterModel,addSqlInput,itemId,url.orderId ];
                // console.log(addSqlParams)
                 connection.query(addSql,addSqlParams,function (err, result) {
                     if(err){
@@ -1365,10 +1389,11 @@ router.post('/adItemEnter', function(req, res, next) {
                             addNote('物料事件更新', itemName, result[0].itemId, '取消有订单未处理状态')
                         } else {
                         }
-                        addNotification('已完成', ' ')
-                        addNote('采购事件更新',itemName,url.orderId,'已完成')
                     })
                 }
+
+                addNotification('已完成', ' ')
+                addNote('采购事件更新',itemName,url.orderId,'已完成')
 
             }else{
                 if(parseInt(result[0].returnNum) ===0){
@@ -1663,24 +1688,31 @@ router.post('/adOrderMan', function(req, res, next) {
 /* GET adOrder*/
 router.get('/adOrder', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
-    var sql, orderId;
+    var notificationSql, orderId, orderSql;
     orderId = url.orderId;
 
     if (orderId.toString().substring(0,3) === 'ONE') {
-        sql = 'SELECT * \n' +
+        orderSql = 'SELECT * \n' +
             'FROM orderlist\n' +
             'JOIN item_one\n' +
             'ON orderlist.orderId = item_one.orderId\n' +
             'WHERE orderlist.orderId = ' + '"' + orderId + '";';
 
-        connection.query(sql, function (err, result1) {
+        notificationSql = 'SELECT * FROM notification WHERE notification.orderId=' + '\'' + orderId + '\'' + 'ORDER BY noteDate DESC';
+
+        connection.query(orderSql, function (err, order) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
             }
-            res.render('adOrder', {
-                orderList: result1,
-                notificationList : false,
-                user: req.session.user
+            connection.query(notificationSql, function (err, notification) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                }
+                res.render('adOrder', {
+                    orderList: order,
+                    notificationList : notification,
+                    user: req.session.user
+                });
             });
         });
     } else {
@@ -2007,21 +2039,28 @@ router.post('/adOrderFix', function(req, res, next) {
                         console.log('[UPDATE ERROR] - ',err.message);
                     }
                 });
-                OrderState(order[0].itemName);
-                if (orderId.toString().substring(0,3) !== 'ONE') {
-                    isFirstSQL='SELECT sum( case when noteState=\'已退回(首次检测)\' or noteState=\'已从临时仓库退回(首次检测)\' then 1 else 0 end) as returnTimes FROM notification WHERE orderId=\''+orderId+'\'';
-                    connection.query(isFirstSQL,function (err, result2) {
-                        if(err){
-                            console.log('[SELECT ERROR] - ',err.message);
-                            return;
-                        }
-                        if(result2[0].returnTimes>0){
-                            addNotification('已退回',req.body.saveNum);
-                        }else{
-                            addNotification('已退回(首次检测)',req.body.saveNum);
-                        }
-                    });
+
+                var itemName;
+                if (order[0].itemName){
+                    itemName = order[0].itemName;
+                } else {
+                    itemName = order[0].itemOneName;
                 }
+                OrderState(itemName);
+
+                isFirstSQL='SELECT sum( case when noteState=\'已退回(首次检测)\' or noteState=\'已从临时仓库退回(首次检测)\' then 1 else 0 end) as returnTimes FROM notification WHERE orderId=\''+orderId+'\'';
+                connection.query(isFirstSQL,function (err, result2) {
+                    if(err){
+                        console.log('[SELECT ERROR] - ',err.message);
+                        return;
+                    }
+                    if(result2[0].returnTimes>0){
+                        addNotification('已退回',req.body.saveNum);
+                    }else{
+                        addNotification('已退回(首次检测)',req.body.saveNum);
+                    }
+                });
+
                 var flashUrl='adOrder?orderId='+url.orderId;
                 return res.redirect('flash?url='+flashUrl)
             }
@@ -2062,22 +2101,27 @@ router.post('/adOrderFix', function(req, res, next) {
 
                     });
                 }
-                OrderState(order[0].itemName);
 
-                if (orderId.toString().substring(0,3) !== 'ONE') {
-                    var isFirstSQL = 'SELECT sum( case when noteState=\'已退回(首次检测)\' or noteState=\'已从临时仓库退回(首次检测)\' then 1 else 0 end) as returnTimes FROM notification WHERE orderId=\'' + url.orderId + '\'';
-                    connection.query(isFirstSQL, function (err, result2) {
-                        if (err) {
-                            console.log('[SELECT ERROR] - ', err.message);
-                            return;
-                        }
-                        if (result2[0].returnTimes > 0) {
-                            addNotification('已从临时仓库退回', req.body.saveNum);
-                        } else {
-                            addNotification('已从临时仓库退回(首次检测)', req.body.saveNum);
-                        }
-                    });
+                var itemName;
+                if (order[0].itemName){
+                    itemName = order[0].itemName;
+                } else {
+                    itemName = order[0].itemOneName;
                 }
+                OrderState(itemName);
+
+                var isFirstSQL = 'SELECT sum( case when noteState=\'已退回(首次检测)\' or noteState=\'已从临时仓库退回(首次检测)\' then 1 else 0 end) as returnTimes FROM notification WHERE orderId=\'' + url.orderId + '\'';
+                connection.query(isFirstSQL, function (err, result2) {
+                    if (err) {
+                        console.log('[SELECT ERROR] - ', err.message);
+                        return;
+                    }
+                    if (result2[0].returnTimes > 0) {
+                        addNotification('已从临时仓库退回', req.body.saveNum);
+                    } else {
+                        addNotification('已从临时仓库退回(首次检测)', req.body.saveNum);
+                    }
+                });
 
                 var flashUrl='adOrder?orderId='+url.orderId;
                 return res.redirect('flash?url='+flashUrl)
@@ -2088,8 +2132,15 @@ router.post('/adOrderFix', function(req, res, next) {
 
     function addNotification(enterModel,addSqlInput) {
         var countSql='SELECT * FROM notification';
-        var checksql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
-        connection.query( checksql,function (err, result0) {
+        var checkSql='SELECT * \n' +
+            'FROM orderlist\n' +
+            'LEFT JOIN item\n' +
+            'ON orderlist.itemId = item.itemId\n' +
+            'LEFT JOIN item_one\n' +
+            'ON orderlist.orderId = item_one.orderId\n' +
+            'WHERE orderlist.orderId='+'\''+url.orderId+'\'';
+        var  itemId;
+        connection.query( checkSql,function (err, result0) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
             }
@@ -2098,8 +2149,12 @@ router.post('/adOrderFix', function(req, res, next) {
                     console.log('[SELECT ERROR] - ', err.message);
                 }
                 var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
-                var  addSqlParams =[dateOutput, '采购事件更新',enterModel,addSqlInput,result0[0].itemId,url.orderId ];
-                // console.log(addSqlParams)
+                if (result0[0].itemId){
+                    itemId = result0[0].itemId;
+                } else {
+                    itemId = result0[0].itemOneId;
+                }
+                var  addSqlParams =[dateOutput, '采购事件更新',enterModel,addSqlInput,itemId,url.orderId ];
                 connection.query(addSql,addSqlParams,function (err, result) {
                     if(err){
                         console.log('[INSERT ERROR] - ',err.message);
@@ -2128,7 +2183,6 @@ router.post('/adOrderFix', function(req, res, next) {
                     }
                 });
             addNote('采购事件更新',itemName,orderId,'有退回')
-
 
         });
     }
@@ -2400,6 +2454,15 @@ router.post('/adItemOrderOne', function(req, res) {
                     console.log('[INSERT ERROR] - ',err.message);
                     return;
                 }
+
+                var  addSql1 = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
+                var  addSqlParams1 = [dateOutput, '采购事件更新','申请中',totalNum,itemId,orderId ];
+                connection.query(addSql1,addSqlParams1,function (err) {
+                    if(err){
+                        console.log('[INSERT ERROR] - ',err.message);
+                    }
+                });
+
                 addNote('采购事件更新',itemName,orderId,'申请中');
             });
         });
