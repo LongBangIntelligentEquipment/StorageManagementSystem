@@ -71,7 +71,7 @@
                 </div>
             </header>
 
-            <form onsubmit="return confirmAgain()" method="post">
+            <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data">
                 <div class="itemDetailsPage">
                     <div class="itemDetail">创建新设备：</div>
                     <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="detail1" style="width: 500px" placeholder="请输入设备名称" required></div>
@@ -84,6 +84,9 @@
                         </select>
                     </div>
                     <div class="itemDetail">备注：<input name="addMachineNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px"></div>
+                    <div class="itemDetail" id="updateFile">上传图片：<input type="file"  name="machineFileName" value="">
+                        <div style="color: red">请上传图片格式文件</div>
+                    </div>
                 </div>
 
                 <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton" style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">

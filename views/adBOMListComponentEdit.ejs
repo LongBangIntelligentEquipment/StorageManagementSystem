@@ -1,148 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta  content="yes"  name="apple-mobile-web-app-capable">
-    <meta  name="viewport"  content="maximum-scale=1.0,user-scalable=no">
-    <title>隆邦ERP系统_BOM表管理</title>
-    <link rel='stylesheet' href='/stylesheets/style.css'/>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" language="javascript">
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta  content="yes"  name="apple-mobile-web-app-capable">-->
+<!--    <meta  name="viewport"  content="maximum-scale=1.0,user-scalable=no">-->
+<!--    <title>隆邦ERP系统_BOM表管理</title>-->
+<!--    <link rel='stylesheet' href='/stylesheets/style.css'/>-->
+<!--    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>-->
+<!--    <script type="text/javascript" language="javascript">-->
 
 
-        function confirmAgain() {
-           /* var elementLength=document.getElementById('shellBox').children.length;
+<!--        function confirmAgain() {-->
+<!--           /* var elementLength=document.getElementById('shellBox').children.length;-->
 
-            for(var i=0;i<elementLength;i++){
-                var elementLengthInt=parseInt(elementLength)-i-1
-                var oldElementId='#belongMachine'+elementLengthInt
-                $(oldElementId).removeAttr("disabled","disabled")
-            }*/
+<!--            for(var i=0;i<elementLength;i++){-->
+<!--                var elementLengthInt=parseInt(elementLength)-i-1-->
+<!--                var oldElementId='#belongMachine'+elementLengthInt-->
+<!--                $(oldElementId).removeAttr("disabled","disabled")-->
+<!--            }*/-->
 
-           var checkOne=false;
-           var checkBox=$('input[name = belongMachine]')
-
-
-            for(var i=0;i<checkBox.length;i++){
-                if(checkBox[i].checked){
-                    checkOne=true;
-                }
-            }
-            if(checkOne){
-                return window.confirm("确认执行【添加新型物料】操作?");
-            }else{
-                alert('请至少选择一款【所属机型】')
-                return false
-            }
-
-        }
-        function Authority(role ,ojId) {
-            if(document.getElementById('role').innerText===role){
-                document.getElementById(ojId).style.display='';
-            }
-            if(document.getElementById('role').innerText==='系统管理员'){
-                // document.getElementById('authority').style.display='';
-            }else{
-                document.getElementById('authority').style.display='none';
-            }
-        }
+<!--           var checkOne=false;-->
+<!--           var checkBox=$('input[name = belongMachine]')-->
 
 
-    </script>
+<!--            for(var i=0;i<checkBox.length;i++){-->
+<!--                if(checkBox[i].checked){-->
+<!--                    checkOne=true;-->
+<!--                }-->
+<!--            }-->
+<!--            if(checkOne){-->
+<!--                return window.confirm("确认执行【添加新型物料】操作?");-->
+<!--            }else{-->
+<!--                alert('请至少选择一款【所属机型】')-->
+<!--                return false-->
+<!--            }-->
 
-</head>
-<body >
-
-
-<section class="functionBoard" >
-
-    <div class="functionBoard left">
-        <div>
-            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
-            <u1>
-                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adminHome'">首页</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adItemMan'">物料管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adOrderMan'">采购管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button current" type="button"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="">权限管理</button></li>
-            </u1>
-            <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
-        </div>
-
-
-
-
-
-    </div>
-    </div>
+<!--        }-->
+<!--        function Authority(role ,ojId) {-->
+<!--            if(document.getElementById('role').innerText===role){-->
+<!--                document.getElementById(ojId).style.display='';-->
+<!--            }-->
+<!--            if(document.getElementById('role').innerText==='系统管理员'){-->
+<!--                // document.getElementById('authority').style.display='';-->
+<!--            }else{-->
+<!--                document.getElementById('authority').style.display='none';-->
+<!--            }-->
+<!--        }-->
 
 
-    <div class="functionBoard right">
-        <main role="main" class="container mt-3 mb-3">
+<!--    </script>-->
 
-            <header role="banner">
-                <div class="headcontainer">
-                    <div class="page-title">
-                        BOM表管理
-                    </div>
-                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
-                </div>
-            </header>
-
-            <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data" >
-
-                            <div  class="itemDetailsPage" style="width: 100%">
-                                <div class="itemDetail">创建新部件：</div>
-                                <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="detail1" required="required"  style="width: 500px" placeholder="请输入部件名称" ></div>
-                                <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="detail2"  required="required"  style="width: 500px" placeholder="请输入部件图号" ></div>
-                                <div class="itemDetail" >类型<a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addComponentType" id="detail3" required="required"  style="height: 35px;width: 130px;color:black;" >
-                                        <%for(let i = 0; i < categoryName.length; i++) { %>
-                                        <option value="<%=categoryName[i].categoryName%>"><%=categoryName[i].categoryName%></option>
-                                        <%}%>
-                                    </select>
-                                    <span>
-                                        <button class="searchBarButton" onclick="location.href='/adBOMListCategoryMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>
-                                    </span>
-                                </div>
-                                <div class="itemDetail">所属机型<a style="color: red; font-size: x-large">*</a>：
-                                </div>
-                                <div id="shellBox" >
-                                    <% for (let i = 0; i < machine.length; i++){ %>
-                                    <div style="margin-bottom: 5px">
-                                            <input type="checkbox" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
-                                            <label for="<%=machine[i].machineId%>"><%=machine[i].machineName%><%=machine[i].machineId%></label>
-                                    </div>
-                                    <% } %>
-                                </div>
-                                <div id="shellBox2">
-                                    <div class="itemDetail" >备注：<input name="addComponentNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
-                                    <div class="itemDetail" id="detail7" >上传图纸：<input name="addComponentNameFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
-                                </div>
-                            </div>
-
-                            <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">创建新部件</button>
-
-                <style onload="Authority('系统管理员','confirmButton')"></style>
-                <style onload="Authority('仓库管理员','confirmButton')"></style>
-
-            </form>
+<!--</head>-->
+<!--<body >-->
 
 
-        </main>
-    </div>
-</section>
+<!--<section class="functionBoard" >-->
+
+<!--    <div class="functionBoard left">-->
+<!--        <div>-->
+<!--            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>-->
+<!--            <u1>-->
+<!--                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adminHome'">首页</button></li>-->
+<!--                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adItemMan'">物料管理</button></li>-->
+<!--                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adOrderMan'">采购管理</button></li>-->
+<!--                <li class="list-group"><button class="functionBoard-Button current" type="button"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>-->
+<!--                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="">权限管理</button></li>-->
+<!--            </u1>-->
+<!--            <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>-->
+<!--        </div>-->
 
 
 
 
 
-<footer class="footer" role="contentinfo">
-    <div class="container">
-        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
-    </div>
-</footer>
+<!--    </div>-->
+<!--    </div>-->
 
 
-</body>
+<!--    <div class="functionBoard right">-->
+<!--        <main role="main" class="container mt-3 mb-3">-->
 
-</html>
+<!--            <header role="banner">-->
+<!--                <div class="headcontainer">-->
+<!--                    <div class="page-title">-->
+<!--                        BOM表管理-->
+<!--                    </div>-->
+<!--                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>-->
+<!--                </div>-->
+<!--            </header>-->
+
+<!--            <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data" >-->
+
+<!--                            <div  class="itemDetailsPage" style="width: 100%">-->
+<!--                                <div class="itemDetail">创建新部件：</div>-->
+<!--                                <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="detail1" required="required"  style="width: 500px" placeholder="请输入部件名称" ></div>-->
+<!--                                <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="detail2"  required="required"  style="width: 500px" placeholder="请输入部件图号" ></div>-->
+<!--                                <div class="itemDetail" >类型<a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addComponentType" id="detail3" required="required"  style="height: 35px;width: 130px;color:black;" >-->
+<!--                                        <%for(let i = 0; i < categoryName.length; i++) { %>-->
+<!--                                        <option value="<%=categoryName[i].categoryName%>"><%=categoryName[i].categoryName%></option>-->
+<!--                                        <%}%>-->
+<!--                                    </select>-->
+<!--                                    <span>-->
+<!--                                        <button class="searchBarButton" onclick="location.href='/adBOMListCategoryMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>-->
+<!--                                    </span>-->
+<!--                                </div>-->
+<!--                                <div class="itemDetail">所属机型<a style="color: red; font-size: x-large">*</a>：-->
+<!--                                </div>-->
+<!--                                <div id="shellBox" >-->
+<!--                                    <% for (let i = 0; i < machine.length; i++){ %>-->
+<!--                                    <div style="margin-bottom: 5px">-->
+<!--                                            <input type="checkbox" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">-->
+<!--                                            <label for="<%=machine[i].machineId%>"><%=machine[i].machineName%><%=machine[i].machineId%></label>-->
+<!--                                    </div>-->
+<!--                                    <% } %>-->
+<!--                                </div>-->
+<!--                                <div id="shellBox2">-->
+<!--                                    <div class="itemDetail" >备注：<input name="addComponentNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>-->
+<!--                                    <div class="itemDetail" id="detail7" >上传图纸：<input name="BomListFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+<!--                            <button class="btn btn-block btn-submit button button&#45;&#45;primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">创建新部件</button>-->
+
+<!--                <style onload="Authority('系统管理员','confirmButton')"></style>-->
+<!--                <style onload="Authority('仓库管理员','confirmButton')"></style>-->
+
+<!--            </form>-->
+
+
+<!--        </main>-->
+<!--    </div>-->
+<!--</section>-->
+
+
+
+
+
+<!--<footer class="footer" role="contentinfo">-->
+<!--    <div class="container">-->
+<!--        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>-->
+<!--    </div>-->
+<!--</footer>-->
+
+
+<!--</body>-->
+
+<!--</html>-->

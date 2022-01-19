@@ -602,7 +602,7 @@
                 </div>
             </header>
 
-            <form method="post" >
+            <form method="post" enctype="multipart/form-data">
                 <table cellpadding="0"cellspacing="0"  class="itemDetailsPage" >
                     <tr>
                         <td >
@@ -638,7 +638,7 @@
                         </td>
                         <td>
                             <div style="margin-left: -35px;margin-top: 0px">
-                                <button style="background-color: transparent!important;width: 320px;height: 320px;border: none" type="button" onclick="window.open('uploads/')"  ><img src="uploads/" height="320px" width="320px"></button>
+                                <button style="background-color: transparent!important;width: 320px;height: 320px;border: none" type="button" onclick="window.open('uploads/<%=component[0].componentFileName%>')"  ><img src="uploads/<%=component[0].componentFileName%>" height="320px" width="320px"></button>
                             </div>
                         </td>
                     </tr>

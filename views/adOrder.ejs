@@ -334,7 +334,7 @@
                             <div class="itemDetail">待检数量：<span id="pendingNum" style="color: orange"><%=orderList[0].pendingNum%></span><%=orderList[0].itemUnit%></div>
                             <div class="itemDetail" >退回数量：<span id="returnNum" style="color: #fe007b"><%=orderList[0].returnNum%></span><%=orderList[0].itemUnit%></div>
                             </div>
-                            <%if (notificationList){%>
+                            <%if (isDBItem){%>
                             <button class="btn btn-block btn-submit button button--primary " type="button"  onclick="location.href='/adItem?itemId=<%=orderList[0].itemId%>&returnSql='+document.URL.split('sql=')[1]"  style="width: 200px;margin-top: 60px;background-color: #fe007b!important;height: 50px;">物料详情</button>
                             <%}%>
 

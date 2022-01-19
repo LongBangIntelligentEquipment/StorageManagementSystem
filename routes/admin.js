@@ -1711,7 +1711,8 @@ router.get('/adOrder', function(req, res, next) {
                 res.render('adOrder', {
                     orderList: order,
                     notificationList : notification,
-                    user: req.session.user
+                    user: req.session.user,
+                    isDBItem: false
                 });
             });
         });
@@ -1741,7 +1742,8 @@ router.get('/adOrder', function(req, res, next) {
                 res.render('adOrder', {
                     orderList: result1,
                     notificationList: result2,
-                    user: req.session.user
+                    user: req.session.user,
+                    isDBItem: true
                 });
 
             });
@@ -2742,7 +2744,7 @@ router.get('/adBOMListMachineAdd', function(req, res) {
 });
 
 /* POST adBOMListMachineAdd */
-router.post('/adBOMListMachineAdd', function (req, res) {
+router.post('/adBOMListMachineAdd', upload.single('machineFileName'), function (req, res) {
     let saveDate = new Date();
     let year = saveDate.getFullYear();
     let month = saveDate.getMonth() + 1;
@@ -2756,6 +2758,13 @@ router.post('/adBOMListMachineAdd', function (req, res) {
     let addMachineName = req.body.addMachineName;
     let addMachineDesigner = req.body.addMachineDesigner;
     let addMachineNote = req.body.addMachineNote;
+
+    var fileName;
+    if (req.file){
+        fileName=req.file.filename;
+    } else {
+        fileName = 'null';
+    }
     // let addMachineDesigner = req.session.user.userName;
     addMachineModel = pinyin(addMachineModel, {style: pinyin.STYLE_FIRST_LETTER}).toString();
     addMachineModel = addMachineModel.replace(new RegExp(",", 'g'), "").toUpperCase();
@@ -2783,8 +2792,8 @@ router.post('/adBOMListMachineAdd', function (req, res) {
                 unique = false;
                 return res.send('机械添加失败：您所添加的机械【机械名称】已存在于机械列表中。')
             } else if (unique) {
-                let addSql1 = 'INSERT INTO machine (machineId,machineName,updateTime,designer,note) VALUES(?,?,?,?,?)';
-                let addSqlParams1 = [addMachineModel, addMachineName, updateTime, addMachineDesigner, addMachineNote];
+                let addSql1 = 'INSERT INTO machine (machineId,machineName,updateTime,designer,note,machineFileName) VALUES(?,?,?,?,?,?)';
+                let addSqlParams1 = [addMachineModel, addMachineName, updateTime, addMachineDesigner, addMachineNote,fileName];
                 connection.query(addSql1, addSqlParams1, function (err) {
                     if (err) {
                         console.log('[INSERT ERROR] - ', err.message);
@@ -2828,7 +2837,7 @@ router.get('/adBOMListMachineDelete', function(req, res) {
 
 //   ---修改设备---
 /* POST adBOMListMachineEdit Page */
-router.post('/adBOMListMachineEdit', function(req, res) {
+router.post('/adBOMListMachineEdit', upload.single('machineFileName'), function(req, res) {
     let  saveDate= new Date();
     let year= saveDate.getFullYear();
     let month=saveDate.getMonth()+1;
@@ -2837,7 +2846,6 @@ router.post('/adBOMListMachineEdit', function(req, res) {
     let min=saveDate.getMinutes();
     let sec=saveDate.getSeconds();
     let updateTime= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
-    console.log('updateTime: ' + updateTime);
 
     let MachineModel = req.body.MachineModel;
     let MachineName = req.body.MachineName;
@@ -2846,9 +2854,16 @@ router.post('/adBOMListMachineEdit', function(req, res) {
     MachineModel=pinyin(MachineModel,{style:pinyin.STYLE_FIRST_LETTER}).toString();
     MachineModel=MachineModel.replace(new RegExp(",",'g'),"").toUpperCase();
 
+    var fileName;
+    if (req.file){
+        fileName=req.file.filename;
+    } else {
+        fileName = 'null';
+    }
+
     let url=URL.parse(req.url,true).query;
-    let modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ? WHERE machineId = '+'\''+url.machineId+'\'';
-    let modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote];
+    let modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ?, machineFileName = ? WHERE machineId = '+'\''+url.machineId+'\'';
+    let modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote, fileName];
     connection.query(modSql,modSqlParams,function (err) {
         if(err){
             console.log('[UPDATE ERROR] - ',err.message);
@@ -2867,7 +2882,7 @@ router.get('/adBOMListMachineMan', function (req, res) {
     let url = URL.parse(req.url, true).query;
     let machineId = url.machineId;
     // 设备有部件
-    let machineComponentSql = 'SELECT machine.machineId, machineName, machine.updateTime AS mUpdateTime, machine.note AS mNote, designer, componentId, componentModel, componentName, component.updateTime AS cUpdateTime, component.note AS cNote, categoryName, cost As componentCost\n' +
+    let machineComponentSql = 'SELECT machine.machineId, machineName, machine.updateTime AS mUpdateTime, machine.note AS mNote, designer, componentId, componentModel, componentName, component.updateTime AS cUpdateTime, component.note AS cNote, categoryName, cost As componentCost, machineFileName\n' +
         'FROM machine\n' +
         'INNER JOIN component\n' +
         'ON machine.machineId = component.machineId\n' +
@@ -2879,7 +2894,7 @@ router.get('/adBOMListMachineMan', function (req, res) {
         'ORDER BY component.categoryId';
 
     // 设备无部件
-    let machineSql = 'SELECT machineId, machineName, updateTime AS mUpdateTime, machine.note AS mNote, designer\n' +
+    let machineSql = 'SELECT machineId, machineName, updateTime AS mUpdateTime, machine.note AS mNote, designer, machineFileName\n' +
         'FROM machine\n' +
         'INNER JOIN user\n' +
         'ON machine.designer = user.userName\n' +
@@ -3002,7 +3017,7 @@ router.post('/adBOMListComponentAdd', upload.single('BomListFileName'), function
             return;
         }
         let categoryId = category[0].categoryId;
-        let addSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,fileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
+        let addSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,componentFileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
         let addSqlParams = [addComponentModel, addComponentName, updateTime, "正常", addComponentNote, designerId, categoryId,0,fileName, addToMachineId];
         connection.query(addSql, addSqlParams, function (err) {
             if (err) {
@@ -3079,7 +3094,7 @@ router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
         fileName = 'null';
     }
 
-    let modSql = 'UPDATE component SET componentModel = ?,  componentName = ?, updateTime = ?, userId = ?, note = ?, categoryId = ?, fileName = ? WHERE componentId = '+'\''+componentId+'\'';
+    let modSql = 'UPDATE component SET componentModel = ?,  componentName = ?, updateTime = ?, userId = ?, note = ?, categoryId = ?, componentFileName = ? WHERE componentId = '+'\''+componentId+'\'';
     let modSqlParams = [BomListModel, BomListName, updateTime, userId, BomListNote, BomListType, fileName];
     connection.query(modSql,modSqlParams,function (err) {
         if(err){
@@ -3100,7 +3115,8 @@ router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
 router.get('/adBOMList', function (req, res) {
     let url = URL.parse(req.url, true).query;
     // 部件有物料
-    let componentItemSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, cost, fileName, userName, itemId, itemName, itemPrice, itemModel, itemType, itemNote, itemQuantity, machineName, machine.machineId\n' +
+    let componentItemSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, ' +
+        'cost, componentFileName, userName, itemId, itemName, itemPrice, itemModel, itemType, itemNote, itemQuantity, machineName, machine.machineId\n' +
         'FROM component\n' +
         'INNER JOIN component_has_item\n' +
         'ON component_has_item.component_componentId = component.componentId\n' +
@@ -3115,7 +3131,8 @@ router.get('/adBOMList', function (req, res) {
         'WHERE componentId =' + '\'' + url.componentId + '\'' + '\n' +
         'ORDER BY itemOrderBy, itemType';
     // 部件无物料
-    let componentSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, cost, fileName, userName, machineName, machine.machineId\n' +
+    let componentSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, ' +
+        'cost, componentFileName, userName, machineName, machine.machineId\n' +
         'FROM component\n' +
         'LEFT JOIN category\n' +
         'ON component.categoryId = category.categoryId\n' +
