@@ -5,7 +5,7 @@
     <meta  content="yes"  name="apple-mobile-web-app-capable">
     <meta  name="viewport"  content="inital-scale=1.0,maximum-scale=1.0,user-scalable=no;">
     <title>隆邦ERP系统_物料管理</title>
-    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <link rel='stylesheet' href='/stylesheets/style.css'>
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script language="javascript">
 
@@ -84,11 +84,7 @@
             if ( sessionRole=== role) {
                 $(ojId).removeAttr('hidden')
             }
-            if (document.getElementById('role').innerText === '系统管理员') {
-                document.getElementById('authority').style.display = '';
-            } else {
-                document.getElementById('authority').style.display = 'none';
-            }
+
         }
 
         function slideSwitch() {
@@ -561,12 +557,6 @@
         }
 
 
-
-
-
-
-
-
     </script>
 
 </head>
@@ -575,34 +565,21 @@
 
 
 <section class="functionBoard" style="height: 100%;">
-    <div class="functionBoard left">
-        <div>
-            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
-            <u1>
-                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adminHome'">首页</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adItemMan'">物料管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adOrderMan'">采购管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button current" type="button"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
-            </u1>
-            <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
-        </div>
-
-    </div>
+    <%- include('zMenu') %>
 
     <div class="functionBoard right" style="height: 100%;">
         <main role="main" class="container mt-3 mb-3" style="height: 100%;">
 
             <header role="banner">
                 <div class="headcontainer">
-                    <div class="page-title">
+                    <div id="pageTitle" class="page-title">
                         BOM表管理
                     </div>
                     <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
                 </div>
             </header>
 
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" >
                 <table cellpadding="0"cellspacing="0"  class="itemDetailsPage" >
                     <tr>
                         <td >
@@ -638,7 +615,7 @@
                         </td>
                         <td>
                             <div style="margin-left: -35px;margin-top: 0px">
-                                <button style="background-color: transparent!important;width: 320px;height: 320px;border: none" type="button" onclick="window.open('uploads/<%=component[0].componentFileName%>')"  ><img src="uploads/<%=component[0].componentFileName%>" height="320px" width="320px"></button>
+                                <button style="background-color: transparent!important;width: 320px;height: 320px;border: none" type="button" onclick="window.open('uploads/')"  ><img src="uploads/" height="320px" width="320px"></button>
                             </div>
                         </td>
                     </tr>
@@ -696,9 +673,9 @@
                                         <div id="shellBox" style="margin-top: 3%">
                                             请选择所属设备<a style="color: red; font-size: x-large">*</a>：
                                             <% for (let i = 0; i < machine.length; i++){ %>
-<!--                                                <%  if(machine[i].machineId===component[0].machineId){%>  设备查重-->
-<!--                                                <%continue;%>-->
-<!--                                                <% }%>-->
+<!--                                                  if(machine[i].machineId===component[0].machineId){ 设备查重-->
+<!--                                                continue;-->
+<!--                                                 }-->
                                                 <div style="margin-bottom: 5px">
                                                     <input  type="checkbox" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
                                                     <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
@@ -872,11 +849,7 @@
 
 
 
-<footer class="footer" role="contentinfo">
-    <div class="container">
-        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
-    </div>
-</footer>
+<%- include('zFooter') %>
 
 
 </body>

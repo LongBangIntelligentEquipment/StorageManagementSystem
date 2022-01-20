@@ -26,11 +26,7 @@
             if ( sessionId=== role) {
                 document.getElementById(ojId).style.display = 'inline';
             }
-            if (document.getElementById('role').innerText === '系统管理员') {
-                document.getElementById('authority').style.display = '';
-            } else {
-                document.getElementById('authority').style.display = 'none';
-            }
+
         }
 
         function componentDisplay(machineOrder, componentOrder) {
@@ -214,49 +210,14 @@
 
 <section class="functionBoard">
 
-    <div class="functionBoard left">
-        <div>
-            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
-            <u1>
-                <li class="list-group">
-                    <button class="functionBoard-Button" type="button" id="buttonLogin"
-                            onclick="location.href='/adminHome'">首页
-                    </button>
-                </li>
-                <li class="list-group">
-                    <button class="functionBoard-Button " type="button" onclick="location.href='/adItemMan'">物料管理
-                    </button>
-                </li>
-                <li class="list-group">
-                    <button class="functionBoard-Button" type="button" id="buttonRegister"
-                            onclick="location.href='/adOrderMan'">采购管理
-                    </button>
-                </li>
-                <li class="list-group">
-                    <button class="functionBoard-Button current" type="button" onclick="location.href='/adBOMListMan'">
-                        BOM表管理
-                    </button>
-                </li>
-                <li class="list-group">
-                    <button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style=""
-                            id="authority">权限管理
-                    </button>
-                </li>
-            </u1>
-            <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'"
-                    style="position: fixed;bottom: 6%;">退出登录
-            </button>
-        </div>
-
-
-    </div>
+    <%- include('zMenu') %>
 
         <div class="functionBoard right" style="width: auto">
             <main role="main" class="container mt-3 mb-3" >
 
                 <header role="banner">
                     <div class="headcontainer">
-                        <div class="page-title">
+                        <div id="pageTitle" class="page-title">
                             BOM表管理
                         </div>
                         <span class="page-title"
@@ -374,11 +335,7 @@
 </section>
 
 
-<footer class="footer" role="contentinfo">
-    <div class="container">
-        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
-    </div>
-</footer>
+<%- include('zFooter') %>
 
 
 </body>

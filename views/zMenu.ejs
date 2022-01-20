@@ -1,0 +1,40 @@
+<div class="functionBoard left">
+    <div>
+        <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
+        <u1>
+            <li class="list-group"><button class="functionBoard-Button" type="button" id="homePage" onclick="location.href='/adminHome'">首页</button></li>
+            <li class="list-group"><button class="functionBoard-Button" type="button" id="itemMan" onclick="location.href='/adItemMan'">物料管理</button></li>
+            <li class="list-group"><button class="functionBoard-Button" type="button" id="orderMan" onclick="location.href='/adOrderMan'">采购管理</button></li>
+            <li class="list-group"><button class="functionBoard-Button" type="button" id="BOMListMan"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
+            <li class="list-group"><button class="functionBoard-Button" type="button" id="authorityMan" onclick="location.href='/adUserMan'" >权限管理</button></li>
+        </u1>
+        <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
+    </div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <script>
+        function MenuHeightLight() {
+            //alert(document.getElementById('pageTitle').innerText)
+            switch (document.getElementById('pageTitle').innerText) {
+                case 'Legendz企业管理系统':$('#homePage').attr('class','functionBoard-Button current');break;
+                case '物料管理':$('#itemMan').attr('class','functionBoard-Button current');break;
+                case '采购管理':$('#orderMan').attr('class','functionBoard-Button current');break;
+                case 'BOM表管理':$('#BOMListMan').attr('class','functionBoard-Button current');break;
+                case '权限管理':$('#authorityMan').attr('class','functionBoard-Button current');break;
+            }
+        }
+
+        function MenuAuthority() {
+            var role='<%=user.role%>'
+            if(role==='系统管理员'){
+                document.getElementById('authorityMan').style.display='';
+            }else{
+                document.getElementById('authorityMan').style.display='none';
+            }
+        }
+    </script>
+
+    <style onload="MenuHeightLight()"></style>
+    <style onload="MenuAuthority()"></style>
+
+</div>
