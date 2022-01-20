@@ -256,11 +256,7 @@
             }else {
                 document.getElementById(ojId).style.display="none";
             }
-            if(document.getElementById('role').innerText==='系统管理员'){
-                document.getElementById('authority').style.display='';
-            }else{
-                document.getElementById('authority').style.display='none';
-            }
+
         }
     </script>
 
@@ -270,19 +266,7 @@
 
 <section class="functionBoard" >
 
-    <div class="functionBoard left">
-        <div>
-            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
-            <u1>
-                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonLogin" onclick="location.href='/adminHome'">首页</button></li>
-                <li class="list-group"><button class="functionBoard-Button " type="button" id="buttonRegister" onclick="location.href='/adItemMan'">物料管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button current" type="button" id="buttonRegister" onclick="location.href='/adOrderMan'">采购管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
-            </u1>
-            <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
-        </div>
-    </div>
+    <%- include('zMenu') %>
 
 
     <div class="functionBoard right">
@@ -290,7 +274,7 @@
 
             <header role="banner">
                 <div class="headcontainer">
-                    <div class="page-title">
+                    <div id="pageTitle" class="page-title">
                         采购管理
                     </div>
                     <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
@@ -300,11 +284,12 @@
             <form method="post"  onsubmit="return confirmAgain()" >
                 <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
                     <tr>
-                        <td >
+                        <td>
                             <div style="width: 450px;height: 570px">
                                 <div class="itemDetail">详细信息：</div>
                                 <div class="itemDetail">采购单号：<%=orderList[0].orderId%></div>
-                                <div class="itemDetail" >订单状态：<span id="orderState"><%=orderList[0].state%></span></div> <style onload="OrderState('orderState')"></style>
+                                <div class="itemDetail" >订单状态：<span id="orderState"><%=orderList[0].state%></span></div>
+                                <style onload="OrderState('orderState')"></style>
                                 <div class="itemDetail">申请日期：<%=orderList[0].applyDate.getFullYear()%>-<%=orderList[0].applyDate.getMonth()+1%>-<%=orderList[0].applyDate.getDate()%> &emsp;<%=orderList[0].applyDate.getHours()%>:<%=orderList[0].applyDate.getMinutes()%>:<%=orderList[0].applyDate.getSeconds()%> </div>
                                 <div class="itemDetail" id="orderDate">下单日期：<%=orderList[0].orderDate.getFullYear()%>-<%=orderList[0].orderDate.getMonth()+1%>-<%=orderList[0].orderDate.getDate()%> &emsp;<%=orderList[0].orderDate.getHours()%>:<%=orderList[0].orderDate.getMinutes()%>:<%=orderList[0].orderDate.getSeconds()%></div>
                                 <style onload="AntiInfoDisplay('申请中','已拒绝','已取消',false,'orderState','orderDate')"></style>
@@ -325,7 +310,6 @@
                             </div>
                         </td>
                         <td>
-
                             <div style="width: 200px;" id="account"> <style onload="AntiInfoDisplay('申请中','已拒绝',false,false,'orderState','account')"></style>
                                 清点：
                                 <div class="itemDetail" >应收总数量：<span id="totalNum" style="color: red"><%=orderList[0].totalNum%></span><%=orderList[0].itemUnit%></div>
@@ -337,20 +321,16 @@
                             <%if (isDBItem){%>
                             <button class="btn btn-block btn-submit button button--primary " type="button"  onclick="location.href='/adItem?itemId=<%=orderList[0].itemId%>&returnSql='+document.URL.split('sql=')[1]"  style="width: 200px;margin-top: 60px;background-color: #fe007b!important;height: 50px;">物料详情</button>
                             <%}%>
-
-                            <div style="width: 200px;" id="accountButtons"> <style onload="AntiInfoDisplay('申请中','已拒绝','已完成','已取消','orderState','accountButtons')"></style>
+                            <div style="width: 200px;" id="accountButtons">
+                                <style onload="AntiInfoDisplay('申请中','已拒绝','已完成','已取消','orderState','accountButtons')"></style>
                                     <button class="btn btn-block btn-submit button button--primary " type="button" id="directlyExit" onclick="location.href='/adOrderFix?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>'" style="background-color: red!important;height: 50px;width: 200px;">退回</button>
                                     <button class="btn btn-block btn-submit button button--primary " type="button" id="temEnter" onclick="location.href='/adItemTemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].itemSupplier%>'" style="background-color: orange!important;height: 50px;">临时进仓</button>
                                     <button class="btn btn-block btn-submit button button--primary " id="enter" type="button"  onclick="location.href='/adItemEnter?itemId=<%=orderList[0].itemId%>&orderId=<%=orderList[0].orderId%>&supplier=<%=orderList[0].itemSupplier%>'" style="display:none;background-color: mediumseagreen!important;height: 50px;margin-top: 0px;width: 200px">进仓</button>
-                                    <style onload="Authority('已下单','已到货','有退回',false,'orderState','enter','系统管理员','仓库管理员',false,false)"></style>
+                                <style onload="Authority('已下单','已到货','有退回',false,'orderState','enter','系统管理员','仓库管理员',false,false)"></style>
                             </div>
+                        </td>
+                    </tr>
 
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                        </td>
-                    </tr>
 
                     <tr>
                         <td>
@@ -385,7 +365,6 @@
 
                     <style onload="AntiInfoDisplay(false,'技术员','普通权限员',false,'role','directlyExit')"></style>
                     <style onload="AntiInfoDisplay(false,'技术员','普通权限员',false,'role','temEnter')"></style>
-
                 </table>
 
                 <div class="pageCard" style="border-top: 0.1rem solid #404142;">
@@ -421,11 +400,6 @@
         </main>
     </div>
 </section>
-
-<footer class="footer" role="contentinfo">
-    <div class="container">
-        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
-    </div>
-</footer>
+<%- include('zFooter') %>
 </body>
 </html>

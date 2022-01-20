@@ -52,14 +52,11 @@
 
 
         function Authority(role,ojId) {
-            if(document.getElementById('role').innerText===role){
+            var judgeRole='<%=user.role%>'
+            if(judgeRole===role){
                 document.getElementById(ojId).style.display='';
             }
-            if(document.getElementById('role').innerText==='系统管理员'){
-                document.getElementById('authority').style.display='';
-            }else{
-                document.getElementById('authority').style.display='none';
-            }
+
         }
 
     </script>
@@ -71,33 +68,15 @@
 
 <section class="functionBoard" style="width: 100%;height: 100%">
 
-    <div class="functionBoard left">
-        <div>
-            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
-            <u1>
-                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonLogin" onclick="location.href='/adminHome'">首页</button></li>
-                <li class="list-group"><button class="functionBoard-Button current" type="button" id="buttonRegister" onclick="location.href='/adItemMan'">物料管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/adOrderMan'">采购管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
-                <style onload="Authority()"></style>
-            </u1>
-            <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
-        </div>
+    <%- include('zMenu') %>
 
 
-
-
-
-    </div>
-
-
-    <div class="functionBoard right" style="width: 100%;height: 100%">
+    <div class="functionBoard right" style="width: 100%;height: 100%;">
         <main role="main" class="container mt-3 mb-3" style="width: 100%;height: 100%">
 
             <header role="banner">
                 <div class="headcontainer">
-                    <div class="page-title">
+                    <div id="pageTitle" class="page-title">
                         物料管理
                     </div>
                     <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
@@ -105,7 +84,7 @@
             </header>
 
             <form  onsubmit="return confirmAgain()" method="post" style="width: 100%;height: 100%">
-                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage" style="margin-bottom: 50px">
                     <tr>
                         <td >
                             <div style="width: 450px; margin-top: -15px;height: 450px">
@@ -119,6 +98,7 @@
                                 <div class="itemDetail" >库存总数：<span id="totalNum"><%=itemList.itemNum%></span><%=itemList.itemUnit%></div>
                                 <div class="itemDetail">临时进仓总数：<span style="color: orange"><%=itemList.itemTemNum%></span><%=itemList.itemUnit%></div>
                                 <div class="itemDetail">区域：<%=itemList.itemArea%></div>
+                                <div class="itemDetail" id="price" style="display: none">购入价：<%=orderPrice%></div>
                                 <div class="itemDetail">数量预警：<input class="itemDetailsInput" id="detail5" value="<%=itemList.itemAlarmSetting%>" disabled="true" style="width: 300px"></div>
                                 <div class="itemDetail">报警：
                                     <%for(let j=0;j<itemStateList.length;j++){%>
@@ -129,7 +109,6 @@
                                 <div class="itemDetail" >备注：<%=itemList.itemNote%></div>
                                 <style onload="NumAlarm()"></style>
                                 <%}%>
-                                <div class="itemDetail" id="price" style="display: none">购入价：<%=orderPrice%></div>
                                 <style onload="Authority('系统管理员','price')"></style>
                             </div>
                         </td>
@@ -205,15 +184,7 @@
 
 
 
-
-<footer class="footer" role="contentinfo">
-    <div class="container">
-        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
-    </div>
-</footer>
-
-
-</body>
+<%- include('zFooter') %>
 
 </body>
 </html>

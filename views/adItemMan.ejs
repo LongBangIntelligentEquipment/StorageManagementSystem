@@ -32,15 +32,12 @@
             }
         }
 
-        function Authority(role,ojId) {
-            if(document.getElementById('role').innerText===role){
+        function AuthorityDisplay(roleJudge,ojId) {
+            var role='<%=user.role%>'
+            if(role===roleJudge){
                 document.getElementById(ojId).style.display='';
             }
-            if(document.getElementById('role').innerText==='系统管理员'){
-                document.getElementById('authority').style.display='';
-            }else{
-                document.getElementById('authority').style.display='none';
-            }
+
         }
     </script>
 
@@ -50,25 +47,7 @@
 
 <section class="functionBoard">
 
-    <div class="functionBoard left">
-        <div>
-            <h1 class="functionBoard-Title "><img src='images/LBLogo.png' height="99px" width="220px"></h1>
-            <u1>
-                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonLogin" onclick="location.href='/adminHome'">首页</button></li>
-                <li class="list-group"><button class="functionBoard-Button current" type="button" id="buttonRegister" onclick="location.href='/adItemMan'">物料管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/adOrderMan'">采购管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
-                <li class="list-group"><button class="functionBoard-Button" type="button" onclick="location.href='/adUserMan'" style="" id="authority">权限管理</button></li>
-            </u1>
-            <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
-        </div>
-
-
-
-
-
-    </div>
-    </div>
+    <%- include('zMenu') %>
 
 
     <div class="functionBoard right">
@@ -76,7 +55,7 @@
 
             <header role="banner">
                 <div class="headcontainer">
-                    <div class="page-title">
+                    <div id="pageTitle" class="page-title">
                         物料管理
                     </div>
                     <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
@@ -96,9 +75,9 @@
                         <button class="searchInputBoxButton" name="indexOfButton" value=true type="submit">搜&emsp;索</button>
                         <button class="searchInputBoxButton" onclick="location.href='/adItemAdd'"  type="button" id="addNewButton" style="display: none;margin-left: 390px;background-color: #00cb46!important;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem; padding-left: 10px;padding-right: 10px">添加新型物料</button>
 
-                        <style onload="Authority('系统管理员','addNewButton')"></style>
-                        <style onload="Authority('仓库管理员','addNewButton')"></style>
-                        <style onload="Authority('技术员','addNewButton')"></style>
+                        <style onload="AuthorityDisplay('系统管理员','addNewButton')"></style>
+                        <style onload="AuthorityDisplay('仓库管理员','addNewButton')"></style>
+                        <style onload="AuthorityDisplay('技术员','addNewButton')"></style>
 
                         <div class="filterBox" id="typeOption1" style="display: none">
                             <button  class="filterButton filterOption" name="type" value="0" type="submit"> 全部</button>
@@ -186,14 +165,7 @@
 
 
 
-<footer class="footer" role="contentinfo">
-    <div class="container">
-        <span id="copyright">Copyright © 佛山琉智科技有限公司</span>
-    </div>
-</footer>
-
-
-</body>
+<%- include('zFooter') %>
 
 </body>
 </html>
