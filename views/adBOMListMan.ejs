@@ -43,7 +43,6 @@
             }
         }
 
-
         function showComponents(order,machineId) {
             var componentBox;
             var machineBtn='machineBtn'+order
@@ -145,31 +144,19 @@
 
         }
 
-
         function displaySearchResult() {
             var searchResult='<%=searchResult%>';
-
-
             if(searchResult===''){
-
             }else{
-
                 $('[name=machineBtn]').click()
                 setTimeout("$('[name=componentBtn]').click()" ,"50")
                 setTimeout(" sendMsg('BOMInfo')","500")
                 setTimeout(" sendMsg('componentInfo')","500")
                 setTimeout(" sendMsg('itemInfo')","600")
-
             }
-
-
         }
 
-
-
-
         function sendMsg(className) {
-
             for(var k=0;k<document.getElementsByClassName(className).length;k++){
                 var originalText = document.getElementsByClassName(className)[k].innerHTML;
 
@@ -180,8 +167,6 @@
                     text = originalText;
                 }
                 var inputValue = document.getElementById('searchText').value;
-
-
 
                 if(text.toLowerCase().indexOf(inputValue)!==-1){
                     if(text.indexOf(inputValue)===-1){
@@ -197,10 +182,7 @@
                     }
                 }
                 document.getElementsByClassName(className)[k].innerHTML = text;
-
             }
-
-
         }
     </script>
 </head>
@@ -220,15 +202,10 @@
                         <div id="pageTitle" class="page-title">
                             BOM表管理
                         </div>
-                        <span class="page-title"
-                              style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span
-                                id="role" class="page-title"
-                                style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%= user.role %></span><span
-                                class="page-title"
-                                style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%= user.userName %></span>
+                        <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%= user.role %></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%= user.userName %></span>
                     </div>
                 </header>
-                <form method="post" action="/machineCopy" onsubmit="$('#copyMachineId').removeAttr('disabled')">
+                <form method="post" enctype="multipart/form-data"  action="/machineCopy" onsubmit="$('#copyMachineId').removeAttr('disabled');">
                     <div id="copyInputBox" hidden style="position: absolute;width: 50%;height: 60%;margin-left: 15%;z-index: 999">
                         <div class="col-md" >
                             <div class="card" style="border-radius: 10px;overflow: hidden ">
@@ -238,9 +215,9 @@
                                 <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px ">
                                     <div class="itemDetailsPage" style="width: 100%;margin-left: 3%;margin-top: 5%">
                                         <div class="itemDetail">复制设备：<a id="showMachineName"></a>&emsp;<input class="itemDetailsInput" name="copyMachineModel" id="copyMachineId" value="" disabled></div>
-                                        <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="detail1" style="width: 80%" placeholder="请输入设备名称" required></div>
-                                        <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="detail2" style="width: 80%" placeholder="请输入设备型号" required></div>
-                                        <div class="itemDetail">设计师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="detail3" required="required" style="height: 35px;color:black;" >
+                                        <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="addMachineName" style="width: 80%" placeholder="请输入设备名称" required></div>
+                                        <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="addMachineModel" style="width: 80%" placeholder="请输入设备型号" required></div>
+                                        <div class="itemDetail">设计师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="itemDetailsInput" required="required" style="height: 35px;color:black;" >
                                                 <option id="designer" value="" selected>请选择设计师</option>
                                                 <% for(let i = 0; i < users.length; i++) { %>
                                                     <% if (users[i].role === '技术员' || users[i].role === '系统管理员') { %>
@@ -250,6 +227,9 @@
                                             </select>
                                         </div>
                                         <div class="itemDetail">备注：<input name="addMachineNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 80%"></div>
+                                        <div class="itemDetail" id="updateFile">重新上传图片：<input type="file"  name="machineFileName" value="">
+                                            <div style="color: red">请上传图片格式文件</div>
+                                        </div>
                                         <table cellspacing="0" cellpadding="0" style="width: 100%;margin-top: 20px">
                                             <tr style="width: 100%">
                                                 <td style="width: 100%;">

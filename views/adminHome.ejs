@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>隆邦ERP系统_首页</title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+    <!--    jQuery Ajax   -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 
 <script language="javascript">
@@ -17,30 +20,55 @@
         return result
     }
 
-    function StateColorChange(state,stateOj) {
 
-        if(state==='少剩余'||state==='已拒绝'||state==='已取消'    || state==='删除部件' || state==='删除设备'){
-            document.getElementById(stateOj).style.color='red';
-        }
-        else if(state==='有订单未处理'||state==='有退回'){
-            document.getElementById(stateOj).style.color='#fe007b';
-        }
-        else if(state==='存在未检测'||state==='申请中'){
-            document.getElementById(stateOj).style.color='orange';
-        }
-        else if(state==='需归还物料'){
-            document.getElementById(stateOj).style.color='#80d5d7';
-        }
-        else if(state==='无'||state==='已完成'){
-            document.getElementById(stateOj).style.color='gray';
-        }
-        else if(state==='已下单'||state==='已到货'    || state==='修改部件' || state==='修改设备'){
-            document.getElementById(stateOj).style.color='green';
-        } else if(state==='添加新物料'    || state==='添加新部件' || state==='添加新设备'){
-            document.getElementById(stateOj).style.color='#00cb46';
+    $(document).ready(function(){
+        // control variables
+        const limit = 20;
+        let start = 0; //The starting pointer of the data
+        let action = 'inactive'; //Check if current action is going on or not. If not then inactive otherwise active
+        function load_country_data(limit, start)
+        {
+            $.ajax({
+                url:'./AjaxFetchHomeNote',
+                method:"GET",
+                data:{
+                    'limit':limit,
+                    'start':start
+                },
+                success:function(data)
+                {
+                    $('#load_data').append(data);
+                    if(data === '')
+                    {
+                        $('#load_data_message').html("<button type='button' class='btn btn-info'>No Data Found</button>");
+                        action = 'active';
+                    }
+                    else
+                    {
+                        $('#load_data_message').html("<button type='button' class='btn btn-warning'>Please Wait....</button>");
+                        action = 'inactive';
+                    }
+                }
+            });
         }
 
-    }
+        if(action === 'inactive')
+        {
+            action = 'active';
+            load_country_data(limit, start);
+        }
+        $(window).scroll(function(){
+            if($(window).scrollTop() + $(window).height() > $("#load_data").height() && action === 'inactive')
+            {
+                action = 'active';
+                start = start + limit;
+                setTimeout(function(){
+                    load_country_data(limit, start);
+                }, 1000);
+            }
+        });
+    })
+
 
 
 </script>
@@ -69,30 +97,26 @@
                 </div>
 
 
-                <%for(let i = 0; i < noteList.length ;i++) { %>
-                    <div style="margin-left: -50px;font-size: 1rem;margin-top: 5px">
-                        <button class="noteButton" style="padding-left:150px; " onclick="JumpTo('<%=noteList[i].event%>','<%=noteList[i].id%>')">
-                            <div  style= "ize: 1rem; height: 40px;">
-                                <span style="font-size: 0.8rem;position: absolute"><%=noteList[i].date.getFullYear()%>-<%=noteList[i].date.getMonth()+1%>-<%=noteList[i].date.getDate()%> &emsp;<%=noteList[i].date.getHours()%>:<%=noteList[i].date.getMinutes()%>:<%=noteList[i].date.getSeconds()%></span>
-                                <span style="margin-left: 175px;position: absolute"><img src='images/RecentPoint.png' height="40px" width="35px"></span>
-                                <span id="event<%=i%>" style="margin-left: 250px;"><%=noteList[i].event%></span>
-                            </div>
-                            <div style="margin-left: 190px;height: 18px">
-                                <span style="line-height: 10px;"><img src='images/timeLine.png' height="100%" width="10px"></span>
-                            </div>
-                            <div style="height: 18.5px">
-                                <span style="margin-left: 190px"><img src='images/timeLine.png' height="100%" width="10px"></span>
-                                <span style="font-size: 0.8rem;margin-left: 45px;line-height: 10%;position: absolute">【<a style="color: blue"><%=noteList[i].itemName%></a>:&emsp;<%=noteList[i].id%>】:<a id="stateId<%=i%>" style="font-weight: bolder"><%=noteList[i].changedState%></a></span>
-                            </div>
-                            <div style="height: 19px">
-                                <span style="margin-left: 190px;"><img src='images/timeLine.png' height="100%" width="10px"></span>
-                            </div>
 
-                        </button>
-                    </div>
-                <style onload="StateColorChange('<%=noteList[i].changedState%>','stateId<%=i%>')"></style>
-                <% } %>
+
+
+                <div id="load_data"></div>
+
+
+
                 <a style="margin-left: 285.5px"><img src='images/timeLineEnd.png' height="20px" width="20px"></a>
+
+
+
+
+
+
+
+                <div id="load_data_message"></div>
+
+
+
+
             </div>
         </main>
     </div>

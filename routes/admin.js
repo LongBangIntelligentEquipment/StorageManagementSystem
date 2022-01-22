@@ -171,18 +171,111 @@ function addNote(event,itemName,id,changedState){
 
 /* GET home page. */
 router.get('/adminHome', function(req, res, next) {
+    // var  saveDate= new Date();
+    // var year= saveDate.getFullYear();
+    // var month=saveDate.getMonth()+1;
+    // var day2=saveDate.getDate()-2;
+    // var dateOutput= year+'-'+month+'-'+day2;
+    //
+    // var sql='SELECT * FROM homenote WHERE date > '+'"'+dateOutput+'"'+' ORDER BY date DESC';
+    //
+    // connection.query( sql,function (err, result) {
+    //     if (err) {
+    //         console.log('[SELECT ERROR] - ', err.message);
+    //     }
+        //console.log(result)
+        res.render('adminHome', {
+            // noteList: result,
+            user:req.session.user
+        });
+    // })
+});
 
-    var sql='SELECT * FROM homenote ORDER BY date DESC';
-    connection.query( sql,function (err, result) {
+
+router.get('/AjaxFetchHomeNote', function(req, res) {
+    const limit = req.query.limit;
+    const start = req.query.start;
+
+    let sql='SELECT * FROM homenote ORDER BY date DESC LIMIT ' + start + ',' + limit;
+
+    console.log('sql: ' + sql);
+
+    var sColor;
+    function StateColorChange(state) {
+
+        if(state==='少剩余'||state==='已拒绝'||state.includes('取消')    || state.substring(0,2) ==='删除'){
+            sColor='red';
+        }
+        else if(state==='有订单未处理'||state==='有退回'){
+            sColor='#fe007b';
+        }
+        else if(state==='存在未检测'||state==='申请中'){
+            sColor='orange';
+        }
+        else if(state==='需归还物料'){
+            sColor='#80d5d7';
+        }
+        else if(state==='无'||state==='已完成'){
+            sColor='gray';
+        }
+        else if(state==='已下单'||state==='已到货'    || state.substring(0,2) === '修改'){
+            sColor='green';
+        } else if(state.substring(0,2) === '添加'){
+            sColor='#00cb46';
+        }
+
+        return sColor;
+    }
+
+    connection.query( sql,function (err, noteList) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
         }
-        //console.log(result)
-        res.render('adminHome', {
-            noteList: result,
-            user:req.session.user
-        });
+
+        var HTMLText='';
+        for(let i = 0; i < noteList.length ;i++){
+
+            let noteListDate = '';
+            noteListDate += noteList[i].date.getFullYear();
+            noteListDate += "-";
+            noteListDate += noteList[i].date.getMonth()+1
+            noteListDate += "-";
+            noteListDate += noteList[i].date.getDate();
+            noteListDate += " ";
+            noteListDate += noteList[i].date.getHours();
+            noteListDate += ":";
+            noteListDate += noteList[i].date.getMinutes();
+            noteListDate += ":";
+            noteListDate += noteList[i].date.getSeconds();
+
+            let state = noteList[i].changedState;
+            let sColor = StateColorChange(state)
+
+            HTMLText += '                    <div style="margin-left: -50px;font-size: 1rem;margin-top: 5px">\n' +
+                '                        <button class="noteButton" style="padding-left:150px; " onclick="JumpTo(' + noteList[i].event + "," + noteList[i].id + ')">\n' +
+                '                            <div  style= "size: 1rem; height: 40px;">\n' +
+                '                                <span style="font-size: 0.8rem;position: absolute">' + noteListDate + '</span>\n' +
+                '                                <span style="margin-left: 175px;position: absolute"><img src=\'images/RecentPoint.png\' height="40px" width="35px"></span>\n' +
+                '                                <span id="event' + i + '" style="margin-left: 250px;">' + noteList[i].event + '</span>\n' +
+                '                            </div>\n' +
+                '                            <div style="margin-left: 190px;height: 18px">\n' +
+                '                                <span style="line-height: 10px;"><img src=\'images/timeLine.png\' height="100%" width="10px"></span>\n' +
+                '                            </div>\n' +
+                '                            <div style="height: 18.5px">\n' +
+                '                                <span style="margin-left: 190px"><img src=\'images/timeLine.png\' height="100%" width="10px"></span>\n' +
+                '                                <span style="font-size: 0.8rem;margin-left: 45px;line-height: 10%;position: absolute">【<a style="color: blue">' + noteList[i].itemName + '</a>:&emsp;' + noteList[i].id + '】' +
+                '                                                                                                                       :<a style="font-weight: bolder; color:'+sColor+'">' + state + '</a></span>\n' +
+                '                            </div>\n' +
+                '                            <div style="height: 19px">\n' +
+                '                                <span style="margin-left: 190px;"><img src=\'images/timeLine.png\' height="100%" width="10px"></span>\n' +
+                '                            </div>\n' +
+                '                        </button>\n' +
+                '                    </div>'
+        }
+
+        res.send(HTMLText);
     })
+
 });
 
 router.get('/', function(req, res, next) {
@@ -2629,10 +2722,10 @@ router.get('/ajaxComponents', function(req, res) {
             res.send(err);
             return;
         }
-        var HTMLtext='';
+        var HTMLText='';
         for(var j=0;j<component.length;j++){
             if (!component[j].cNote){component[j].cNote=''}
-            HTMLtext += '<table class="noteButton2" cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n'+
+            HTMLText += '<table class="noteButton2" cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n'+
                 '                        <tr class="noteButton2" style="width: 87%;" id="'+machineId+'component'+j+'" >\n' +
                 '                            <td style="width: 80%;">\n' +
                 '                                <button class="noteButton2" name="componentBtn" id="'+machineId+component[j].componentId+'" value=0 style="padding-left: 80px;" type="button" onclick="showItems('+j+','+'\''+machineId+'\''+','+'\''+component[j].componentId+'\''+')">\n' +
@@ -2672,7 +2765,7 @@ router.get('/ajaxComponents', function(req, res) {
         }
         res.json({
             component:component,
-            HTMLtext:HTMLtext
+            HTMLText:HTMLText
         });
 
     });
@@ -2702,9 +2795,9 @@ router.get('/ajaxItems', function(req, res) {
             res.send(err);
             return;
         }
-        var HTMLtext='';
+        var HTMLText='';
         for(var j=0;j<item.length;j++){
-            HTMLtext +=  '<table cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n'+
+            HTMLText +=  '<table cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n'+
                 '                        <tr class="noteButton3" id="'+machineId+componentId+'item'+j+'" style="width: 100%;" >\n' +
                 '                            <td style="width: 87%; ">\n' +
                 '                                <button class="noteButton3"  style="padding-left: 80px;" type="button" onclick="location.href=\'/adItem?itemId='+item[j].itemId+'&returnSql=\'+document.URL.split(\'sql=\')[1]">\n' +
@@ -2742,7 +2835,7 @@ router.get('/ajaxItems', function(req, res) {
 
         res.json({
             item:item,
-            HTMLtext:HTMLtext
+            HTMLText:HTMLText
         });
     });
 });
@@ -2785,7 +2878,7 @@ router.post('/adBOMListMachineAdd', upload.single('machineFileName'), function (
     if (req.file){
         fileName=req.file.filename;
     } else {
-        fileName = 'null';
+        fileName = 'no-image-available.jpg';
     }
     // let addMachineDesigner = req.session.user.userName;
     addMachineModel = pinyin(addMachineModel, {style: pinyin.STYLE_FIRST_LETTER}).toString();
@@ -2836,22 +2929,22 @@ router.post('/adBOMListMachineAdd', upload.single('machineFileName'), function (
 router.get('/adBOMListMachineDelete', function(req, res) {
     let url=URL.parse(req.url,true).query;
     let machineId = url.machineId;
-    let delComponentSql = 'DELETE FROM component WHERE machineId = '+'\''+machineId+'\'';
+    let checkMachineSql = 'SELECT machineName FROM machine WHERE machineId = '+'\''+machineId+'\'';
     let delMachineSql = 'DELETE FROM machine WHERE machineId = '+'\''+machineId+'\'';
-    connection.query(delComponentSql,function (err) {
+    connection.query(checkMachineSql,function (err, machineName) {
         if(err){
-            console.log('[DELETE ERROR] - ',err.message);
-            res.send('删除部件错误！' + err);
+            console.log('[SELECT ERROR] - ',err.message);
+            res.send('adBOMListMachineDelete: 查看设备错误！' + err);
             return;
         }
         connection.query(delMachineSql,function (err) {
             if(err){
                 console.log('[DELETE ERROR] - ',err.message);
-                res.send('删除设备错误！' + err);
+                res.send('adBOMListMachineDelete: 删除设备错误！' + err);
                 return;
             }
             // --添加事件更新到首页--
-            addNote('设备事件更新', machineId, machineId, '删除设备');
+            addNote('设备事件更新', machineName[0].machineName, machineId, '删除设备');
             res.redirect('/adBOMListMan')
         });
     });
@@ -2876,25 +2969,46 @@ router.post('/adBOMListMachineEdit', upload.single('machineFileName'), function(
     MachineModel=pinyin(MachineModel,{style:pinyin.STYLE_FIRST_LETTER}).toString();
     MachineModel=MachineModel.replace(new RegExp(",",'g'),"").toUpperCase();
 
-    var fileName;
-    if (req.file){
-        fileName=req.file.filename;
-    } else {
-        fileName = 'null';
-    }
+    var machineFileName, modSql, modSqlParams, url, machineId, machineSql;
+    url = URL.parse(req.url,true).query;
+    machineId = url.machineId;
 
-    let url=URL.parse(req.url,true).query;
-    let modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ?, machineFileName = ? WHERE machineId = '+'\''+url.machineId+'\'';
-    let modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote, fileName];
-    connection.query(modSql,modSqlParams,function (err) {
-        if(err){
-            console.log('[UPDATE ERROR] - ',err.message);
-            res.send(err);
+    machineSql = 'SELECT * FROM machine;';
+    connection.query(machineSql, function (err, machine) {
+        if (err) {
+            console.log('adBOMListMachineEdit: [INSERT ERROR] 查找设备错误 - ', err.message);
             return;
         }
-        // --添加事件更新到首页--
-        addNote('设备事件更新', MachineName, MachineModel, '修改设备');
-        res.redirect('/adBOMListMachineMan?machineId=' + MachineModel);
+
+        for (let i = 0; i < machine.length; i++) {
+            if (machine[i].machineName === MachineName) {
+                res.send('已存在设备 ' + MachineName + '， 请重新输入设备名称！');
+                return;
+            } else if (machine[i].machineId.toUpperCase() === MachineModel.toUpperCase()) {
+                res.send('已存在设备 ' + MachineModel + '， 请重新输入设备型号！');
+                return;
+            }
+        }
+
+        if (req.file){
+            machineFileName = req.file.filename;
+            modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ?, machineFileName = ? WHERE machineId = '+'\''+machineId+'\'';
+            modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote, machineFileName];
+        } else {
+            modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ? WHERE machineId = '+'\''+machineId+'\'';
+            modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote];
+        }
+
+        connection.query(modSql,modSqlParams,function (err) {
+            if(err){
+                console.log('[UPDATE ERROR] - ',err.message);
+                res.send(err);
+                return;
+            }
+            // --添加事件更新到首页--
+            addNote('设备事件更新', MachineName, MachineModel, '修改设备');
+            res.redirect('/adBOMListMachineMan?machineId=' + MachineModel);
+        });
     });
 });
 
@@ -3028,7 +3142,7 @@ router.post('/adBOMListComponentAdd', upload.single('BomListFileName'), function
     if (req.file){
         fileName=req.file.filename;
     } else {
-        fileName = 'null';
+        fileName = 'no-image-available.jpg';
     }
 
     let categorySql = 'SELECT * FROM category WHERE categoryName = ' + '"' + addComponentType + '"';
@@ -3102,7 +3216,7 @@ router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
     sec = saveDate.getSeconds();
     updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
 
-    var BomListName, BomListModel, BomListNote, BomListType, userId, fileName;
+    var BomListName, BomListModel, BomListNote, BomListType, userId, componentFileName, modSql, modSqlParams;
     BomListName = req.body.BomListName;
     BomListModel = req.body.BomListModel;
     // let addComponentState = req.body.addComponentState;
@@ -3111,13 +3225,14 @@ router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
     userId = req.session.user.userId;
 
     if (req.file){
-        fileName=req.file.filename;
+        componentFileName = req.file.filename;
+        modSql = 'UPDATE component SET componentModel = ?,  componentName = ?, updateTime = ?, userId = ?, note = ?, categoryId = ?, componentFileName = ? WHERE componentId = '+'\''+componentId+'\'';
+        modSqlParams = [BomListModel, BomListName, updateTime, userId, BomListNote, BomListType, componentFileName];
     } else {
-        fileName = 'null';
+        modSql = 'UPDATE component SET componentModel = ?,  componentName = ?, updateTime = ?, userId = ?, note = ?, categoryId = ? WHERE componentId = '+'\''+componentId+'\'';
+        modSqlParams = [BomListModel, BomListName, updateTime, userId, BomListNote, BomListType];
     }
 
-    let modSql = 'UPDATE component SET componentModel = ?,  componentName = ?, updateTime = ?, userId = ?, note = ?, categoryId = ?, componentFileName = ? WHERE componentId = '+'\''+componentId+'\'';
-    let modSqlParams = [BomListModel, BomListName, updateTime, userId, BomListNote, BomListType, fileName];
     connection.query(modSql,modSqlParams,function (err) {
         if(err){
             console.log('[UPDATE ERROR] - ',err.message);
@@ -3125,7 +3240,7 @@ router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
             return;
         }
         // --添加事件更新到首页--
-        // addNote('BOM表事件更新', BomListName, BomListModel, '修改BOM表');
+        addNote('部件事件更新', BomListName, BomListModel, '修改部件');
         res.redirect('/adBOMList?componentId=' + componentId);
     });
 
@@ -3244,9 +3359,9 @@ router.get('/ajaxSearchItem', function(req, res) {
             res.send('搜索物料错误！' + err);
             return;
         }
-        var HTMLtext='';
+        var HTMLText='';
         for(var j=0;j<item.length;j++){
-            HTMLtext += '<div id="itemSelectBox'+j+'">\n' +
+            HTMLText += '<div id="itemSelectBox'+j+'">\n' +
                 '    <table id="'+'Content'+j+searchTimes+'" class="noteButton" value="'+item[j].itemId+'"  style="width: 100%;height: 90px!important;">\n' +
                 '        <tr  style="width: 100%">\n' +
                 '            <td style="width: 87%">\n' +
@@ -3300,7 +3415,7 @@ router.get('/ajaxSearchItem', function(req, res) {
         }
         res.json({
             item:item,
-            HTMLtext:HTMLtext
+            HTMLText:HTMLText
         });
 
     });
@@ -3583,7 +3698,7 @@ router.get('/adBOMListCategoryMan', function(req, res) {
 /*                            ***************************************************复制***************************************************                  */
 //   ---复制部件---
 /* POST componentCopy */
-router.post('/componentCopy', function(req, res) {
+router.post('/componentCopy', upload.single('BomListFileName'), function(req, res) {
     let url=URL.parse(req.url,true).query;
     let componentId = url.componentId;
     var userId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, machineIds, i;
@@ -3592,8 +3707,16 @@ router.post('/componentCopy', function(req, res) {
     componentModel = req.body.addComponentModel;
     componentType = req.body.BomListType;
     componentNote = req.body.addComponentNote;
-    componentFileName = req.body.BomListFileName;
     machineIds = req.body.belongMachine;
+
+    if (req.file){
+        componentFileName = req.file.filename;
+    } else {
+        componentFileName = 'no-image-available.jpg';
+    }
+
+    // --添加事件更新到首页--
+    addNote('部件事件更新', componentName, componentModel, '添加复制部件');
 
     if (Array.isArray(machineIds)){
         for (i=0; i<machineIds.length;i++) {
@@ -3603,7 +3726,6 @@ router.post('/componentCopy', function(req, res) {
     } else {
         copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineIds, userId, 0);
     }
-
 
     let flashUrl = '/adBOMListMan';
     res.redirect('flash?url='+flashUrl);
@@ -3620,7 +3742,7 @@ function copyComponent(componentId, componentName, componentModel, componentType
     sec = saveDate.getSeconds();
     updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
 
-    let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, itemOrderBy, cost\n' +
+    let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, itemOrderBy, cost, componentFileName\n' +
         'FROM component\n' +
         'INNER JOIN component_has_item\n' +
         'ON component_has_item.component_componentId = component.componentId\n' +
@@ -3631,12 +3753,16 @@ function copyComponent(componentId, componentName, componentModel, componentType
             return;
         }
         var newComponentCost = componentItems[0].cost;
-        if (!componentFileName){componentFileName = 'null'}
-        let insertSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,fileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
+
+        if (componentFileName === 'no-image-available.jpg'){
+            componentFileName = componentItems[0].componentFileName
+        }
+
+        let insertSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,componentFileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
         let insertParam = [componentModel,componentName,updateTime,'正常',componentNote,userId,componentType,newComponentCost,componentFileName, machineId]
         connection.query( insertSql, insertParam,function (err) {
             if (err) {
-                console.log('[INSERT ERROR] 增加复制部件错误！ - ', err.message);
+                console.log('[INSERT ERROR] 添加复制部件错误！ - ', err.message);
                 return;
             }
             updateMachineCost(machineId);
@@ -3670,8 +3796,8 @@ function copyComponent(componentId, componentName, componentModel, componentType
 
 //   ---复制机械---
 /* POST machineCopy */
-router.post('/machineCopy', function(req, res) {
-    var userId, copyMachineId, machineName, machineModel, machineDesigner, machineNote;
+router.post('/machineCopy', upload.single('machineFileName'), function(req, res) {
+    var userId, copyMachineId, machineName, machineModel, machineDesigner, machineNote, machineFileName, machineSql;
     copyMachineId = req.body.copyMachineModel;
     // userId = req.session.user.userId;
     machineName = req.body.addMachineName;
@@ -3679,13 +3805,37 @@ router.post('/machineCopy', function(req, res) {
     machineDesigner = req.body.addMachineDesigner;
     machineNote = req.body.addMachineNote;
 
-    copyMachine(copyMachineId, machineName, machineModel, machineDesigner, machineNote);
+    if (req.file){
+        machineFileName=req.file.filename;
+    } else {
+        machineFileName = 'no-image-available.jpg';
+    }
 
-    let flashUrl = '/adBOMListMan';
-    res.redirect('flash?url='+flashUrl);
+    machineSql = 'SELECT * FROM machine;';
+    connection.query(machineSql, function (err, machine) {
+        if (err) {
+            console.log('[INSERT ERROR] 添加复制设备错误 - ', err.message);
+            return;
+        }
+
+        for (let i = 0; i < machine.length; i++) {
+            if (machine[i].machineName === machineName) {
+                res.send('已存在设备 ' + machineName + '， 请重新输入设备名称！');
+                return;
+            } else if (machine[i].machineId.toUpperCase() === machineModel.toUpperCase()) {
+                res.send('已存在设备 ' + machineModel + '， 请重新输入设备型号！');
+                return;
+            }
+        }
+
+        copyMachine(copyMachineId, machineName, machineModel, machineDesigner, machineNote, machineFileName);
+
+        let flashUrl = '/adBOMListMan';
+        res.redirect('flash?url='+flashUrl);
+    });
 });
 
-function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, machineNote){
+function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, machineNote, machineFileName){
     var saveDate, year, month, day, hour, min, sec, updateTime;
     saveDate = new Date();
     year = saveDate.getFullYear();
@@ -3709,8 +3859,13 @@ function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, 
             console.log('[SELECT ERROR] - ', err.message);
             return;
         }
-        let newMachineSql = 'INSERT INTO machine (machineId,machineName,updateTime,designer,note) VALUES(?,?,?,?,?)';
-        let newMachineParams = [machineModel, machineName, updateTime, machineDesigner, machineNote];
+
+        if (machineFileName === 'no-image-available.jpg'){
+            machineFileName = machineComponents[0].machineFileName;
+        }
+
+        let newMachineSql = 'INSERT INTO machine (machineId,machineName,updateTime,designer,note, machineFileName) VALUES(?,?,?,?,?,?)';
+        let newMachineParams = [machineModel, machineName, updateTime, machineDesigner, machineNote, machineFileName];
         connection.query(newMachineSql, newMachineParams, function (err) {
             if (err) {
                 console.log('[INSERT ERROR] 添加复制设备错误 - ', err.message);
@@ -3726,7 +3881,7 @@ function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, 
                 componentModel = machineComponents[i].componentModel;
                 componentType = machineComponents[i].categoryId;
                 componentNote = machineComponents[i].componentNote;
-                componentFileName = machineComponents[i].fileName;
+                componentFileName = machineComponents[i].componentFileName;
                 userId = machineComponents[i].userId;
                 copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineModel, userId, i);
             }

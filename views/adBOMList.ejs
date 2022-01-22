@@ -15,19 +15,19 @@
             }
         }
         function comfirmAgain() {
-                var checkOne=false;
-                var checkBox=$('input[name = belongMachine]')
-                for(var i=0;i<checkBox.length;i++){
-                    if(checkBox[i].checked){
-                        checkOne=true;
-                    }
+            var checkOne=false;
+            var checkBox=$('input[name = belongMachine]')
+            for(var i=0;i<checkBox.length;i++){
+                if(checkBox[i].checked){
+                    checkOne=true;
                 }
-                if(checkOne){
-                    return true
-                }else{
-                    alert('请至少选择一款【所属机型】')
-                    return false
-                }
+            }
+            if(checkOne){
+                return true
+            }else{
+                alert('请至少选择一款【所属机型】')
+                return false
+            }
         }
         function btnEdi(length,actId){
             for(var i=0;i<length;i++){
@@ -579,7 +579,7 @@
                 </div>
             </header>
 
-            <form method="post" >
+            <form method="post" enctype="multipart/form-data">
                 <table cellpadding="0"cellspacing="0"  class="itemDetailsPage" >
                     <tr>
                         <td >
@@ -615,7 +615,7 @@
                         </td>
                         <td>
                             <div style="margin-left: -35px;margin-top: 0px">
-                                <button style="background-color: transparent!important;width: 320px;height: 320px;border: none" type="button" onclick="window.open('uploads/')"  ><img src="uploads/" height="320px" width="320px"></button>
+                                <button style="background-color: transparent!important;width: 320px;height: 320px;border: none" type="button" onclick="window.open('uploads/<%=component[0].componentFileName%>')"  ><img src="uploads/<%=component[0].componentFileName%>" height="320px" width="320px"></button>
                             </div>
                         </td>
                     </tr>
@@ -638,7 +638,7 @@
                     </tr>
                 </table>
             </form>
-            <form method="post" onsubmit="return comfirmAgain()" action="/componentCopy?componentId=<%=component[0].componentId%>">
+            <form method="post" enctype="multipart/form-data" onsubmit="return comfirmAgain()" action="/componentCopy?componentId=<%=component[0].componentId%>">
                 <div id="copyInputBox" hidden style="position: absolute;margin-top: -400px;width: 50%;height: 60%;margin-left: 15%;z-index: 999">
                     <div class="col-md" >
                         <div class="card" style="border-radius: 10px;overflow: hidden ">

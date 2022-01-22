@@ -9,11 +9,17 @@
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script language="javascript">
 
+        // BUG x2
         function confirmAgainDelete() {
             if (window.confirm("确认执行【删除设备 <%=machine[0].machineId%>-<%=machine[0].machineName%>】操作?")){
                 return location.href=('/adBOMListMachineDelete?machineId=<%=machine[0].machineId%>')
             }
         }
+
+        function confirmAgainEdit() {
+            return window.confirm("确认执行【修改设备 <%=machine[0].machineId%>-<%=machine[0].machineName%>】操作?");
+        }
+
 
 
 
