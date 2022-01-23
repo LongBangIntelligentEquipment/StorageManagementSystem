@@ -227,6 +227,22 @@ router.get('/AjaxFetchHomeNote', function(req, res) {
         return sColor;
     }
 
+    function getURL(event, id, state) {
+        var url;
+        if (event === '物料事件更新') {
+            url = "'/adItem?itemId=" + id + "&returnSql=undefined'";
+        } else if (event === '采购事件更新') {
+            url = "'/adOrder?orderId=" + id + "'";
+        } else if (event === '设备事件更新' && state.toString().substring(0,2) !== '删除') {
+            url = "'/adBOMListMachineMan?machineId=" + id + "'";
+        } else if (event === '部件事件更新' && state.toString().substring(0,2) !== '删除') {
+            url = "'/adBOMList?componentId=" + id + "'";
+        } else {
+            url = "'adminHome'";
+        }
+        return url
+    }
+
     connection.query( sql,function (err, noteList) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
@@ -251,8 +267,12 @@ router.get('/AjaxFetchHomeNote', function(req, res) {
             let state = noteList[i].changedState;
             let sColor = StateColorChange(state)
 
+            let id = noteList[i].id;
+            let event =  noteList[i].event;
+            let jumpURL = getURL(event, id, state);
+
             HTMLText += '                    <div style="margin-left: -50px;font-size: 1rem;margin-top: 5px">\n' +
-                '                        <button class="noteButton" style="padding-left:150px; " onclick="JumpTo(' + noteList[i].event + "," + noteList[i].id + ')">\n' +
+                '                        <button class="noteButton" style="padding-left:150px; " onclick="location.href='+jumpURL+'">\n' +
                 '                            <div  style= "size: 1rem; height: 40px;">\n' +
                 '                                <span style="font-size: 0.8rem;position: absolute">' + noteListDate + '</span>\n' +
                 '                                <span style="margin-left: 175px;position: absolute"><img src=\'images/RecentPoint.png\' height="40px" width="35px"></span>\n' +
@@ -272,6 +292,8 @@ router.get('/AjaxFetchHomeNote', function(req, res) {
                 '                        </button>\n' +
                 '                    </div>'
         }
+
+        console.log(HTMLText);
 
         res.send(HTMLText);
     })
