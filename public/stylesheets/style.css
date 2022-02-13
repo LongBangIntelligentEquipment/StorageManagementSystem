@@ -30,7 +30,7 @@ body {
   line-height: 1.6rem;
   font-weight: 300;
   color: #404143;
-  min-height: 100%;
+  min-height: 130%;
   min-width: 100%;
 
 }
@@ -757,6 +757,7 @@ footer {
   font-weight: bold;
   background-color: transparent!important;
   border: 0;
+  width:300px;
 }
 
 .addItemInfo{
