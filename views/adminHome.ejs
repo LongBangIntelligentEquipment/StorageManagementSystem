@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>隆邦ERP系统_首页</title>
-    <link rel='stylesheet' href='/stylesheets/style.css'/>
-
+    <link rel='stylesheet' href='/stylesheets/style.css'>
     <!--    jQuery Ajax   -->
-    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="/javaScript/jquery-3.6.0.min.js"></script>
 </head>
 
 <script language="javascript">
@@ -39,12 +38,13 @@
                     $('#load_data').append(data);
                     if(data === '')
                     {
-                        $('#load_data_message').html("<button type='button' class='btn btn-info'>No Data Found</button>");
+                        $('#load_data_message').html("<a type='button' class='btn btn-info'>已加载完毕</a>");
+                        setTimeout('$(\'#load_data_message\').html("<a type=\'button\' class=\'btn btn-info\'></a>")',1500)
                         action = 'active';
                     }
                     else
                     {
-                        $('#load_data_message').html("<button type='button' class='btn btn-warning'>Please Wait....</button>");
+                        $('#load_data_message').html("<a type='button' class='btn btn-warning'>请等待....</button>");
                         action = 'inactive';
                     }
                 }
@@ -111,7 +111,7 @@
 
 
 
-                <div id="load_data_message"></div>
+                <div id="load_data_message" style="margin-top: 3%;float: right;margin-right: 7%"></div>
 
 
 
