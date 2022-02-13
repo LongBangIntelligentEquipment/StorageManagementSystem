@@ -2521,24 +2521,25 @@ router.get('/adItemOrderOne', function(req, res) {
     });
 });
 
-router.post('/adItemOrderOne', function(req, res) {
-    var  saveDate= new Date();
-    var year= saveDate.getFullYear();
-    var month=saveDate.getMonth()+1;
-    var day=saveDate.getDate();
-    var hour=saveDate.getHours();
-    var min=saveDate.getMinutes();
-    var sec=saveDate.getSeconds();
-    var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
-    var checkSql='SELECT orderId FROM orderlist WHERE orderId LIKE '+'"%'+year.toString()+month.toString() +day.toString()+'%"' + ' OR orderId LIKE '+'"%'+ 'ONE'+year.toString()+month.toString() +day.toString()+'%"';
+router.post('/adItemOrderOne', function (req, res) {
+    var saveDate = new Date();
+    var year = saveDate.getFullYear();
+    var month = saveDate.getMonth() + 1;
+    var day = saveDate.getDate();
+    var hour = saveDate.getHours();
+    var min = saveDate.getMinutes();
+    var sec = saveDate.getSeconds();
+    var dateOutput = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    var checkSql = 'SELECT orderId FROM orderlist WHERE orderId LIKE ' + '"%' + year.toString() + month.toString() + day.toString() + '%"' + ' OR orderId LIKE ' + '"%' + 'ONE' + year.toString() + month.toString() + day.toString() + '%"';
 
-    var state, applyDate, orderDate, commingDate, applyNote, replyNote, applier, itemId, itemModel, itemName, itemSupplier, totalNum, itemPrice, itemUnit;
+    var state, applyDate, orderDate, commingDate, applyNote, replyNote, applier, itemSize, itemModel, itemName,
+        itemSupplier, totalNum, itemPrice, itemUnit;
 
     applyDate = dateOutput;
     commingDate = req.body.commingDate;
     applyNote = req.body.applyNote;
     applier = req.body.applier;
-    itemId = req.body.itemId;
+    itemSize = req.body.itemSize;
     itemModel = req.body.itemModel;
     itemName = req.body.itemName;
     itemSupplier = req.body.itemSupplier;
@@ -2550,61 +2551,74 @@ router.post('/adItemOrderOne', function(req, res) {
     orderDate = dateOutput;
     replyNote = '';
 
-    if(itemModel===undefined){
-        itemModel=itemId;
+
+    var fistzmName = pinyin(itemName, {style: pinyin.STYLE_FIRST_LETTER}).toString();
+    var itemNameFinal = fistzmName.replace(new RegExp(",", 'g'), "").toUpperCase();
+
+    var fistzmSize = pinyin(itemSize, {style: pinyin.STYLE_FIRST_LETTER}).toString();
+    var fistzmSizeFinal = fistzmSize.replace(new RegExp(",", 'g'), "").toUpperCase();
+
+    var itemIdFinal = itemNameFinal + fistzmSizeFinal + '-ONCE';
+
+    if (itemModel === "") {
+        itemModel = itemIdFinal;
+    }
+    if (itemPrice === "") {
+        itemPrice = 0;
     }
 
-    connection.query( checkSql,function (err, result1) {
+    connection.query(checkSql, function (err, result1) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
+            return;
         }
         var addId;
-        if(result1.length===0){
-            addId=1;
-        }else {
-            addId=result1.length+1;
+        if (result1.length === 0) {
+            addId = 1;
+        } else {
+            addId = result1.length + 1;
         }
         var prefixId;
         var orderId;
-        if(addId<10){
-            prefixId='00';
-            orderId='ONE'+year.toString()+month.toString() +day.toString()+prefixId+addId;
-        }else if(addId<100&&addId>=10){
-            prefixId='0';
-            orderId='ONE'+year.toString()+month.toString() +day.toString()+prefixId+addId;
-        }else{
-            orderId='ONE'+year.toString()+month.toString() +day.toString()+addId;
+        if (addId < 10) {
+            prefixId = '00';
+            orderId = 'ONE' + year.toString() + month.toString() + day.toString() + prefixId + addId;
+        } else if (addId < 100 && addId >= 10) {
+            prefixId = '0';
+            orderId = 'ONE' + year.toString() + month.toString() + day.toString() + prefixId + addId;
+        } else {
+            orderId = 'ONE' + year.toString() + month.toString() + day.toString() + addId;
         }
 
-        var  addOrderSql = 'INSERT INTO orderlist(orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,getNum,pendingNum,returnNum,price) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-        var  addOrderSqlParams = [orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,0,0,0,itemPrice];
+        var addOrderSql = 'INSERT INTO orderlist(orderId,state,applyDate,orderDate,commingDate,itemId,applyNote,replyNote,applier,totalNum,getNum,pendingNum,returnNum,price) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+        var addOrderSqlParams = [orderId, state, applyDate, orderDate, commingDate, itemIdFinal, applyNote, replyNote, applier, totalNum, 0, 0, 0, itemPrice];
 
-        connection.query(addOrderSql,addOrderSqlParams,function (err) {
-            if(err){
-                console.log('[INSERT ERROR] - ',err.message);
+        connection.query(addOrderSql, addOrderSqlParams, function (err) {
+            if (err) {
+                console.log('[INSERT ERROR] - ', err.message);
             }
             let addItemSql = 'INSERT INTO item_one(itemId, itemModel, itemName, itemSupplier, itemUnit, orderId) VALUES (?,?,?,?,?,?)';
-            let addItemSqlParams = [itemId, itemModel, itemName, itemSupplier, itemUnit, orderId];
-            connection.query(addItemSql,addItemSqlParams,function (err) {
-                if(err){
-                    console.log('[INSERT ERROR] - ',err.message);
+            let addItemSqlParams = [itemIdFinal, itemModel, itemName, itemSupplier, itemUnit, orderId];
+            connection.query(addItemSql, addItemSqlParams, function (err) {
+                if (err) {
+                    console.log('[INSERT ERROR] - ', err.message);
                     return;
                 }
 
-                var  addSql1 = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
-                var  addSqlParams1 = [dateOutput, '采购事件更新','申请中',totalNum,itemId,orderId ];
-                connection.query(addSql1,addSqlParams1,function (err) {
-                    if(err){
-                        console.log('[INSERT ERROR] - ',err.message);
+                var addSql1 = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
+                var addSqlParams1 = [dateOutput, '采购事件更新', '申请中', totalNum, itemIdFinal, orderId];
+                connection.query(addSql1, addSqlParams1, function (err) {
+                    if (err) {
+                        console.log('[INSERT ERROR] - ', err.message);
                     }
                 });
 
-                addNote('采购事件更新',itemName,orderId,'申请中');
+                addNote('采购事件更新', itemName, orderId, '申请中');
             });
         });
     });
 
-    var flashUrl='/adOrderMan';
+    var flashUrl = '/adOrderMan';
     res.redirect('flash?url=' + flashUrl);
 });
 
