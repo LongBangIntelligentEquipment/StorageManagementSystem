@@ -370,7 +370,7 @@
                 dataType: 'json',
                 success: function (data) {
                     if (data.item.length !==0){
-                        document.getElementById('itemBox').innerHTML=data.HTMLtext;
+                        document.getElementById('itemBox').innerHTML=data.HTMLText;
                         document.getElementById('searchResultHeader').innerHTML ="搜索结果(" + data.item.length + ")";
                     }
                     else {
@@ -714,7 +714,7 @@
                         <button class="searchInputBoxButton" id="addItemsScreenDisplayBtn" type="button" onclick="CancelItemsScreenDisplay()" style=" margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;display: none" >&emsp;取消添加&emsp;</button>
                     </div>
                     <style onload="Authority('系统管理员','#BomEditBtn')"></style>
-                    <style onload="Authority('系统管理员','#BomEditBtn')"></style>
+                    <style onload="Authority('技术员','#BomEditBtn')"></style>
 
                     <div id="addItemsScreen" style="display: none">
                         <div  style="font-weight: bold;font-size: 1.3rem;margin-left: 30px;">物料添加框：</div>

@@ -22,8 +22,8 @@
         }
 
         function Authority(role, ojId) {
-            var sessionId='<%= user.role %>'
-            if ( sessionId=== role) {
+            var sessionId = '<%= user.role %>'
+            if ( sessionId === role) {
                 document.getElementById(ojId).style.display = 'inline';
             }
 
@@ -66,7 +66,7 @@
                         success: function (data) {
                             componentBox='#componentBox'+order
                             if (data.component.length !==0){
-                                $(componentBox).append(data.HTMLtext)
+                                $(componentBox).append(data.HTMLText);
 
                             }
                             else {
@@ -106,7 +106,7 @@
                         success: function (data) {
                             itemBox='#'+machineId+componentId+'itemBox'
                             if (data.item.length !==0){
-                                $(itemBox).append(data.HTMLtext)
+                                $(itemBox).append(data.HTMLText)
                             }
                             else {
                                 $(itemBox).append('<div id=\'item0\'>此部件暂无设置所属物料</div>')
@@ -256,7 +256,7 @@
                                 <button class="searchBarButton" onclick="location.href='/adBOMListMachineAdd'" type="button" style="margin-left: 390px;display: none" id="addNewMachineButton">创建设备</button>
                             </div>
                             <style onload="Authority('系统管理员','addNewMachineButton')"></style>
-                            <style onload="Authority('技术员','addNewMachineButton>')"></style>
+                            <style onload="Authority('技术员','addNewMachineButton')"></style>
                         </div>
 
                         <div class="pageBody" style="width: 100%">

@@ -10,7 +10,7 @@
     <script type="text/javascript" language="javascript">
 
         function confirmAgain() {
-            return window.confirm("确认执行【添加新型物料】操作?");
+            return window.confirm("确认执行【添加新部件】操作?");
         }
 
 
@@ -38,7 +38,7 @@
 
             <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data" >
                             <div  class="itemDetailsPage" style="width: 100%">
-                                <div class="itemDetail">创建新部件到：<%=machineId%> - <%=machineName%></div>
+                                <div class="itemDetail">创建新部件到：<%=machineName%>&emsp;<%=machineId%></div>
                                 <input name="addToMachineId" value="<%=machineId%>" type="hidden">
                                 <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="detail1" required= style="width: 500px" placeholder="请输入部件名称" ></div>
                                 <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="detail2"  required  style="width: 500px" placeholder="请输入部件图号" ></div>

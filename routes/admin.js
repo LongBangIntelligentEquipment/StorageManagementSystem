@@ -198,7 +198,7 @@ router.get('/AjaxFetchHomeNote', function(req, res) {
 
     let sql='SELECT * FROM homenote ORDER BY date DESC LIMIT ' + start + ',' + limit;
 
-    console.log('sql: ' + sql);
+    // console.log('sql: ' + sql);
 
     var sColor;
     function StateColorChange(state) {
@@ -235,12 +235,12 @@ router.get('/AjaxFetchHomeNote', function(req, res) {
             url = "'/adOrder?orderId=" + id + "'";
         } else if (event === '设备事件更新' && state.toString().substring(0,2) !== '删除') {
             url = "'/adBOMListMachineMan?machineId=" + id + "'";
-        } else if (event === '部件事件更新' && state.toString().substring(0,2) !== '删除') {
-            url = "'/adBOMList?componentId=" + id + "'";
+        // } else if (event === '部件事件更新' && state.toString().substring(0,2) !== '删除') {
+        //     url = "'/adBOMList?componentId=" + id + "'";
         } else {
-            url = "'adminHome'";
+            return "";
         }
-        return url
+        return "location.href=" + url;
     }
 
     connection.query( sql,function (err, noteList) {
@@ -272,7 +272,7 @@ router.get('/AjaxFetchHomeNote', function(req, res) {
             let jumpURL = getURL(event, id, state);
 
             HTMLText += '                    <div style="margin-left: -50px;font-size: 1rem;margin-top: 5px">\n' +
-                '                        <button class="noteButton" style="padding-left:150px; " onclick="location.href='+jumpURL+'">\n' +
+                '                        <button class="noteButton" style="padding-left:150px; " onclick="'+jumpURL+'">\n' +
                 '                            <div  style= "size: 1rem; height: 40px;">\n' +
                 '                                <span style="font-size: 0.8rem;position: absolute">' + noteListDate + '</span>\n' +
                 '                                <span style="margin-left: 175px;position: absolute"><img src=\'images/RecentPoint.png\' height="40px" width="35px"></span>\n' +
@@ -292,8 +292,6 @@ router.get('/AjaxFetchHomeNote', function(req, res) {
                 '                        </button>\n' +
                 '                    </div>'
         }
-
-        console.log(HTMLText);
 
         res.send(HTMLText);
     })
@@ -858,7 +856,6 @@ router.get('/qrCodePrint', function(req, res, next) {
 
     var sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId='+'\''+url.itemId+'\'';
 
-    console.log(sql)
     router.get('/create_qrcode', function (req, res, next) {
         var text = req.query.text;
         try {
@@ -2991,46 +2988,29 @@ router.post('/adBOMListMachineEdit', upload.single('machineFileName'), function(
     MachineModel=pinyin(MachineModel,{style:pinyin.STYLE_FIRST_LETTER}).toString();
     MachineModel=MachineModel.replace(new RegExp(",",'g'),"").toUpperCase();
 
-    var machineFileName, modSql, modSqlParams, url, machineId, machineSql;
+    var machineFileName, modSql, modSqlParams, url, machineId;
     url = URL.parse(req.url,true).query;
     machineId = url.machineId;
 
-    machineSql = 'SELECT * FROM machine;';
-    connection.query(machineSql, function (err, machine) {
-        if (err) {
-            console.log('adBOMListMachineEdit: [INSERT ERROR] 查找设备错误 - ', err.message);
+    if (req.file){
+        machineFileName = req.file.filename;
+        modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ?, machineFileName = ? WHERE machineId = '+'\''+machineId+'\'';
+        modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote, machineFileName];
+    } else {
+        modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ? WHERE machineId = '+'\''+machineId+'\'';
+        modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote];
+    }
+
+    connection.query(modSql,modSqlParams,function (err) {
+        if(err){
+            console.log('[UPDATE ERROR] - ',err.message);
+            res.send( '更新设备信息错误，请检查设备名称或设备型号是否已存在。 \n' + err);
             return;
         }
+        // --添加事件更新到首页--
+        addNote('设备事件更新', MachineName, MachineModel, '修改设备');
+        res.redirect('/adBOMListMachineMan?machineId=' + MachineModel);
 
-        for (let i = 0; i < machine.length; i++) {
-            if (machine[i].machineName === MachineName) {
-                res.send('已存在设备 ' + MachineName + '， 请重新输入设备名称！');
-                return;
-            } else if (machine[i].machineId.toUpperCase() === MachineModel.toUpperCase()) {
-                res.send('已存在设备 ' + MachineModel + '， 请重新输入设备型号！');
-                return;
-            }
-        }
-
-        if (req.file){
-            machineFileName = req.file.filename;
-            modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ?, machineFileName = ? WHERE machineId = '+'\''+machineId+'\'';
-            modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote, machineFileName];
-        } else {
-            modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ? WHERE machineId = '+'\''+machineId+'\'';
-            modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote];
-        }
-
-        connection.query(modSql,modSqlParams,function (err) {
-            if(err){
-                console.log('[UPDATE ERROR] - ',err.message);
-                res.send(err);
-                return;
-            }
-            // --添加事件更新到首页--
-            addNote('设备事件更新', MachineName, MachineModel, '修改设备');
-            res.redirect('/adBOMListMachineMan?machineId=' + MachineModel);
-        });
     });
 });
 
@@ -3375,6 +3355,7 @@ router.get('/ajaxSearchItem', function(req, res) {
     searchSql = 'SELECT itemId, itemModel, itemName, itemNote, itemType, itemNum, itemUnit, itemSupplier\n' +
         'FROM item\n' +
         'WHERE itemId LIKE "'+ searchText + '" OR itemModel LIKE "'+ searchText + '" OR itemName LIKE "'+ searchText + '" OR itemNote LIKE "'+ searchText + '";'
+
     connection.query(searchSql,function (err, item) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
@@ -3774,10 +3755,14 @@ function copyComponent(componentId, componentName, componentModel, componentType
             console.log('[SELECT ERROR] - ', err.message);
             return;
         }
-        var newComponentCost = componentItems[0].cost;
 
-        if (componentFileName === 'no-image-available.jpg'){
-            componentFileName = componentItems[0].componentFileName
+        var newComponentCost = 0;
+
+        if (componentItems.length > 0){
+            newComponentCost = componentItems[0].cost;
+            if (componentFileName === 'no-image-available.jpg'){
+                componentFileName = componentItems[0].componentFileName
+            }
         }
 
         let insertSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,componentFileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
@@ -3882,7 +3867,7 @@ function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, 
             return;
         }
 
-        if (machineFileName === 'no-image-available.jpg'){
+        if (machineFileName === 'no-image-available.jpg' && machineComponents){
             machineFileName = machineComponents[0].machineFileName;
         }
 
