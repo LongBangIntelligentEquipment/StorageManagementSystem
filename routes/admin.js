@@ -3080,12 +3080,16 @@ router.get('/adBOMListMachineMan', function (req, res) {
                         res.send(err);
                         return;
                     }
-                    res.render('adBOMListMachineMan', {
-                        user: req.session.user,
-                        category: category,
-                        machine: machine,
-                        users: users
-                    });
+                    if (machine.length === 0){
+                        res.send("设备不存在!")
+                    } else {
+                        res.render('adBOMListMachineMan', {
+                            user: req.session.user,
+                            category: category,
+                            machine: machine,
+                            users: users
+                        });
+                    }
                 });
             }
             else {
@@ -3324,8 +3328,6 @@ router.get('/adBOMList', function (req, res) {
                     return;
                 }
 
-
-
             if (componentItem.length === 0){
                 connection.query(componentSql, function (err, component) {
                     if (err) {
@@ -3333,13 +3335,17 @@ router.get('/adBOMList', function (req, res) {
                         res.send(err);
                         return;
                     }
-                    res.render('adBOMList', {
-                        user: req.session.user,
-                        category: category,
-                        component: component,
-                        categoryName: categoryName,
-                        machine: machine,
-                    });
+                    if (component.length === 0){
+                        res.send("部件不存在!")
+                    } else {
+                        res.render('adBOMList', {
+                            user: req.session.user,
+                            category: category,
+                            component: component,
+                            categoryName: categoryName,
+                            machine: machine,
+                        });
+                    }
                 });
             }
             else {
