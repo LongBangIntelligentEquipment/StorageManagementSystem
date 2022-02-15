@@ -67,7 +67,6 @@
                             componentBox='#componentBox'+order
                             if (data.component.length !==0){
                                 $(componentBox).append(data.HTMLText);
-
                             }
                             else {
                                 $(componentBox).append('<div id=\'component0\'>此设备暂无设置所属部件</div>')
@@ -88,7 +87,7 @@
             var btnCounter=(String(document.getElementById(componentBtn).value+=1).match(/1/g)||[]).length;
 
             if(btnCounter%2===0){
-                itemBox=machineId+componentId+'itemBox'
+                itemBox=componentId+'itemBox'
                 while (document.getElementById(itemBox).children.length>0) {
                     document.getElementById(itemBox).lastChild.remove()
                 }
@@ -97,14 +96,13 @@
                 var sendRequest = false;
                 sendRequest = !sendRequest
                 if (sendRequest){
-                    console.log('Clicked '+order)
                     $.ajax({
                         url: './ajaxItems',
                         data: {'componentId':componentId,'machineId':machineId},
                         type: 'GET',
                         dataType: 'json',
                         success: function (data) {
-                            itemBox='#'+machineId+componentId+'itemBox'
+                            itemBox='#'+componentId+'itemBox'
                             if (data.item.length !==0){
                                 $(itemBox).append(data.HTMLText)
                             }
