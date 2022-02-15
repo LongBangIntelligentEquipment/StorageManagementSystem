@@ -3557,32 +3557,46 @@ router.get('/ajaxSaveAdd', function(req, res) {
     const itemLength = items[0].length;
     var errorMessage;
 
-    const addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity, itemOrderBy) VALUES(?,?,?,?,?)'
+    const maxOrderSql = 'SELECT itemOrderBy AS maxOrder FROM component_has_item WHERE component_componentId = ' + componentId;
 
-    for (let i=0; i<itemLength; i++ ) {
-        let itemId = items[0][i]
-        let itemModel = items[1][i]
-        let itemQty = items[2][i]
+    connection.query(maxOrderSql, function (err2, maxOrder) {
 
-        var addSqlParams = [componentId,itemId,itemModel,itemQty,i];
+        if (err2) {
+            console.log('[SELECT ERROR] 查找最大排序！- ', err2.message);
+            errorMessage += '[SELECT ERROR] 查找最大排序！- ' + err2.message + '\n';
+            return;
+        }
 
-        connection.query(addSql, addSqlParams, function (err) {
-            if (err) {
-                console.log('[INSERT ERROR] 从部件中添加物料错误！- ', err.message);
-                errorMessage += '[INSERT ERROR] 从部件中添加物料错误！- ' + err.message + '\n';
-                return;
-            }
-            if (i === itemLength - 1) {
-                updateComponentCost(componentId, false);
-                if (errorMessage) {
-                    console.log(errorMessage)
-                    res.send(errorMessage);
-                } else {
-                    res.send(false);
+        const addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity, itemOrderBy) VALUES(?,?,?,?,?)'
+
+        for (let i=0; i<itemLength; i++ ) {
+            let itemId = items[0][i];
+            let itemModel = items[1][i];
+            let itemQty = items[2][i];
+
+            let addOrderBy = maxOrder[0].maxOrder + i + 1;
+
+            var addSqlParams = [componentId,itemId,itemModel,itemQty,addOrderBy];
+
+            connection.query(addSql, addSqlParams, function (err) {
+                if (err) {
+                    console.log('[INSERT ERROR] 从部件中添加物料错误！- ', err.message);
+                    errorMessage += '[INSERT ERROR] 从部件中添加物料错误！- ' + err.message + '\n';
+                    return;
                 }
-            }
-        });
-    }
+                if (i === itemLength - 1) {
+                    updateComponentCost(componentId, false);
+                    if (errorMessage) {
+                        console.log(errorMessage);
+                        res.send(errorMessage);
+                    } else {
+                        res.send(false);
+                    }
+                }
+            });
+        }
+
+    });
 })
 
 /* AJax Save DEL, Edit BOM List */
