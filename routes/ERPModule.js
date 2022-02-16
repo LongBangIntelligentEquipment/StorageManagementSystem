@@ -3955,36 +3955,6 @@ function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, 
 
 
 
-// -------------------------------------  2022 ---------------------------------
-
-/*                            ***************************************************生产管理***************************************************                  */
-
-/* GET adProjectMan */
-router.get('/adProjectMan', function(req, res) {
-    let projectSql = 'SELECT * FROM project;';
-    let userSql = 'SELECT userName,role FROM user;';
-
-    connection.query(projectSql,function (err,project) {
-        if(err){
-            console.log('[SELECT ERROR] - ',err.message);
-            res.send('查找设备出错：' + '\n' + err);
-            return;
-        }
-        connection.query(userSql,function (err, users) {
-            if (err) {
-                console.log('[SELECT ERROR] - ', err.message);
-                res.send(err);
-                return;
-            }
-            res.render('adProjectMan', {
-                user:req.session.user,
-                project: project,
-                users: users,
-            });
-        });
-    });
-});
-
 
 
 
