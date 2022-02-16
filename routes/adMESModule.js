@@ -46,15 +46,33 @@ var upload = multer({
 
 /*                            ***************************************************生产管理***************************************************                  */
 
+/* POST adProjectAdd Page */
+router.post('/adProjectAdd', function (req, res) {
+    var saveDate, year, month, day, hour, min, sec, dateOutput1, dateOutput2;
+    saveDate = new Date();
+    year = saveDate.getFullYear();
+    month = saveDate.getMonth() + 1;
+    day = saveDate.getDate();
+    hour = saveDate.getHours();
+    min = saveDate.getMinutes();
+    sec = saveDate.getSeconds();
+    dateOutput1 = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    dateOutput2= year.toString() +month.toString() + day.toString() + hour.toString() + min.toString() + sec.toString();
 
 
-/* POST adBOMListCategoryAdd Page */
-router.post('/adBOMListCategoryAdd', function (req, res) {
+    var projectName, projectStartDate, projectFinishDate, projectManager, projectDesc, projectFolder;
+    projectName = req.body.projectName;
+    projectStartDate = req.body.projectStartDate;
+    projectFinishDate = req.body.projectFinishDate;
+    projectManager = req.body.projectManager;
+    projectDesc = req.body.projectDesc;
+    projectFolder = projectName + dateOutput2;
+
+    // 项目名查重
     let unique = true;
-    let addCategoryName = req.body.addCategoryName
-    let checkCategoryNameSQL = 'SELECT * FROM category WHERE categoryName= '+'\''+ addCategoryName + '\'';
+    let checkProjectNameSQL = 'SELECT * FROM project WHERE projectName= ' + projectName;
 
-    connection.query(checkCategoryNameSQL, function (err, checkResult) {
+    connection.query(checkProjectNameSQL, function (err, checkResult) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
             res.send(err);
@@ -62,65 +80,65 @@ router.post('/adBOMListCategoryAdd', function (req, res) {
         }
         if (checkResult.length !== 0) {
             unique = false;
-            return res.send('分类添加失败：您所添加的分类【分类名称】已存在于分类列表中。')
+            return res.send('项目添加失败：您所添加的项目【项目于名称】已存在于项目列表中。')
         } else if (unique) {
-            let addSql = 'INSERT INTO category(categoryName) VALUES(?)';
-            // let addSql = 'INSERT INTO category(categoryName = ?)';
-            let  addSqlParams = [addCategoryName];
+            let addSql = 'INSERT INTO project(projectName, projectStartDate, projectFinishDate, projectManager, projectDesc, projectFolder) VALUES(?,?,?,?,?)';
+            let  addSqlParams = [projectName, projectStartDate, projectFinishDate, projectManager, projectDesc, projectFolder];
 
             connection.query(addSql,addSqlParams, function (err) {
                 if (err) {
-                    console.log('[INSERT ERROR] - ', err.message);
-                    res.send(err);
+                    console.log('[INSERT ERROR] - 添加项目错误！\n ', err.message);
+                    res.send('[INSERT ERROR] - 添加项目错误！\n ' + err);
                 }
             });
-
         }
-        return res.redirect('/adBOMListCategoryMan')
     });
+    return res.redirect('/adProject')
 });
 
-//   ---删除分类---
-/* GET adBOMListCategoryDelete Page */
-router.get('/adBOMListCategoryDelete', function(req, res) {
+//   ---删除项目---
+/* GET adProjectDelete Page */
+router.get('/adProjectDelete', function(req, res) {
     let url=URL.parse(req.url,true).query;
-    let delSql = 'DELETE FROM category WHERE categoryId = '+'\''+url.categoryId+'\'';
+    let delSql = 'DELETE FROM project WHERE projectId = ' + url.projectId ;
     connection.query(delSql,function (err) {
         if(err){
-            console.log('[DELETE ERROR] - ',err.message);
-            res.send(err);
+            console.log('[DELETE ERROR] - 删除项目错误！\n ', err.message);
+            res.send('[DELETE ERROR] - 删除项目错误！\n ' + err);
             return;
         }
         res.redirect('/adBOMListCategoryMan')
     });
 });
 
-//   ---修改分类---
-/* GET adBOMListCategoryEdit Page */
-router.get('/adBOMListCategoryEdit', function(req, res) {
+//   ---修改项目---
+/* POST adProjectEdit Page */
+router.post('/adProjectEdit', function(req, res) {
+    var saveDate, year, month, day, hour, min, sec, dateOutput1, dateOutput2;
+    saveDate = new Date();
+    year = saveDate.getFullYear();
+    month = saveDate.getMonth() + 1;
+    day = saveDate.getDate();
+    hour = saveDate.getHours();
+    min = saveDate.getMinutes();
+    sec = saveDate.getSeconds();
+    dateOutput1 = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    dateOutput2= year.toString() +month.toString() + day.toString() + hour.toString() + min.toString() + sec.toString();
+
+    var projectName, projectStartDate, projectFinishDate, projectManager, projectDesc;
+    projectName = req.body.projectName;
+    projectStartDate = req.body.projectStartDate;
+    projectFinishDate = req.body.projectFinishDate;
+    projectManager = req.body.projectManager;
+    projectDesc = req.body.projectDesc;
+
     let url=URL.parse(req.url,true).query;
-    let sql = 'SELECT * FROM category WHERE categoryId = '+'\''+url.categoryId+'\'';
-    connection.query(sql,function (err,result) {
-        if(err){
-            console.log('[SELECT ERROR] - ',err.message);
-            res.send(err);
-            return;
-        }
-        res.render('adBOMListCategoryEdit', {
-            user: req.session.user,
-            category: result[0]
-        })
-    });
-});
-/* POST adBOMListCategoryEdit Page */
-router.post('/adBOMListCategoryEdit', function(req, res) {
-    let url=URL.parse(req.url,true).query;
-    let modSql = 'UPDATE category SET categoryName = ? WHERE categoryId = '+'\''+url.categoryId+'\'';
-    let modSqlParams = [req.body.editCategoryName];
+    let modSql = 'UPDATE project SET projectName = ? projectStartDate = ? projectFinishDate = ? projectManager = ? projectDesc = ? WHERE projectId = ' + url.projectId;
+    let modSqlParams = [projectName, projectStartDate, projectFinishDate, projectManager, projectDesc];
     connection.query(modSql,modSqlParams,function (err) {
         if(err){
-            console.log('[UPDATE ERROR] - ',err.message);
-            res.send(err);
+            console.log('[UPDATE ERROR] - 更新项目信息错误！ ',err.message);
+            res.send('[UPDATE ERROR] - 更新项目信息错误！ ' + err);
             return;
         }
         res.redirect('/adBOMListCategoryMan')
@@ -158,7 +176,9 @@ router.get('/adProjectMan', function(req, res) {
 //   ---查找项目详细---
 /* GET adProject */
 router.get('/adProject', function(req, res) {
-    let projectSql = 'SELECT * FROM project;';
+    let url=URL.parse(req.url,true).query;
+    let projectId = url.projectId;
+    let projectSql = 'SELECT * FROM project WHERE projectId = ' + projectId;
     let userSql = 'SELECT userName,role FROM user;';
 
     connection.query(projectSql,function (err,project) {

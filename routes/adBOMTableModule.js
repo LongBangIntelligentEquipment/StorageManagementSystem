@@ -38,7 +38,7 @@ var upload = multer({
 
 
 function addNote(event,itemName,id,changedState){
-    var  saveDate= new Date();
+    var saveDate= new Date();
     var year= saveDate.getFullYear();
     var month=saveDate.getMonth()+1;
     var day=saveDate.getDate();
