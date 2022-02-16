@@ -46,7 +46,6 @@ app.get('*',function (req,res,next) {
 app.use('/', indexRouter);
 
 
-app.use('/', require('./routes/qrCodeTest'));
 app.use('/', require('./routes/loginBlock'));
 app.use('/', require('./routes/ERPModule'));
 app.use('/', require('./routes/MESModule'));
