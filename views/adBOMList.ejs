@@ -603,7 +603,6 @@
                                 <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="BomListUpdateTime"  value="<%=component[0].updateTime.getFullYear()%>-<%=component[0].updateTime.getMonth()+1%>-<%=component[0].updateTime.getDate()%>" disabled ></div>
                                 <div class="itemDetail" id="componentCostRow" hidden >部件成本：<input class="itemDetailsInput" name="BomListCost" value="<%=componentCost%>元" disabled ></div>
                                 <style onload="Authority('系统管理员','#componentCostRow')"></style>
-                                <style onload="Authority('技术员','#componentCostRow')"></style>
                                 <div class="itemDetail">备注：<input class="itemDetailsInput" name="BomListNote" id="detail3" value="<%=component[0].note%>" disabled ></div>
                                 <div class="itemDetail" id="updateFile" style="display: none">重新上传图片：<input type="file"  name="BomListFileName"  id="detail4" value=""  style="width: 310px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" >
                                     <div style="color: red">请上传图片格式文件</div>

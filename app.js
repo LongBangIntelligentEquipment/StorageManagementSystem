@@ -48,7 +48,8 @@ app.use('/', indexRouter);
 
 app.use('/', require('./routes/qrCodeTest'));
 app.use('/', require('./routes/loginBlock'));
-app.use('/', require('./routes/admin'));
+app.use('/', require('./routes/ERPModule'));
+app.use('/', require('./routes/MESModule'));
 app.use('/', require('./routes/upload'));
 app.use('/', require('./routes/users'));
 
