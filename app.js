@@ -47,8 +47,9 @@ app.use('/', indexRouter);
 
 
 app.use('/', require('./routes/loginBlock'));
-app.use('/', require('./routes/ERPModule'));
-app.use('/', require('./routes/MESModule'));
+app.use('/', require('./routes/adERPModule'));
+app.use('/', require('./routes/adMESModule'));
+app.use('/', require('./routes/adBOMTableModule'));
 app.use('/', require('./routes/upload'));
 app.use('/', require('./routes/users'));
 

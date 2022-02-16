@@ -30,10 +30,12 @@ var upload = multer({
     storage: storage,
 });
 
-router.get('/qrCodeTest', function(req, res, next) {
+// router.get('/qrCodeTest', function(req, res, next) {
+//
+//     res.render('qrCodeTest', { title: ' ' });
+// });
 
-    res.render('qrCodeTest', { title: ' ' });
-});
+
 
 
 
