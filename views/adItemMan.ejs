@@ -81,12 +81,11 @@
                         <style onload="AuthorityDisplay('技术员','addNewButton')"></style>
 
                         <div class="filterBox" id="typeOption1" style="display: none">
-                            <button  class="filterButton filterOption" name="type" value="0" type="submit"> 全部</button>
-                            <button  class="filterButton filterOption" name="type" value="1" type="submit"> 光机类</button>
-                            <button  class="filterButton filterOption" name="type" value="2" type="submit"> 电气类</button>
-                            <button  class="filterButton filterOption" name="type" value="3" type="submit"> 钣金类</button>
-                            <button  class="filterButton filterOption" name="type" value="4" type="submit"> 铸件类</button>
-                            <button  class="filterButton filterOption" name="type" value="5" type="submit"style="border-bottom-left-radius: 0.3rem;border-bottom-right-radius: 0.3rem" > 其它类</button>
+
+                            <button  class="filterButton filterOption" name="type" value="all" type="submit"> 全部</button>
+                            <%for(let i = 0 ; i < itemType.length ; i++) { %>
+                            <button  class="filterButton filterOption" name="type" value=<%=itemType[i].itemTypeName%> type="submit"> <%=itemType[i].itemTypeName%> </button>
+                            <%}%>
                         </div>
                         <div class="filterBox" id="typeOption2" style="display: none;margin-left: 112px">
                             <button  class="filterButton filterOption" name="alarm" value="0" type="submit"> 全部</button>
@@ -123,7 +122,7 @@
                                         </div>
 
                                         <div  style= "font-size: 0.7rem; height: 30px;" id="itemNote<%=i%>">
-                                            <span class="itemInfo" >类型：<a style="font-weight:normal;color: #0050fa; "><%=itemList[i].itemType%></a></span>
+                                            <span class="itemInfo" >类型：<a style="font-weight:normal;color: #0050fa; "><%=itemList[i].itemTypeName%></a></span>
                                             <span class="itemInfo" style="margin-left: 140px">数量：<a style="font-weight: normal;color: #0050fa;"><%=itemList[i].itemNum%><%=itemList[i].itemUnit%></a></span>
                                             <span class="itemInfo" style="margin-left: 260px" >备注：<a style="font-weight: normal;color: red;"><%=itemList[i].itemNote%></a></span>
                                         </div>

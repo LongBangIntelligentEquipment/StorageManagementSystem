@@ -70,11 +70,9 @@
                                 <div class="itemDetail">规格<a style="color: red; font-size: x-large">*</a>：<input name="addSize" class="itemDetailsInput addItemInfo" id="detail2" required="required"   style="width: 510px" placeholder="请输入物料规格" ></div>
                                 <div class="itemDetail">型号（图号）：<input name="addModel" class="itemDetailsInput addItemInfo" id="detail2.1"    style="width: 445px" placeholder="有图号写图号,没图号写产品型号,都没有则不填" ></div>
                                 <div class="itemDetail" >类型<a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addType" id="detail3" required="required"  style="height: 35px;width: 100px;color:black;" >
-                                        <option value="光机类">光机类</option>
-                                        <option value="电气类">电气类</option>
-                                        <option value="钣金类">钣金类</option>
-                                        <option value="铸件类">铸件类</option>
-                                        <option value="其它类">其它类</option>
+                                        <% for(let i = 0; i < itemTypes.length; i++) { %>
+                                            <option value="<%= itemTypes[i].itemTypeId %>"><%= itemTypes[i].itemTypeName %></option>
+                                        <% } %>
                                     </select></div>
                                 <div class="itemDetail">单位<a style="color: red; font-size: x-large">*</a>：<input required="required" name="addUnit" class="itemDetailsInput addItemInfo" id="detail5"   style="width: 100px"></div>
                                 <div class="itemDetail">区域<a style="color: red; font-size: x-large">*</a>：<input required="required" name="addArea" class="itemDetailsInput addItemInfo" id="detail4"  style="width: 100px; "></div>

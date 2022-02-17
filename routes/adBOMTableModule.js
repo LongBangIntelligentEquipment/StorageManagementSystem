@@ -203,7 +203,7 @@ router.get('/ajaxComponents', function(req, res) {
 router.get('/ajaxItems', function(req, res) {
     const componentId = req.query.componentId;
     const machineId = req.query.machineId;
-    const sql = 'SELECT item.itemId, itemName, itemPrice, item.itemModel, itemArea, itemNote, itemQuantity, component.categoryId, itemType, itemFileName\n' +
+    const sql = 'SELECT item.itemId, itemName, itemPrice, item.itemModel, itemArea, itemNote, itemQuantity, component.categoryId,  itemTypeName AS itemType, itemFileName\n' +
         'FROM component\n' +
         'INNER JOIN component_has_item\n' +
         'ON component_has_item.component_componentId = component.componentId\n' +
@@ -211,6 +211,8 @@ router.get('/ajaxItems', function(req, res) {
         'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
         'INNER JOIN category\n' +
         'ON component.categoryId = category.categoryId\n' +
+        'INNER JOIN itemType\n' +
+        'ON item.itemTypeId = itemtype.itemTypeId\n' +
         'INNER JOIN user\n' +
         'ON component.userId = user.userId\n' +
         'WHERE component.componentId = ' + '"' + componentId + '"\n' +
@@ -685,7 +687,7 @@ router.get('/adBOMList', function (req, res) {
     let url = URL.parse(req.url, true).query;
     // 部件有物料
     let componentItemSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, ' +
-        'cost, componentFileName, userName, itemId, itemName, itemPrice, itemModel, itemType, itemNote, itemQuantity, machineName, machine.machineId\n' +
+        'cost, componentFileName, userName, itemId, itemName, itemPrice, itemModel, itemTypeName AS itemType, itemNote, itemQuantity, machineName, machine.machineId\n' +
         'FROM component\n' +
         'INNER JOIN component_has_item\n' +
         'ON component_has_item.component_componentId = component.componentId\n' +
@@ -695,6 +697,8 @@ router.get('/adBOMList', function (req, res) {
         'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
         'INNER JOIN category\n' +
         'ON component.categoryId = category.categoryId\n' +
+        'INNER JOIN itemType\n' +
+        'ON item.itemTypeId = itemtype.itemTypeId\n' +
         'INNER JOIN user\n' +
         'ON component.userId = user.userId\n' +
         'WHERE componentId =' + '\'' + url.componentId + '\'' + '\n' +
@@ -784,8 +788,11 @@ router.get('/ajaxSearchItem', function(req, res) {
     searchText = req.query.searchText;
     var searchTimes=req.query.searchTimes;
     searchText = '%' + searchText + '%';
-    searchSql = 'SELECT itemId, itemModel, itemName, itemNote, itemType, itemNum, itemUnit, itemSupplier\n' +
+    searchSql = 'SELECT itemId, itemModel, itemName, itemNote, itemTypeName AS itemType, itemNum, itemUnit, itemSupplier\n' +
         'FROM item\n' +
+        'JOIN category ON category.categoryId = item.categoryId\n' +
+        'INNER JOIN itemType\n' +
+        'ON item.itemTypeId = itemtype.itemTypeId\n' +
         'WHERE itemId LIKE "'+ searchText + '" OR itemModel LIKE "'+ searchText + '" OR itemName LIKE "'+ searchText + '" OR itemSupplier LIKE "'+searchText+ '" OR itemNote LIKE "'+ searchText + '";'
 
     connection.query(searchSql,function (err, item) {

@@ -308,28 +308,19 @@ router.get('/adItemMan', function(req, res, next) {
     var statesCounter;
     var states=[];
     var statesList=[];
-    var sql;
-    var url=URL.parse(req.url,true).query;
-    //console.log(url)
-    if(url.sql===undefined){
-        sql='SELECT *  ,CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND needReturn = 0 THEN 1\n' +
+    var sql='SELECT *,CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND needReturn = 0 THEN 1\n' +
             'END AS order_param \n' +
             'FROM itemstate, item\n' +
+            'INNER JOIN itemType\n' +
+            'ON item.itemTypeId = itemtype.itemTypeId\n' +
             'WHERE itemstate.itemId=item.itemId\n' +
             'ORDER BY  order_param,item.itemName ASC ';
-        //sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId ORDER BY item.itemArea';
-    }else {
-        sql=url.sql;
-    }
 
-    //console.log(sql)
     connection.query( sql,function (err, result) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
         }
 
-
-        //console.log(result);
         for(var i=0;i<result.length;i++){
             states=[];
             statesCounter=-1;
@@ -356,11 +347,19 @@ router.get('/adItemMan', function(req, res, next) {
             statesList[i]=states;
         }
 
-        //console.log(statesList)
-        res.render('adItemMan', {
-            itemList:result,
-            itemStateList:statesList,
-            user:req.session.user
+        let itemTypeSql = 'SELECT * FROM itemtype;';
+        connection.query(itemTypeSql,function (err, itemType) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+            }
+
+            res.render('adItemMan', {
+                itemList:result,
+                itemStateList:statesList,
+                user:req.session.user,
+                itemType:itemType
+            });
+
         });
 
     });
@@ -370,67 +369,117 @@ router.get('/adItemMan', function(req, res, next) {
 
 
 router.post('/adItemMan', function(req, res,){
-    var sql;
     var typeJudge=req.body.type;
     var alarmJudge=req.body.alarm;
     let indexOf =  '\'\%%' + req.body.indexOf + '%\'';
-
-    switch (typeJudge) {
-        case '0':  sql=undefined; break;
-        case '1':  sql='sql=SELECT *  ,CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND needReturn = 0  THEN 1\n' +
-            'END AS order_param \n ' +
-            'FROM itemstate, item\n' +
-            'WHERE itemstate.itemId=item.itemId AND itemType=\'光机类\'\n' +
-            'ORDER BY  order_param,item.itemId,itemArea ASC'; break;
-        case '2':  sql='sql=SELECT *  ,CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND needReturn = 0  THEN 1\n' +
-            'END AS order_param \n ' +
-            'FROM itemstate, item\n' +
-            'WHERE itemstate.itemId=item.itemId AND itemType=\'电气类\'\n' +
-            'ORDER BY  order_param,item.itemId,itemArea ASC'; break;
-        case '3':  sql='sql=SELECT *  ,CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND needReturn = 0  THEN 1\n' +
-            'END AS order_param \n ' +
-            'FROM itemstate, item\n' +
-            'WHERE itemstate.itemId=item.itemId AND itemType=\'钣金类\'\n' +
-            'ORDER BY  order_param,item.itemId,itemArea ASC'; break;
-        case '4':  sql='sql=SELECT *  ,CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND needReturn = 0  THEN 1\n' +
-            'END AS order_param \n ' +
-            'FROM itemstate, item\n' +
-            'WHERE itemstate.itemId=item.itemId AND itemType=\'铸件类\'\n' +
-            'ORDER BY  order_param,item.itemId,itemArea ASC'; break;
-        case '5':  sql='sql=SELECT *  ,CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND needReturn = 0  THEN 1\n' +
-            'END AS order_param \n ' +
-            'FROM itemstate, item\n' +
-            'WHERE itemstate.itemId=item.itemId AND itemType=\'其它类\'\n' +
-            'ORDER BY  order_param,item.itemId,itemArea ASC'; break;
-    }
-
-    switch (alarmJudge) {
-        case '0':  sql=undefined; break;
-        case '1':  sql='sql=SELECT * FROM item,itemstate WHERE item.itemId=itemstate.itemId AND itemstate.hasOrder=0 AND itemstate.lessRest=0 AND itemstate.hasUncheck=0 AND itemstate.needReturn = 0  ORDER BY item.itemId,item.itemArea'; break;
-        case '2':  sql='sql=SELECT * FROM item,itemstate WHERE item.itemId=itemstate.itemId AND itemstate.hasUncheck=1 ORDER BY item.itemId,item.itemArea'; break;
-        case '3':  sql='sql=SELECT * FROM item,itemstate WHERE item.itemId=itemstate.itemId AND itemstate.lessRest=1 ORDER BY item.itemId,item.itemArea'; break;
-        case '4':  sql='sql=SELECT * FROM item,itemstate WHERE item.itemId=itemstate.itemId AND itemstate.hasOrder=1 ORDER BY item.itemId,item.itemArea'; break;
-        case '5':  sql='sql=SELECT * FROM item,itemstate WHERE item.itemId=itemstate.itemId AND itemstate.needReturn=1 ORDER BY item.itemId,item.itemArea'; break;
-    }
-
-    //console.log(indexOf);
+    var sql;
 
     if(req.body.indexOfButton){
-        sql='sql=SELECT *  ,CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND itemstate.needReturn = 0  THEN 1\n' +
-            'END AS order_param \n ' +
-            'FROM itemstate, item\n' +
-            'WHERE itemstate.itemId=item.itemId AND (item.itemName Like' +indexOf+' OR item.itemId Like '+indexOf+' OR item.itemModel Like '+indexOf+' OR item.itemSupplier Like '+indexOf+' OR item.itemArea Like '+indexOf+' OR item.itemNote Like '+indexOf+')' +
-            'ORDER BY  order_param,item.itemName ASC';
+        sql =   'SELECT *, CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND itemstate.needReturn = 0  THEN 1\n' +
+                'END AS order_param \n ' +
+                'FROM itemstate, item\n' +
+                'INNER JOIN itemType\n' +
+                'ON item.itemTypeId = itemtype.itemTypeId\n' +
+                'WHERE itemstate.itemId=item.itemId AND (item.itemName Like' +indexOf+' OR item.itemId Like '+indexOf+' OR item.itemModel Like '+indexOf+' OR item.itemSupplier Like '+indexOf+' OR item.itemArea Like '+indexOf+' OR item.itemNote Like '+indexOf+')' +
+                'ORDER BY  order_param,item.itemName ASC';
+    } else if (typeJudge !== "all" && typeJudge !== undefined){
+        sql =   'SELECT *, CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND needReturn = 0  THEN 1\n' +
+                'END AS order_param \n' +
+                'FROM itemstate, item\n' +
+                'INNER JOIN itemType\n' +
+                'ON item.itemTypeId = itemtype.itemTypeId\n' +
+                'WHERE itemstate.itemId=item.itemId AND itemTypeName ="' + typeJudge + '"\n' +
+                'ORDER BY  order_param,item.itemId,itemArea ASC'
+    } else{
+        switch (alarmJudge) {
+            case '1':  sql='SELECT * FROM item\n' +
+                'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+                'JOIN itemtype ON item.itemTypeId = itemtype.itemTypeId\n' +
+                'WHERE itemstate.hasOrder=0 AND itemstate.lessRest=0 AND itemstate.hasUncheck=0 AND itemstate.needReturn = 0  ORDER BY item.itemId,item.itemArea'; break;
 
-        //sql='sql=SELECT * FROM item,itemstate WHERE item.itemId=itemstate.itemId AND (item.itemName Like' +indexOf+' OR item.itemId Like '+indexOf+' OR item.itemNote Like '+indexOf+')';
+            case '2':  sql='SELECT * FROM item\n' +
+                'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+                'JOIN itemtype ON item.itemTypeId = itemtype.itemTypeId\n' +
+                'WHERE itemstate.hasUncheck=1 ORDER BY item.itemId,item.itemArea'; break;
+
+            case '3':  sql='SELECT * FROM item\n' +
+                'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+                'JOIN itemtype ON item.itemTypeId = itemtype.itemTypeId\n' +
+                'WHERE itemstate.lessRest=1 ORDER BY item.itemId,item.itemArea'; break;
+
+            case '4':  sql='SELECT * FROM item\n' +
+                'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+                'JOIN itemtype ON item.itemTypeId = itemtype.itemTypeId\n' +
+                'WHERE itemstate.hasOrder=1 ORDER BY item.itemId,item.itemArea'; break;
+
+            case '5':  sql='SELECT * FROM item\n' +
+                'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+                'JOIN itemtype ON item.itemTypeId = itemtype.itemTypeId\n' +
+                'WHERE itemstate.needReturn=1 ORDER BY item.itemId,item.itemArea'; break;
+
+            default :
+                sql=    'SELECT *,CASE  WHEN hasOrder = 0 AND lessRest = 0 AND hasUncheck = 0 AND needReturn = 0  THEN 1\n' +
+                        'END AS order_param \n ' +
+                        'FROM itemstate, item\n' +
+                        'INNER JOIN itemType\n' +
+                        'ON item.itemTypeId = itemtype.itemTypeId\n' +
+                        'WHERE itemstate.itemId=item.itemId\n' +
+                        'ORDER BY  order_param,item.itemId,itemArea ASC'
+        }
     }
 
-    var returnURL = '/adItemMan?' +sql ;
-    res.redirect(returnURL)
+    var statesCounter;
+    var states=[];
+    var statesList=[];
+    connection.query( sql,function (err, result) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+        }
+
+        for(var i=0;i<result.length;i++){
+            states=[];
+            statesCounter=-1;
+            if(result[i].hasOrder===1){
+                statesCounter++;
+                states[statesCounter]='有订单未处理';
+            }
+            if(result[i].lessRest===1){
+                statesCounter++;
+                states[statesCounter]='少剩余';
+            }
+            if(result[i].hasUncheck===1){
+                statesCounter++;
+                states[statesCounter]='存在未检测'
+            }
+            if(result[i].needReturn===1){
+                statesCounter++;
+                states[statesCounter]='需归还物料'
+            }
+            if(result[i].hasOrder===0&&result[i].lessRest===0&&result[i].hasUncheck===0&&result[i].needReturn===0){
+                statesCounter++;
+                states[statesCounter]='无'
+            }
+            statesList[i]=states;
+        }
+
+        let itemTypeSql = 'SELECT * FROM itemtype;';
+        connection.query(itemTypeSql,function (err, itemType) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+            }
+
+            res.render('adItemMan', {
+                itemList:result,
+                itemStateList:statesList,
+                user:req.session.user,
+                itemType:itemType
+            });
+
+        });
+
+    });
 
 });
-
-
 
 
 
@@ -441,18 +490,20 @@ router.get('/adItem', function(req, res, next) {
     var states=[];
     var statesList=[];
     var url=URL.parse(req.url,true).query;
-    var sql1='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId='+'\''+url.itemId+'\'';
-    var sql2=';SELECT * FROM record WHERE itemId='+'\''+url.itemId+'\''+'ORDER BY date DESC';
-    var sql;
-    //console.log(url)
-    if(url.sql===undefined || url.sql==='undefined'){
-        sql=sql1+sql2;
-    } else {
-        sql=url.sql;
-    }
+    var sql1 =  'SELECT * FROM item \n' +
+        'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+        'JOIN itemtype ON item.itemTypeId = itemtype.itemTypeId\n' +
+        'WHERE item.itemId = "' + url.itemId + '";\n'
 
+    var sql2 =  'SELECT * FROM item \n' +
+                'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+                'JOIN itemtype ON item.itemTypeId = itemtype.itemTypeId\n' +
+                'JOIN record ON item.itemId = record.itemId\n' +
+                'WHERE item.itemId = "' + url.itemId + '"\n' +
+                'ORDER BY date DESC;';
 
-    //console.log(url);
+    var sql = sql1 + sql2;
+
     router.get('/create_qrcode', function (req, res, next) {
         var text = req.query.text;
         try {
@@ -464,8 +515,6 @@ router.get('/adItem', function(req, res, next) {
             res.end('<h1>414 Request-URI Too Large</h1>');
         }
     });
-
-
 
     connection.query( sql,function (err, result) {
         if (err) {
@@ -499,9 +548,11 @@ router.get('/adItem', function(req, res, next) {
             states[statesCounter]='无'
         }
 
+        var  sql3 = 'SELECT * FROM item \n' +
+                    'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+                    'WHERE item.itemId = "' + url.itemId + '";';
 
-        var  sql2 = 'SELECT * FROM item, itemstate WHERE item.itemId=itemstate.itemId AND item.itemId='+'\''+url.itemId+'\''; //select id,name From websites=rowDataPacket{id,name}
-        connection.query(sql2,function (err, result) {
+        connection.query(sql3,function (err, result) {
             if(err){
                 console.log('[SELECT ERROR] - ',err.message);
                 return;
@@ -515,18 +566,23 @@ router.get('/adItem', function(req, res, next) {
             if(result[0].itemNum<=result[0].itemAlarmSetting&&result[0].lessRest===0){
                 addNote('物料事件更新',result[0].itemName,result[0].itemId,'少剩余');
             }
-
-
         });
 
-        res.render('adItem', {
-            item:result[0],
-            itemStateList:statesList,
-            recordList:result[1],
-            user:req.session.user
+        let itemTypeSql = 'SELECT * FROM itemtype;';
+        connection.query(itemTypeSql,function (err, itemTypes) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+            }
+
+            res.render('adItem', {
+                item:result[0],
+                itemStateList:statesList,
+                recordList:result[1],
+                user:req.session.user,
+                itemTypes : itemTypes
+            });
 
         });
-
     });
 
 });
@@ -592,32 +648,32 @@ router.post('/adItem', upload.single('updateFileName'), function(req, res, next)
 
                     var updateTypeFinal=req.body.updateType;
                     if(updateTypeFinal===undefined){
-                        updateTypeFinal=result0[0].itemType;
+                        updateTypeFinal=result0[0].itemTypeId;
                     }
 
                     if(req.body.updateId===undefined){
                         if(req.file===undefined){//仓管编辑
-                            originalSql1='UPDATE item SET itemName=?, itemId=?, itemType=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=? , itemSupplier=?, itemUnit=? WHERE itemId = \''+url.itemId+'\'';
+                            originalSql1='UPDATE item SET itemName=?, itemId=?, itemTypeId=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=? , itemSupplier=?, itemUnit=? WHERE itemId = \''+url.itemId+'\'';
                             updateJson1=[result0[0].itemName,result0[0].itemId,updateTypeFinal,req.body.updateArea,req.body.updateAlarmSetting,req.body.updateNote,result0[0].itemModel,updatesupplierFinal,req.body.updateUnit];
                             if(req.body.updateArea===undefined){  //技术员编辑
-                                originalSql1='UPDATE item SET itemName=?, itemId=?, itemType=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=? , itemSupplier=?, itemUnit=? WHERE itemId = \''+url.itemId+'\'';
+                                originalSql1='UPDATE item SET itemName=?, itemId=?, itemTypeId=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=? , itemSupplier=?, itemUnit=? WHERE itemId = \''+url.itemId+'\'';
                                 updateJson1=[req.body.updateName,result0[0].itemId,updateTypeFinal,result0[0].itemArea,result0[0].itemAlarmSetting,req.body.updateNote,req.body.updateModel,updatesupplierFinal,result0[0].itemUnit];
                             }
                         }else{
-                            originalSql1='UPDATE item SET itemName=?, itemId=?, itemType=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=?, itemFileName=?, itemSupplier=? ,itemUnit=? WHERE itemId = \''+url.itemId+'\'';
+                            originalSql1='UPDATE item SET itemName=?, itemId=?, itemTypeId=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=?, itemFileName=?, itemSupplier=? ,itemUnit=? WHERE itemId = \''+url.itemId+'\'';
                             updateJson1=[result0[0].itemName,result0[0].itemId,updateTypeFinal,req.body.updateArea,req.body.updateAlarmSetting,req.body.updateNote,result0[0].itemModel,req.file.filename,updatesupplierFinal,req.body.updateUnit];
                             if(req.body.updateArea===undefined){
-                                originalSql1='UPDATE item SET itemName=?, itemId=?, itemType=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=?, itemFileName=?, itemSupplier=? ,itemUnit=? WHERE itemId = \''+url.itemId+'\'';
+                                originalSql1='UPDATE item SET itemName=?, itemId=?, itemTypeId=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=?, itemFileName=?, itemSupplier=? ,itemUnit=? WHERE itemId = \''+url.itemId+'\'';
                                 updateJson1=[result0[0].itemName,result0[0].itemId,updateTypeFinal,result0[0].itemArea,result0[0].itemAlarmSetting,req.body.updateNote,req.body.updateModel,req.file.filename,updatesupplierFinal,result0[0].itemUnit];
 
                             }
                         }
                     }else{
                         if(req.file===undefined){//系统管理员编辑
-                            originalSql1='UPDATE item SET itemName=?, itemId=?, itemType=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=?,itemSupplier=?,itemUnit=?, itemPrice=? WHERE itemId = \''+url.itemId+'\'';
+                            originalSql1='UPDATE item SET itemName=?, itemId=?, itemTypeId=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=?,itemSupplier=?,itemUnit=?, itemPrice=? WHERE itemId = \''+url.itemId+'\'';
                             updateJson1=[req.body.updateName,req.body.updateId,updateTypeFinal,req.body.updateArea,req.body.updateAlarmSetting,req.body.updateNote,req.body.updateModel,updatesupplierFinal,req.body.updateUnit,req.body.updatePrice];
                         }else{
-                            originalSql1='UPDATE item SET itemName=?, itemId=?, itemType=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=?, itemFileName=?,itemSupplier=?,itemUnit=?, itemPrice=? WHERE itemId = \''+url.itemId+'\'';
+                            originalSql1='UPDATE item SET itemName=?, itemId=?, itemTypeId=?, itemArea=?, itemAlarmSetting=?, itemNote=? ,itemModel=?, itemFileName=?,itemSupplier=?,itemUnit=?, itemPrice=? WHERE itemId = \''+url.itemId+'\'';
                             updateJson1=[req.body.updateName,req.body.updateId,updateTypeFinal,req.body.updateArea,req.body.updateAlarmSetting,req.body.updateNote,req.body.updateModel,req.file.filename,updatesupplierFinal,req.body.updateUnit,req.body.updatePrice];
                         }
                         originalSql4='SET SQL_SAFE_UPDATES = 0;\n' +
@@ -738,7 +794,14 @@ router.post('/adItem', upload.single('updateFileName'), function(req, res, next)
 
 /* GET  itemAddPage. */
 router.get('/adItemAdd', function(req, res, next) {
-    res.render('adItemAdd', {user:req.session.user });
+    let itemTypeSql = 'SELECT * FROM itemtype;';
+    connection.query(itemTypeSql,function (err, itemTypes) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+        }
+
+        res.render('adItemAdd', {user:req.session.user, itemTypes : itemTypes });
+    });
 });
 
 
@@ -757,18 +820,12 @@ router.post('/adItemAdd',upload.single('addFileName'), function(req, res, next) 
         var fistzmName=pinyin(pinstrName,{style:pinyin.STYLE_FIRST_LETTER}).toString();
         var itemNameFinal= fistzmName.replace(new RegExp(",",'g'),"").toUpperCase();
 
-        var pinstrType=req.body.addType;
-        var fistzmType=pinyin(pinstrType,{style:pinyin.STYLE_FIRST_LETTER}).toString();
-        var itemTypeFinal= fistzmType.replace(new RegExp(",",'g'),"").substr(0,1).toUpperCase();
-
-
         var pinstrSize=req.body.addSize;
         var fistzmSize=pinyin(pinstrSize,{style:pinyin.STYLE_FIRST_LETTER}).toString();
         var fistzmSizeFinal=fistzmSize.replace(new RegExp(",",'g'),"").toUpperCase();
 
-        var itemIdFinal=itemNameFinal+fistzmSizeFinal+'-'+itemTypeFinal+'-'+( "00000000" + (parseInt(result.length)+1) ).substr( -5 ) ;
+        var itemIdFinal=itemNameFinal+fistzmSizeFinal+'-'+( "00000000" + (parseInt(result.length)+1) ).substr( -5 ) ;
         var addModelFinal =req.body.addModel;
-       // console.log('!!!!!'+fistzmSizeFinal,pinstrSize,fistzmSize)
         if(addModelFinal===''){
             addModelFinal = itemIdFinal;
         }
@@ -801,9 +858,7 @@ router.post('/adItemAdd',upload.single('addFileName'), function(req, res, next) 
 
                 if(hadId){
 
-                    var  addSql1 = 'INSERT INTO item(itemId,itemName,itemType,itemNum,itemTemNum,itemUnit,itemArea,itemAlarmSetting,itemNote,itemFileName,itemModel,itemSupplier,itemPrice) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)';
-                   // console.log((req.body.addPrice === "" ? 0:1 ) )
-
+                    var  addSql1 = 'INSERT INTO item(itemId,itemName,itemTypeId,itemNum,itemTemNum,itemUnit,itemArea,itemAlarmSetting,itemNote,itemFileName,itemModel,itemSupplier,itemPrice) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)';
                     var  addSqlParams1 = [itemIdFinal,req.body.addName+req.body.addSize,req.body.addType,0,0,req.body.addUnit,req.body.addArea,req.body.addAlarmSetting,req.body.addNote,fileName,addModelFinal,req.body.addSupplier,(req.body.addPrice === "" ? 0:req.body.addPrice) ];
                     var  addSql2 = 'INSERT INTO itemstate(itemId,hasOrder,lessRest,hasUncheck) VALUES(?,?,?,?)';
                     var  addSqlParams2 = [itemIdFinal,0,1,0 ];
@@ -947,9 +1002,6 @@ router.post('/adItemExit', function(req, res, next) {
 
 
     var  addSqlParams = [url.itemId, '出仓',dateOutput, req.body.manager, 'null',req.body.note,'null',state,req.body.reason,req.body.applicant,'null',req.body.num,'1111-01-01 01:01:01',returnNum];
-
-    //console.log('asasad'+addSqlParams)
-
 
 
     //改====
