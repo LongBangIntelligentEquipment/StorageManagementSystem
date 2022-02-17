@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>隆邦ERP系统_物料管理</title>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+
+    <!--    jQuery Ajax   -->
+    <script type="text/javascript" src="/javaScript/jquery-3.6.0.min.js"></script>
+
+
+    <script language="javascript">
+        function showProjectDetail() {
+            //ajax to show the project Detail
+        }
+    </script>
+</head>
+
+<body id="bodyPage">
+<div id="blankCover" style="position: absolute;background-color: rgba(255,255,255,0.5);width: 100%;height: 100%;z-index: 998" hidden></div>
+
+<section class="functionBoard">
+
+    <%- include('zMenu') %>
+
+        <div class="functionBoard right" style="width: auto">
+            <main role="main" class="container mt-3 mb-3" >
+
+                <header role="banner">
+                    <div class="headcontainer">
+                        <div id="pageTitle" class="page-title">
+                            生产管理
+                        </div>
+                        <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%= user.role %></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%= user.userName %></span>
+                    </div>
+                </header>
+
+
+                <form method="post" action="/adProductionProjectMan">
+                    <div class="pageCard"  style="width: 100%">
+                        <div class="pageTitle" style="width: 100%">
+
+                            <input class="indexOf" name="searchText" id="searchText" value="" style="margin-left: 4px" placeholder="根据...">
+                            <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit">搜&emsp;索</button>
+                            <div  style="height: 30px">
+                                <button class="searchBarButton" onclick="location.href='/adProductionProjectAdd'" type="button" style="margin-left: 390px;" id="addNewProjectButton">创建生产项目</button>
+                            </div>
+
+                        </div>
+
+                        <div class="pageBody" style="width: 100%">
+                            <% for(let i = 0 ; i < 10 ; i++) { %>
+                            <table class="noteButton" style="width: 100%;font-size: 1rem;">
+                                <tr style="width: 100%;">
+                                    <td style="width: 82%;">
+
+                                        <button class="noteButton" name="ProductionProjectBtn" id="ProductionProjectBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showProjectDetail()">
+                                            <div  style= "font-size: 0.7rem; height: 35px; ">
+                                                <span class="ProductionProjectInfo" name="ProductionProjectName" style="margin-left: -50px; color: #0050fa ">2022第一季度DSII-46生产计划</span>
+                                                <span class="ProductionProjectInfo" style="margin-left: 430px">状态：<a  style="color: #0050fa; ">生产中 </a></span>
+                                            </div>
+                                            <div  style= "font-size: 0.7rem; height: 35px; ">
+                                                <span class="ProductionProjectInfo" style="margin-left: -50px">代号：<a  style="font-weight:normal;color: #0050fa; ">PP202201  </a></span>
+                                                <span class="ProductionProjectInfo" style="margin-left: 160px; ">对应订单：<a style="font-weight:normal;color: #0050fa; ">无</a></span>
+                                                <span class="ProductionProjectInfo" style="margin-left: 430px">进度：<a  style="color: #0050fa; ">90.5% </a></span>
+
+                                            </div>
+
+                                            <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                                <span class="ProductionProjectInfo" style="margin-left: -50px">负责人：  <a style="font-weight: normal;color: #0050fa">黄佳福</a></span>
+                                                <span class="ProductionProjectInfo" style="margin-left: 165px">周期：<a style="font-weight:normal;color: #0050fa; ">2022-02至2022-06</a></span>
+                                            </div>
+                                        </button>
+
+                                    </td>
+
+                                    <td style="width: 18%">
+                                        <table cellspacing="0" cellpadding="0" style="width: 100%">
+                                            <tr >
+                                                <td>
+                                                    <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/')">编辑</button>
+                                                </td>
+                                                <td>
+                                                    <button class="itemButton2" id="copyBtn<%=i%>" style="height: 90px;border: 0;display: none" type="button" onclick="">。。</button>
+
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr id="MachineProductionBox<%=i%>" style="width: 100%">
+                                    <div class="noteButton2" cellspacing="0" cellpadding="0" style="width: 122.5%; ">
+                                        <tbody><tr class="noteButton2" style="width: 87%;" id="DSII-46F-STcomponent0">
+                                            <td style="width: 80%;">
+                                                <div class="noteButton2" name="componentBtn" id="DSII-46F-ST256" value="0" style="padding-left: 80px;" type="button" onclick="showItems(0,'DSII-46F-ST','256')">
+                                                    <div style="font-size: 0.7rem; height: 30px; ">
+                                                        <span class="componentInfo" style="margin-left: -60px;color: #0050fa;   ">设备&nbsp;1</span>
+                                                        <span class="componentInfo" style="margin-left: -20px">名称：<a style="font-weight: normal;color: #0050fa;">双主轴双排刀46全防护</a></span>
+                                                        <span class="componentInfo" style="margin-left: 200px">型号：<a style="font-weight:normal;color: #0050fa; ">DSII-46F-ST</a></span>
+                                                        <span class="componentInfo" style="margin-left: 430px">状态：<a style="font-weight:normal;color: #0050fa; ">生产中</a></span>
+                                                    </div>
+                                                    <div style="font-size: 0.7rem; height: 30px; ">
+                                                        <span class="componentInfo" style="margin-left: -20px">对应订单：<a style="font-weight:normal;color: #0050fa; ">asd</a></span>
+                                                        <span class="componentInfo" style="margin-left: 430px;">生产周期：<a style="font-weight:normal;color: #0050fa; ">2022-02-15至2022-03-15</a></span>
+                                                    </div>
+                                                    <div style="font-size: 0.7rem; height: 30px;" id="">
+                                                        <span class="componentInfo" style="margin-left: -20px">出仓进度：<a style="font-weight: normal;color: red;"></a></span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="width: 13%!important;">
+                                                <table style="width: 100%">
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href='/adBOMList?componentId=256'"><img src="images/components.png" height="50px" width="50px"></button>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        <tr cellspacing="0" cellpadding="0" id="256itemBox" style="width: 100%">
+                                        </tr>
+                                        </tbody></div>
+                                </tr>
+                            </table>
+                            <% } %>
+                        </div>
+                    </div>
+
+                </form>
+
+
+            </main>
+        </div>
+
+
+
+</section>
+
+
+<%- include('zFooter') %>
+
+</body>
+
+</html>

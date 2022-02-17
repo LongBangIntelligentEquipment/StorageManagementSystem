@@ -36,7 +36,10 @@ var upload = multer({
 // });
 
 
-
+//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------//
+/*******************************  function  *********************************************/
 function addNote(event,itemName,id,changedState){
     var saveDate= new Date();
     var year= saveDate.getFullYear();
@@ -56,6 +59,216 @@ function addNote(event,itemName,id,changedState){
         }
     });
 }
+
+// 更新部件成本函数
+function updateComponentCost(componentId, itemId){
+    if (itemId){
+        let itemSql = 'SELECT componentId\n' +
+            'FROM component\n' +
+            'INNER JOIN component_has_item\n' +
+            'ON component_has_item.component_componentId = component.componentId\n' +
+            'INNER JOIN item\n' +
+            'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
+            'WHERE itemId =' + '"' + itemId + '"' ;
+
+        connection.query(itemSql, function (err,componentId) {
+            if (err) {
+                console.log('[SELECT ERROR] 查找部件错误！- ', err.message + '\n');
+                return ('[SELECT ERROR] 查找部件错误！- ' + err.message + '\n');
+            }
+            for (let i=0;i<componentId.length;i++){
+                updateComponentCost(componentId[i].componentId, false)
+            }
+        });
+    }
+    if (componentId){
+        let componentSql = 'SELECT itemPrice, itemQuantity\n' +
+            'FROM component\n' +
+            'INNER JOIN component_has_item\n' +
+            'ON component_has_item.component_componentId = component.componentId\n' +
+            'INNER JOIN item\n' +
+            'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
+            'WHERE componentId = ' + '"' + componentId + '"';
+        connection.query(componentSql, function (err,cost) {
+            if (err) {
+                console.log('[SELECT ERROR] 查找部件成本错误！- ', err.message + '\n');
+                return ('[SELECT ERROR] 查找部件成本错误！- ' + err.message + '\n');
+            }
+            var totalCost =0;
+            for (let i=0;i<cost.length;i++){
+                totalCost += cost[i].itemPrice * cost[i].itemQuantity;
+            }
+            let updateCostSql = 'UPDATE component SET cost = ? WHERE componentId =' + '"' + componentId + '"';
+            let updateCostParams = [totalCost];
+            connection.query(updateCostSql, updateCostParams, function (err) {
+                if (err) {
+                    console.log('[UPDATE ERROR] 更新部件成本错误！- ', err.message + '\n');
+                    return ('[UPDATE ERROR] 更新部件成本错误！- ' + err.message + '\n');
+                }
+                let componentMachineSql = 'SELECT component.machineId\n' +
+                    'FROM component\n' +
+                    'INNER JOIN machine\n' +
+                    'ON component.machineId = machine.machineId\n' +
+                    'WHERE componentId = ' + '"' + componentId + '"';
+                connection.query(componentMachineSql, function (err,machineIds) {
+                    if (err) {
+                        console.log('[SELECT ERROR] 查找部件设备错误！- ', err.message + '\n');
+                        return ('[SELECT ERROR] 查找部件设备错误！- ' + err.message + '\n');
+                    }
+                    let machineId = machineIds[0].machineId;
+                    updateMachineCost(machineId);
+                });
+            });
+        });
+    }
+
+}
+
+function updateMachineCost(machineId){
+    let machineTotalCostSql = 'SELECT SUM(component.cost) AS machineTotalCost\n' +
+        'FROM component\n' +
+        'INNER JOIN machine\n' +
+        'ON component.machineId = machine.machineId\n' +
+        'WHERE component.machineId = ' + '"' + machineId + '"';
+    connection.query(machineTotalCostSql, function (err,machineTotalCosts) {
+        if (err) {
+            console.log('[SELECT ERROR] 查找设备成本错误！- ', err.message + '\n');
+            return ('[SELECT ERROR] 查找设备成本错误！- ' + err.message + '\n');
+        }
+        let machineTotalCost = machineTotalCosts[0].machineTotalCost
+        if (!machineTotalCost){machineTotalCost = 0}
+        let updateMachineSql = 'UPDATE machine SET machineCost = '+ '"' + machineTotalCost + '"' + 'WHERE machineId = ' + '"' + machineId + '"';
+        connection.query(updateMachineSql, function (err) {
+            if (err) {
+                console.log('[SELECT ERROR] 更新设备成本错误！- ', err.message + '\n');
+                return ('[SELECT ERROR] 更新设备成本错误！- ' + err.message + '\n');
+            }
+        });
+    });
+}
+
+function copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, count){
+    var saveDate, year, month, day, hour, min, sec, updateTime;
+    saveDate = new Date();
+    year = saveDate.getFullYear();
+    month = saveDate.getMonth() + 1;
+    day = saveDate.getDate();
+    hour = saveDate.getHours();
+    min = saveDate.getMinutes();
+    sec = saveDate.getSeconds();
+    updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+
+    let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, itemOrderBy, cost, componentFileName\n' +
+        'FROM component\n' +
+        'INNER JOIN component_has_item\n' +
+        'ON component_has_item.component_componentId = component.componentId\n' +
+        'WHERE componentId = ' + '"' + componentId + '";';
+    connection.query( componentSql,function (err, componentItems) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            return;
+        }
+
+        var newComponentCost = 0;
+
+        if (componentItems.length > 0){
+            newComponentCost = componentItems[0].cost;
+            if (componentFileName === 'no-image-available.jpg'){
+                componentFileName = componentItems[0].componentFileName
+            }
+        }
+
+        let insertSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,componentFileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
+        let insertParam = [componentModel,componentName,updateTime,'正常',componentNote,userId,componentType,newComponentCost,componentFileName, machineId]
+        connection.query( insertSql, insertParam,function (err) {
+            if (err) {
+                console.log('[INSERT ERROR] 添加复制部件错误！ - ', err.message);
+                return;
+            }
+            updateMachineCost(machineId);
+            let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity, itemOrderBy) VALUES(?,?,?,?,?)'
+            connection.query( 'SELECT LAST_INSERT_ID() AS newComponentId;', function (err, newComponentIds) {
+                if (err) {
+                    console.log('查找插入ID错误！ - ', err.message);
+                    return;
+                }
+                let newComponentId = newComponentIds[0].newComponentId - count;
+                for (let i = 0; i < componentItems.length; i++) {
+                    let itemId = componentItems[i].item_itemId;
+                    let itemModel = componentItems[i].item_itemModel;
+                    let itemQty = componentItems[i].itemQuantity;
+                    let itemOrderBy = componentItems[i].itemOrderBy;
+                    let addSqlParams = [newComponentId, itemId, itemModel, itemQty, itemOrderBy];
+                    connection.query(addSql, addSqlParams, function (err) {
+                        if (err) {
+                            console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
+                        }
+                    });
+                }
+            });
+        });
+
+        // --添加事件更新到首页--
+        // addNote('部件事件更新', componentName, componentModel, '添加新部件');
+    });
+}
+
+function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, machineNote, machineFileName){
+    var saveDate, year, month, day, hour, min, sec, updateTime;
+    saveDate = new Date();
+    year = saveDate.getFullYear();
+    month = saveDate.getMonth() + 1;
+    day = saveDate.getDate();
+    hour = saveDate.getHours();
+    min = saveDate.getMinutes();
+    sec = saveDate.getSeconds();
+    updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+
+    let copyMachineSql = 'SELECT *\n' +
+        'FROM machine\n' +
+        'INNER JOIN component\n' +
+        'ON component.machineId = machine.machineId\n' +
+        'INNER JOIN user\n' +
+        'ON component.userId = user.userId\n' +
+        'WHERE machine.machineId = ' + '"' + copyMachineId + '";';
+
+    connection.query( copyMachineSql,function (err, machineComponents) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            return;
+        }
+
+        if (machineFileName === 'no-image-available.jpg' && machineComponents){
+            machineFileName = machineComponents[0].machineFileName;
+        }
+
+        let newMachineSql = 'INSERT INTO machine (machineId,machineName,updateTime,designer,note, machineFileName) VALUES(?,?,?,?,?,?)';
+        let newMachineParams = [machineModel, machineName, updateTime, machineDesigner, machineNote, machineFileName];
+        connection.query(newMachineSql, newMachineParams, function (err) {
+            if (err) {
+                console.log('[INSERT ERROR] 添加复制设备错误 - ', err.message);
+                return;
+            }
+            // --添加事件更新到首页--
+            addNote('设备事件更新', machineName, machineModel, '添加复制设备');
+
+            var componentId, componentName, componentModel, componentType, componentNote, componentFileName, userId, i;
+            for (i=0;i<machineComponents.length;i++){
+                componentId = machineComponents[i].componentId;
+                componentName = machineComponents[i].componentName;
+                componentModel = machineComponents[i].componentModel;
+                componentType = machineComponents[i].categoryId;
+                componentNote = machineComponents[i].componentNote;
+                componentFileName = machineComponents[i].componentFileName;
+                userId = machineComponents[i].userId;
+                copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineModel, userId, i);
+            }
+        });
+    });
+}
+//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------//
 
 
 //   ---查找设备---  A-B-C  设备，部件，物料
@@ -856,92 +1069,7 @@ router.get('/ajaxSearchItem', function(req, res) {
     });
 })
 
-// 更新部件成本函数
-function updateComponentCost(componentId, itemId){
-    if (itemId){
-        let itemSql = 'SELECT componentId\n' +
-            'FROM component\n' +
-            'INNER JOIN component_has_item\n' +
-            'ON component_has_item.component_componentId = component.componentId\n' +
-            'INNER JOIN item\n' +
-            'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
-            'WHERE itemId =' + '"' + itemId + '"' ;
 
-        connection.query(itemSql, function (err,componentId) {
-            if (err) {
-                console.log('[SELECT ERROR] 查找部件错误！- ', err.message + '\n');
-                return ('[SELECT ERROR] 查找部件错误！- ' + err.message + '\n');
-            }
-            for (let i=0;i<componentId.length;i++){
-                updateComponentCost(componentId[i].componentId, false)
-            }
-        });
-    }
-    if (componentId){
-        let componentSql = 'SELECT itemPrice, itemQuantity\n' +
-            'FROM component\n' +
-            'INNER JOIN component_has_item\n' +
-            'ON component_has_item.component_componentId = component.componentId\n' +
-            'INNER JOIN item\n' +
-            'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
-            'WHERE componentId = ' + '"' + componentId + '"';
-        connection.query(componentSql, function (err,cost) {
-            if (err) {
-                console.log('[SELECT ERROR] 查找部件成本错误！- ', err.message + '\n');
-                return ('[SELECT ERROR] 查找部件成本错误！- ' + err.message + '\n');
-            }
-            var totalCost =0;
-            for (let i=0;i<cost.length;i++){
-                totalCost += cost[i].itemPrice * cost[i].itemQuantity;
-            }
-            let updateCostSql = 'UPDATE component SET cost = ? WHERE componentId =' + '"' + componentId + '"';
-            let updateCostParams = [totalCost];
-            connection.query(updateCostSql, updateCostParams, function (err) {
-                if (err) {
-                    console.log('[UPDATE ERROR] 更新部件成本错误！- ', err.message + '\n');
-                    return ('[UPDATE ERROR] 更新部件成本错误！- ' + err.message + '\n');
-                }
-                let componentMachineSql = 'SELECT component.machineId\n' +
-                    'FROM component\n' +
-                    'INNER JOIN machine\n' +
-                    'ON component.machineId = machine.machineId\n' +
-                    'WHERE componentId = ' + '"' + componentId + '"';
-                connection.query(componentMachineSql, function (err,machineIds) {
-                    if (err) {
-                        console.log('[SELECT ERROR] 查找部件设备错误！- ', err.message + '\n');
-                        return ('[SELECT ERROR] 查找部件设备错误！- ' + err.message + '\n');
-                    }
-                    let machineId = machineIds[0].machineId;
-                    updateMachineCost(machineId);
-                });
-            });
-        });
-    }
-
-}
-
-function updateMachineCost(machineId){
-    let machineTotalCostSql = 'SELECT SUM(component.cost) AS machineTotalCost\n' +
-        'FROM component\n' +
-        'INNER JOIN machine\n' +
-        'ON component.machineId = machine.machineId\n' +
-        'WHERE component.machineId = ' + '"' + machineId + '"';
-    connection.query(machineTotalCostSql, function (err,machineTotalCosts) {
-        if (err) {
-            console.log('[SELECT ERROR] 查找设备成本错误！- ', err.message + '\n');
-            return ('[SELECT ERROR] 查找设备成本错误！- ' + err.message + '\n');
-        }
-        let machineTotalCost = machineTotalCosts[0].machineTotalCost
-        if (!machineTotalCost){machineTotalCost = 0}
-        let updateMachineSql = 'UPDATE machine SET machineCost = '+ '"' + machineTotalCost + '"' + 'WHERE machineId = ' + '"' + machineId + '"';
-        connection.query(updateMachineSql, function (err) {
-            if (err) {
-                console.log('[SELECT ERROR] 更新设备成本错误！- ', err.message + '\n');
-                return ('[SELECT ERROR] 更新设备成本错误！- ' + err.message + '\n');
-            }
-        });
-    });
-}
 
 /* AJax Save ADD BOM List */
 router.get('/ajaxSaveAdd', function(req, res) {
@@ -1180,71 +1308,7 @@ router.post('/componentCopy', upload.single('BomListFileName'), function(req, re
     res.redirect('flash?url='+flashUrl);
 });
 
-function copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, count){
-    var saveDate, year, month, day, hour, min, sec, updateTime;
-    saveDate = new Date();
-    year = saveDate.getFullYear();
-    month = saveDate.getMonth() + 1;
-    day = saveDate.getDate();
-    hour = saveDate.getHours();
-    min = saveDate.getMinutes();
-    sec = saveDate.getSeconds();
-    updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
 
-    let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, itemOrderBy, cost, componentFileName\n' +
-        'FROM component\n' +
-        'INNER JOIN component_has_item\n' +
-        'ON component_has_item.component_componentId = component.componentId\n' +
-        'WHERE componentId = ' + '"' + componentId + '";';
-    connection.query( componentSql,function (err, componentItems) {
-        if (err) {
-            console.log('[SELECT ERROR] - ', err.message);
-            return;
-        }
-
-        var newComponentCost = 0;
-
-        if (componentItems.length > 0){
-            newComponentCost = componentItems[0].cost;
-            if (componentFileName === 'no-image-available.jpg'){
-                componentFileName = componentItems[0].componentFileName
-            }
-        }
-
-        let insertSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,componentFileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
-        let insertParam = [componentModel,componentName,updateTime,'正常',componentNote,userId,componentType,newComponentCost,componentFileName, machineId]
-        connection.query( insertSql, insertParam,function (err) {
-            if (err) {
-                console.log('[INSERT ERROR] 添加复制部件错误！ - ', err.message);
-                return;
-            }
-            updateMachineCost(machineId);
-            let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity, itemOrderBy) VALUES(?,?,?,?,?)'
-            connection.query( 'SELECT LAST_INSERT_ID() AS newComponentId;', function (err, newComponentIds) {
-                if (err) {
-                    console.log('查找插入ID错误！ - ', err.message);
-                    return;
-                }
-                let newComponentId = newComponentIds[0].newComponentId - count;
-                for (let i = 0; i < componentItems.length; i++) {
-                    let itemId = componentItems[i].item_itemId;
-                    let itemModel = componentItems[i].item_itemModel;
-                    let itemQty = componentItems[i].itemQuantity;
-                    let itemOrderBy = componentItems[i].itemOrderBy;
-                    let addSqlParams = [newComponentId, itemId, itemModel, itemQty, itemOrderBy];
-                    connection.query(addSql, addSqlParams, function (err) {
-                        if (err) {
-                            console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
-                        }
-                    });
-                }
-            });
-        });
-
-        // --添加事件更新到首页--
-        // addNote('部件事件更新', componentName, componentModel, '添加新部件');
-    });
-}
 
 
 //   ---复制机械---
@@ -1285,96 +1349,6 @@ router.post('/machineCopy', upload.single('machineFileName'), function(req, res)
 
         let flashUrl = '/adBOMListMan';
         res.redirect('flash?url='+flashUrl);
-    });
-});
-
-function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, machineNote, machineFileName){
-    var saveDate, year, month, day, hour, min, sec, updateTime;
-    saveDate = new Date();
-    year = saveDate.getFullYear();
-    month = saveDate.getMonth() + 1;
-    day = saveDate.getDate();
-    hour = saveDate.getHours();
-    min = saveDate.getMinutes();
-    sec = saveDate.getSeconds();
-    updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
-
-    let copyMachineSql = 'SELECT *\n' +
-        'FROM machine\n' +
-        'INNER JOIN component\n' +
-        'ON component.machineId = machine.machineId\n' +
-        'INNER JOIN user\n' +
-        'ON component.userId = user.userId\n' +
-        'WHERE machine.machineId = ' + '"' + copyMachineId + '";';
-
-    connection.query( copyMachineSql,function (err, machineComponents) {
-        if (err) {
-            console.log('[SELECT ERROR] - ', err.message);
-            return;
-        }
-
-        if (machineFileName === 'no-image-available.jpg' && machineComponents){
-            machineFileName = machineComponents[0].machineFileName;
-        }
-
-        let newMachineSql = 'INSERT INTO machine (machineId,machineName,updateTime,designer,note, machineFileName) VALUES(?,?,?,?,?,?)';
-        let newMachineParams = [machineModel, machineName, updateTime, machineDesigner, machineNote, machineFileName];
-        connection.query(newMachineSql, newMachineParams, function (err) {
-            if (err) {
-                console.log('[INSERT ERROR] 添加复制设备错误 - ', err.message);
-                return;
-            }
-            // --添加事件更新到首页--
-            addNote('设备事件更新', machineName, machineModel, '添加复制设备');
-
-            var componentId, componentName, componentModel, componentType, componentNote, componentFileName, userId, i;
-            for (i=0;i<machineComponents.length;i++){
-                componentId = machineComponents[i].componentId;
-                componentName = machineComponents[i].componentName;
-                componentModel = machineComponents[i].componentModel;
-                componentType = machineComponents[i].categoryId;
-                componentNote = machineComponents[i].componentNote;
-                componentFileName = machineComponents[i].componentFileName;
-                userId = machineComponents[i].userId;
-                copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineModel, userId, i);
-            }
-        });
-    });
-}
-
-
-
-
-
-
-
-// -------------------------------------  2022 ---------------------------------
-
-/*                            ***************************************************生产管理***************************************************                  */
-
-/* GET adProjectMan */
-router.get('/adProjectMan', function(req, res) {
-    let projectSql = 'SELECT * FROM project;';
-    let userSql = 'SELECT userName,role FROM user;';
-
-    connection.query(projectSql,function (err,project) {
-        if(err){
-            console.log('[SELECT ERROR] - ',err.message);
-            res.send('查找设备出错：' + '\n' + err);
-            return;
-        }
-        connection.query(userSql,function (err, users) {
-            if (err) {
-                console.log('[SELECT ERROR] - ', err.message);
-                res.send(err);
-                return;
-            }
-            res.render('adProjectMan', {
-                user:req.session.user,
-                project: project,
-                users: users,
-            });
-        });
     });
 });
 

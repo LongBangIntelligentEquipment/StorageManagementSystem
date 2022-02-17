@@ -777,7 +777,7 @@ input::-webkit-inner-spin-button {
 }
 
 
-.BOMInfo, categoryName{
+.BOMInfo{
   position: absolute;
   font-weight: bold;
   font-size: large;
@@ -879,4 +879,10 @@ li{
 li:hover{
 
   list-style-image: url("../images/order1.png") ;
+}
+
+.ProductionProjectInfo{
+  position: absolute;
+  font-weight: bold;
+  font-size: large;
 }

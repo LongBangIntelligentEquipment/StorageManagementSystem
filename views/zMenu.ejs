@@ -6,7 +6,7 @@
             <li class="list-group"><button class="functionBoard-Button" type="button" id="itemMan" onclick="location.href='/adItemMan'">物料管理</button></li>
             <li class="list-group"><button class="functionBoard-Button" type="button" id="orderMan" onclick="location.href='/adOrderMan'">采购管理</button></li>
             <li class="list-group"><button class="functionBoard-Button" type="button" id="BOMListMan"  onclick="location.href='/adBOMListMan'">BOM表管理</button></li>
-            <li class="list-group"><button class="functionBoard-Button" type="button" id="ProjectMan"  onclick="location.href='/adProjectMan'">生产管理</button></li>
+            <li class="list-group"><button class="functionBoard-Button" type="button" id="productionProjectMan"  onclick="location.href='/adProductionProjectMan'">生产管理</button></li>
             <li class="list-group"><button class="functionBoard-Button" type="button" id="authorityMan" onclick="location.href='/adUserMan'" >权限管理</button></li>
         </ul>
         <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
@@ -21,7 +21,7 @@
                 case '物料管理':$('#itemMan').attr('class','functionBoard-Button current');break;
                 case '采购管理':$('#orderMan').attr('class','functionBoard-Button current');break;
                 case 'BOM表管理':$('#BOMListMan').attr('class','functionBoard-Button current');break;
-                case '生产管理':$('#ProjectMan').attr('class','functionBoard-Button current');break;
+                case '生产管理':$('#productionProjectMan').attr('class','functionBoard-Button current');break;
                 case '权限管理':$('#authorityMan').attr('class','functionBoard-Button current');break;
             }
 

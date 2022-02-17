@@ -4,7 +4,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
-var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var session=require('express-session');
 
@@ -43,14 +42,13 @@ app.get('*',function (req,res,next) {
 })
 //------------------------------------------------------
 
-app.use('/', indexRouter);
+
 
 
 app.use('/', require('./routes/loginBlock'));
 app.use('/', require('./routes/adERPModule'));
 app.use('/', require('./routes/adMESModule'));
 app.use('/', require('./routes/adBOMTableModule'));
-app.use('/', require('./routes/upload'));
 app.use('/', require('./routes/users'));
 
 
