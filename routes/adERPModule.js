@@ -52,7 +52,10 @@ var upload = multer({
 //     storage: storage,
 // });
 
-
+//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------//
+/*******************************  function  *********************************************/
 function getInfo(url,callback){
     router.get('/create_qrcode', function (req, res, next) {
         var text = req.query.text;
@@ -162,6 +165,91 @@ function addNote(event,itemName,id,changedState){
         if(err){
             console.log('[INSERT ERROR] - ',err.message);
         }
+    });
+}
+
+function updateComponentCost(componentId, itemId){
+    if (itemId){
+        let itemSql = 'SELECT componentId\n' +
+            'FROM component\n' +
+            'INNER JOIN component_has_item\n' +
+            'ON component_has_item.component_componentId = component.componentId\n' +
+            'INNER JOIN item\n' +
+            'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
+            'WHERE itemId =' + '"' + itemId + '"' ;
+
+        connection.query(itemSql, function (err,componentId) {
+            if (err) {
+                console.log('[SELECT ERROR] 查找部件错误！- ', err.message + '\n');
+                return ('[SELECT ERROR] 查找部件错误！- ' + err.message + '\n');
+            }
+            for (let i=0;i<componentId.length;i++){
+                updateComponentCost(componentId[i].componentId, false)
+            }
+        });
+    }
+    if (componentId){
+        let componentSql = 'SELECT itemPrice, itemQuantity\n' +
+            'FROM component\n' +
+            'INNER JOIN component_has_item\n' +
+            'ON component_has_item.component_componentId = component.componentId\n' +
+            'INNER JOIN item\n' +
+            'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
+            'WHERE componentId = ' + '"' + componentId + '"';
+        connection.query(componentSql, function (err,cost) {
+            if (err) {
+                console.log('[SELECT ERROR] 查找部件成本错误！- ', err.message + '\n');
+                return ('[SELECT ERROR] 查找部件成本错误！- ' + err.message + '\n');
+            }
+            var totalCost =0;
+            for (let i=0;i<cost.length;i++){
+                totalCost += cost[i].itemPrice * cost[i].itemQuantity;
+            }
+            let updateCostSql = 'UPDATE component SET cost = ? WHERE componentId =' + '"' + componentId + '"';
+            let updateCostParams = [totalCost];
+            connection.query(updateCostSql, updateCostParams, function (err) {
+                if (err) {
+                    console.log('[UPDATE ERROR] 更新部件成本错误！- ', err.message + '\n');
+                    return ('[UPDATE ERROR] 更新部件成本错误！- ' + err.message + '\n');
+                }
+                let componentMachineSql = 'SELECT component.machineId\n' +
+                    'FROM component\n' +
+                    'INNER JOIN machine\n' +
+                    'ON component.machineId = machine.machineId\n' +
+                    'WHERE componentId = ' + '"' + componentId + '"';
+                connection.query(componentMachineSql, function (err,machineIds) {
+                    if (err) {
+                        console.log('[SELECT ERROR] 查找部件设备错误！- ', err.message + '\n');
+                        return ('[SELECT ERROR] 查找部件设备错误！- ' + err.message + '\n');
+                    }
+                    let machineId = machineIds[0].machineId;
+                    updateMachineCost(machineId);
+                });
+            });
+        });
+    }
+}
+
+function updateMachineCost(machineId){
+    let machineTotalCostSql = 'SELECT SUM(component.cost) AS machineTotalCost\n' +
+        'FROM component\n' +
+        'INNER JOIN machine\n' +
+        'ON component.machineId = machine.machineId\n' +
+        'WHERE component.machineId = ' + '"' + machineId + '"';
+    connection.query(machineTotalCostSql, function (err,machineTotalCosts) {
+        if (err) {
+            console.log('[SELECT ERROR] 查找设备成本错误！- ', err.message + '\n');
+            return ('[SELECT ERROR] 查找设备成本错误！- ' + err.message + '\n');
+        }
+        let machineTotalCost = machineTotalCosts[0].machineTotalCost
+        if (!machineTotalCost){machineTotalCost = 0}
+        let updateMachineSql = 'UPDATE machine SET machineCost = '+ '"' + machineTotalCost + '"' + 'WHERE machineId = ' + '"' + machineId + '"';
+        connection.query(updateMachineSql, function (err) {
+            if (err) {
+                console.log('[SELECT ERROR] 更新设备成本错误！- ', err.message + '\n');
+                return ('[SELECT ERROR] 更新设备成本错误！- ' + err.message + '\n');
+            }
+        });
     });
 }
 //-----------------------------------------------------------------------------//
@@ -781,7 +869,7 @@ router.post('/adItem', upload.single('updateFileName'), function(req, res, next)
 
 
         var returnURL = '/adItem?sql='+sql+'&itemId='+url.itemId+'&returnSql='+url.returnSql+'&itemModel='+url.itemModel;
-        console.log(returnURL)
+        //console.log(returnURL);
         return  res.redirect(returnURL)
     }
 

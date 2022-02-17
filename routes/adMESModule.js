@@ -47,7 +47,7 @@ var upload = multer({
 /*                            ***************************************************生产管理***************************************************                  */
 
 /* POST adProjectAdd Page */
-router.post('/adProjectAdd', function (req, res) {
+router.post('/adProductionProjectAdd', function (req, res) {
     var saveDate, year, month, day, hour, min, sec, dateOutput1, dateOutput2;
     saveDate = new Date();
     year = saveDate.getFullYear();
@@ -98,7 +98,7 @@ router.post('/adProjectAdd', function (req, res) {
 
 //   ---删除项目---
 /* GET adProjectDelete Page */
-router.get('/adProjectDelete', function(req, res) {
+router.get('/adProductionProjectDelete', function(req, res) {
     let url=URL.parse(req.url,true).query;
     let delSql = 'DELETE FROM project WHERE projectId = ' + url.projectId ;
     connection.query(delSql,function (err) {
@@ -113,7 +113,7 @@ router.get('/adProjectDelete', function(req, res) {
 
 //   ---修改项目---
 /* POST adProjectEdit Page */
-router.post('/adProjectEdit', function(req, res) {
+router.post('/adProductionProjectEdit', function(req, res) {
     var saveDate, year, month, day, hour, min, sec, dateOutput1, dateOutput2;
     saveDate = new Date();
     year = saveDate.getFullYear();
@@ -147,7 +147,7 @@ router.post('/adProjectEdit', function(req, res) {
 
 //   ---查找项目主页---
 /* GET adProjectMan */
-router.get('/adProjectMan', function(req, res) {
+router.get('/adProductionProjectMan', function(req, res) {
     let projectSql = 'SELECT * FROM project;';
     let userSql = 'SELECT userName,role FROM user;';
 
@@ -163,7 +163,7 @@ router.get('/adProjectMan', function(req, res) {
                 res.send(err);
                 return;
             }
-            res.render('adProjectMan', {
+            res.render('adProductionProjectMan', {
                 user:req.session.user,
                 project: project,
                 users: users,
@@ -175,7 +175,7 @@ router.get('/adProjectMan', function(req, res) {
 
 //   ---查找项目详细---
 /* GET adProject */
-router.get('/adProject', function(req, res) {
+router.get('/adProductionProject', function(req, res) {
     let url=URL.parse(req.url,true).query;
     let projectId = url.projectId;
     let projectSql = 'SELECT * FROM project WHERE projectId = ' + projectId;
