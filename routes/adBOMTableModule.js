@@ -1175,7 +1175,7 @@ router.get('/ajaxSaveEdit', function(req, res) {
 })
 
 
-/*                            ***************************************************分类增删改查***************************************************                  */
+/*                            ***************************************************部件分类增删改查***************************************************                  */
 //   ---增加分类---
 /* GET adBOMListCategoryAdd Page */
 router.get('/adBOMListCategoryAdd', function(req, res) {
@@ -1248,15 +1248,31 @@ router.get('/adBOMListCategoryEdit', function(req, res) {
 /* POST adBOMListCategoryEdit Page */
 router.post('/adBOMListCategoryEdit', function(req, res) {
     let url=URL.parse(req.url,true).query;
-    let modSql = 'UPDATE category SET categoryName = ? WHERE categoryId = '+'\''+url.categoryId+'\'';
-    let modSqlParams = [req.body.editCategoryName];
-    connection.query(modSql,modSqlParams,function (err) {
-        if(err){
-            console.log('[UPDATE ERROR] - ',err.message);
+let editCategoryName = req.body.editCategoryName
+let modSql = 'UPDATE category SET categoryName = ? WHERE categoryId = '+'\''+url.categoryId+'\'';
+let modSqlParams = [editCategoryName];
+let unique = true;
+let checkCategoryNameSQL = 'SELECT * FROM category WHERE categoryName= '+'\''+ editCategoryName + '\'';
+
+    connection.query(checkCategoryNameSQL, function (err, checkResult) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
             res.send(err);
             return;
         }
-        res.redirect('/adBOMListCategoryMan')
+        if (checkResult.length !== 0) {
+            unique = false;
+            return res.send('分类修改失败：您所修改的分类【分类名称】已存在于分类列表中。')
+        } else if (unique) {
+            connection.query(modSql, modSqlParams, function (err) {
+                if (err) {
+                    console.log('[UPDATE ERROR] - ', err.message);
+                    res.send(err);
+                    return;
+                }
+                res.redirect('/adBOMListCategoryMan')
+            });
+        }
     });
 });
 

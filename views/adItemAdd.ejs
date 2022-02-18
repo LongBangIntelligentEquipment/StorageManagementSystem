@@ -73,7 +73,11 @@
                                         <% for(let i = 0; i < itemTypes.length; i++) { %>
                                             <option value="<%= itemTypes[i].itemTypeId %>"><%= itemTypes[i].itemTypeName %></option>
                                         <% } %>
-                                    </select></div>
+                                    </select>
+                                    <span>
+                                        <button class="searchBarButton" onclick="location.href='/adItemTypeMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>
+                                    </span>
+                                </div>
                                 <div class="itemDetail">单位<a style="color: red; font-size: x-large">*</a>：<input required="required" name="addUnit" class="itemDetailsInput addItemInfo" id="detail5"   style="width: 100px"></div>
                                 <div class="itemDetail">区域<a style="color: red; font-size: x-large">*</a>：<input required="required" name="addArea" class="itemDetailsInput addItemInfo" id="detail4"  style="width: 100px; "></div>
                                 <div class="itemDetail">数量预警<a style="color: red; font-size: x-large">*</a>：<input required="required" name="addAlarmSetting" class="itemDetailsInput addItemInfo" id="detail5"  style="width: 60px"></div>

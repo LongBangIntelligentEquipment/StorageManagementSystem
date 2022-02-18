@@ -2807,6 +2807,126 @@ router.post('/adUser', function(req, res, next) {
 
 
 
+/*                            ***************************************************物料分类增删改查***************************************************                  */
+//   ---增加分类---
+/* GET adItemTypeAdd Page */
+router.get('/adItemTypeAdd', function(req, res) {
+    res.render('adItemTypeAdd', {user: req.session.user,})
+});
+/* POST adItemTypeAdd Page */
+router.post('/adItemTypeAdd', function (req, res) {
+    let unique = true;
+    let addItemTypeName = req.body.addItemTypeName
+    let checkItemTypeNameSQL = 'SELECT * FROM itemtype WHERE itemTypeName= '+'\''+ addItemTypeName + '\'';
+
+    connection.query(checkItemTypeNameSQL, function (err, checkResult) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send(err);
+            return;
+        }
+        if (checkResult.length !== 0) {
+            unique = false;
+            return res.send('分类添加失败：您所添加的分类【分类名称】已存在于分类列表中。')
+        } else if (unique) {
+            let addSql = 'INSERT INTO itemtype(itemTypeName) VALUES(?)';
+            let  addSqlParams = [addItemTypeName];
+
+            connection.query(addSql,addSqlParams, function (err) {
+                if (err) {
+                    console.log('[INSERT ERROR] - 添加新物料分类错误！ \n', err.message);
+                    res.send('[INSERT ERROR] - 添加新物料分类错误！ \n' + err.message);
+                }
+            });
+
+        }
+        return res.redirect('/adItemTypeMan')
+    });
+});
+
+//   ---删除分类---
+/* GET adItemTypeDelete Page */
+router.get('/adItemTypeDelete', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    let delSql = 'DELETE FROM itemtype WHERE itemTypeId = '+'\''+url.itemTypeId+'\'';
+    connection.query(delSql,function (err) {
+        if(err){
+            console.log('[DELETE ERROR] - 删除物料分类错误！ \n',err.message);
+            res.send('[DELETE ERROR] - 删除物料分类错误！ \n' + err.message);
+            return;
+        }
+        res.redirect('/adItemTypeMan')
+    });
+});
+
+//   ---修改分类---
+/* GET adItemTypeEdit Page */
+router.get('/adItemTypeEdit', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    let sql = 'SELECT * FROM itemtype WHERE itemTypeId = '+'\''+url.itemTypeId+'\'';
+
+    connection.query(sql,function (err,result) {
+        if(err){
+            console.log('[SELECT ERROR] - ',err.message);
+            res.send(err);
+            return;
+        }
+        res.render('adItemTypeEdit', {
+            user: req.session.user,
+            itemType: result[0]
+        })
+    });
+});
+/* POST adItemTypeEdit Page */
+router.post('/adItemTypeEdit', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    let editItemTypeName = req.body.editItemTypeName
+    let modSql = 'UPDATE itemtype SET itemTypeName = ? WHERE itemTypeId = '+'\''+url.itemTypeId+'\'';
+    let modSqlParams = [editItemTypeName];
+    let unique = true;
+    let checkItemTypeNameSQL = 'SELECT * FROM itemtype WHERE itemTypeName= '+'\''+ editItemTypeName + '\'';
+
+    connection.query(checkItemTypeNameSQL, function (err, checkResult) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send(err);
+            return;
+        }
+        if (checkResult.length !== 0) {
+            unique = false;
+            return res.send('分类修改失败：您所修改的分类【分类名称】已存在于分类列表中。')
+        } else if (unique) {
+            connection.query(modSql, modSqlParams, function (err) {
+                if (err) {
+                    console.log('[UPDATE ERROR] - ', err.message);
+                    res.send(err);
+                    return;
+                }
+                res.redirect('/adItemTypeMan')
+            });
+        }
+    });
+});
+
+//   ---查找分类---
+/* GET adItemTypeMan*/
+router.get('/adItemTypeMan', function(req, res) {
+    let sql = 'SELECT * FROM itemtype';
+    connection.query( sql,function (err, result) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send(err);
+            return;
+        }
+        res.render('adItemTypeMan', {
+            user: req.session.user,
+            itemType: result
+        })
+    });
+});
+
+
+
 
 
 

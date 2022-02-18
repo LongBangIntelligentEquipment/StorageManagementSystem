@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta  content="yes"  name="apple-mobile-web-app-capable">
     <meta  name="viewport"  content="maximum-scale=1.0,user-scalable=no">
-    <title>隆邦ERP系统_BOM表分类管理</title>
+    <title>隆邦ERP系统_物料表分类管理</title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
     <script type="text/javascript" src="/javaScript/jquery-3.6.0.min.js"></script>
     <script language="javascript">
@@ -27,7 +27,7 @@
             <header role="banner">
                 <div class="headcontainer">
                     <div id="pageTitle" class="page-title">
-                        BOM表管理
+                        物料管理
                     </div>
                     <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
                 </div>
@@ -36,9 +36,9 @@
             <form onsubmit="return confirmAgain()" method="post" >
                 <div class="itemDetailsPage" >
                     <div class="itemDetail">创建新分类：</div>
-                    <div class="itemDetail" style="margin-top: 10px">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addCategoryName" class="itemDetailsInput addItemInfo" required="required"  style="width: 500px" placeholder="请输入分类名称" ></div>
+                    <div class="itemDetail" style="margin-top: 10px">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addItemTypeName" class="itemDetailsInput addItemInfo" required="required"  style="width: 500px" placeholder="请输入分类名称" ></div>
                 </div>
-                <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">创建新部件分类</button>
+                <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">创建新物料分类</button>
             </form>
         </main>
     </div>
