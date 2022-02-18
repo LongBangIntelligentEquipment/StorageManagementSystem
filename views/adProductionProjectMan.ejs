@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
 
-    <title>隆邦ERP系统_物料管理</title>
+    <title>隆邦企业管理系统_生产管理</title>
     <link rel='stylesheet' href='/stylesheets/style.css'/>
 
     <!--    jQuery Ajax   -->
@@ -46,11 +46,10 @@
                             <div  style="height: 30px">
                                 <button class="searchBarButton" onclick="location.href='/adProductionProjectAdd'" type="button" style="margin-left: 390px;" id="addNewProjectButton">创建生产项目</button>
                             </div>
-
                         </div>
 
                         <div class="pageBody" style="width: 100%">
-                            <% for(let i = 0 ; i < 10 ; i++) { %>
+                            <% for(let i = 0 ; i < 1 ; i++) { %>
                             <table class="noteButton" style="width: 100%;font-size: 1rem;">
                                 <tr style="width: 100%;">
                                     <td style="width: 82%;">
@@ -63,8 +62,6 @@
                                             <div  style= "font-size: 0.7rem; height: 35px; ">
                                                 <span class="ProductionProjectInfo" style="margin-left: -50px">代号：<a  style="font-weight:normal;color: #0050fa; ">PP2022001  </a></span>
                                                 <span class="ProductionProjectInfo" style="margin-left: 430px">状态：  <a style="color: #0050fa">生产中</a></span>
-
-
                                             </div>
 
                                             <div  style= "font-size: 0.7rem; height: 30px;" id="">
@@ -85,7 +82,6 @@
                                                 </td>
                                                 <td>
                                                     <button class="itemButton2" id="copyBtn<%=i%>" style="height: 90px;border: 0;display: none" type="button" onclick="">。。</button>
-
                                                 </td>
                                             </tr>
                                         </table>
@@ -134,7 +130,6 @@
                             <% } %>
                         </div>
                     </div>
-
                 </form>
 
 

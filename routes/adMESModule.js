@@ -45,6 +45,9 @@ var upload = multer({
 
 
 /*                            ***************************************************生产管理***************************************************                  */
+router.get('/adProductionProjectAdd', function(req, res, next) {
+    res.render('adProductionProjectAdd', {user:req.session.user });
+});
 
 /* POST adProjectAdd Page */
 router.post('/adProductionProjectAdd', function (req, res) {
@@ -93,7 +96,7 @@ router.post('/adProductionProjectAdd', function (req, res) {
             });
         }
     });
-    return res.redirect('/adProject')
+    return res.redirect('/adProductionProjectMan')
 });
 
 //   ---删除项目---
