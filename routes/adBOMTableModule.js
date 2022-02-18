@@ -1003,8 +1003,7 @@ router.get('/ajaxSearchItem', function(req, res) {
     searchText = '%' + searchText + '%';
     searchSql = 'SELECT itemId, itemModel, itemName, itemNote, itemTypeName AS itemType, itemNum, itemUnit, itemSupplier\n' +
         'FROM item\n' +
-        'JOIN category ON category.categoryId = item.categoryId\n' +
-        'INNER JOIN itemType\n' +
+        'INNER JOIN itemtype\n' +
         'ON item.itemTypeId = itemtype.itemTypeId\n' +
         'WHERE itemId LIKE "'+ searchText + '" OR itemModel LIKE "'+ searchText + '" OR itemName LIKE "'+ searchText + '" OR itemSupplier LIKE "'+searchText+ '" OR itemNote LIKE "'+ searchText + '";'
 
@@ -1085,7 +1084,7 @@ router.get('/ajaxSaveAdd', function(req, res) {
     const itemLength = items[0].length;
     var errorMessage;
 
-    const maxOrderSql = 'SELECT itemOrderBy AS maxOrder FROM component_has_item WHERE component_componentId = ' + componentId;
+    const maxOrderSql = 'SELECT MAX(itemOrderBy) AS maxOrder FROM component_has_item WHERE component_componentId = ' + componentId;
 
     connection.query(maxOrderSql, function (err2, maxOrder) {
 
@@ -1102,7 +1101,7 @@ router.get('/ajaxSaveAdd', function(req, res) {
             let itemModel = items[1][i];
             let itemQty = items[2][i];
 
-            let addOrderBy = maxOrder[0].maxOrder + i + 1;
+            var addOrderBy = maxOrder[0].maxOrder + i + 1;
 
             var addSqlParams = [componentId,itemId,itemModel,itemQty,addOrderBy];
 

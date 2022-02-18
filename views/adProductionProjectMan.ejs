@@ -50,28 +50,26 @@
                         </div>
 
                         <div class="pageBody" style="width: 100%">
-                            <% for(let i = 0 ; i < 10 ; i++) { %>
+                            <% for(let i = 0 ; i < project.length ; i++) { %>
                             <table class="noteButton" style="width: 100%;font-size: 1rem;">
                                 <tr style="width: 100%;">
                                     <td style="width: 82%;">
 
                                         <button class="noteButton" name="ProductionProjectBtn" id="ProductionProjectBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showProjectDetail()">
                                             <div  style= "font-size: 0.7rem; height: 35px; ">
-                                                <span class="ProductionProjectInfo" name="ProductionProjectName" style="margin-left: -50px; color: #0050fa ">2022第一季度DSII-46生产计划</span>
-                                                <span class="ProductionProjectInfo" style="margin-left: 430px">负责人：<a  style="color: #0050fa; ">黄佳福 </a></span>
+                                                <span class="ProductionProjectInfo" name="ProductionProjectName" style="margin-left: -50px; color: #0050fa "><%=project[i].projectName%></span>
+                                                <span class="ProductionProjectInfo" style="margin-left: 430px">负责人：<a  style="color: #0050fa; "><%=project[i].projectManager%> </a></span>
                                             </div>
                                             <div  style= "font-size: 0.7rem; height: 35px; ">
-                                                <span class="ProductionProjectInfo" style="margin-left: -50px">代号：<a  style="font-weight:normal;color: #0050fa; ">PP2022001  </a></span>
-                                                <span class="ProductionProjectInfo" style="margin-left: 430px">状态：  <a style="color: #0050fa">生产中</a></span>
+                                                <span class="ProductionProjectInfo" style="margin-left: -50px">代号：<a  style="font-weight:normal;color: #0050fa; "><%=project[i].projectCode%>  </a></span>
+                                                <span class="ProductionProjectInfo" style="margin-left: 430px">状态：  <a style="color: #0050fa"><%=project[i].projectState%></a></span>
 
 
                                             </div>
 
                                             <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                                <span class="ProductionProjectInfo" style="margin-left: -50px">周期：<a style="font-weight:normal;color: #0050fa; ">2022-02-15&nbsp;至&nbsp;2022-06-15</a></span>
-
-                                                <span class="ProductionProjectInfo" style="margin-left: 430px">进度：<a  style="color: #0050fa; ">90.5% </a></span>
-
+                                                <span class="ProductionProjectInfo" style="margin-left: -50px">周期：<a style="font-weight:normal;color: #0050fa; "><%=project[i].projectStartDate%>&nbsp;至&nbsp;<%=project[i].projectFinishDate%></a></span>
+                                                <span class="ProductionProjectInfo" style="margin-left: 430px">进度：<a  style="color: #0050fa; "><%=project[i].progressRate * 100 + "%"%> </a></span>
                                             </div>
                                         </button>
 
@@ -119,7 +117,7 @@
                                                     <tbody>
                                                     <tr>
                                                         <td>
-                                                            <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href='/adBOMList?componentId=256'"><img src="images/components.png" height="50px" width="50px"></button>
+                                                            <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href='/adBOMList?componentId=256'"><img src="images/machine.png" height="50px" width="50px"></button>
                                                         </td>
                                                     </tr>
                                                     </tbody>
