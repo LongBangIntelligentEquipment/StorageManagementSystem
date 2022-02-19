@@ -36,12 +36,14 @@
                             <% } %>
                         </select>
                     </div>
-                    <div class="itemDetail" >周期<a style="color: red; font-size: x-large">*</a>：<input class="itemDetailsInput addItemInfo" type="date" name="commingDate" style="height: 35px;width: 35%" required></div>
-                    <div class="itemDetail">项目描述：<input name="addProjectNote" class="itemDetailsInput addItemInfo"  style="width: 500px"></div>
+                    <div class="itemDetail" >开始时间<a style="color: red; font-size: x-large">*</a>：<input class="itemDetailsInput addItemInfo" type="date" name="addStartDate" style="height: 35px;width: 35%" required></div>
+                    <div class="itemDetail" >结束时间<a style="color: red; font-size: x-large">*</a>：<input class="itemDetailsInput addItemInfo" type="date" name="addEndDate" style="height: 35px;width: 35%" required></div>
+
+                    <div class="itemDetail">项目描述：</div><textarea type="text" name="addProjectDescription" class="itemDetailsInput addItemInfo" rows="14" style="width: 570px;resize: none" ></textarea>
                 </div>
 
                 <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton" style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">
-                    创建新设备
+                    创建新生产项目
                 </button>
             </form>
         </main>
