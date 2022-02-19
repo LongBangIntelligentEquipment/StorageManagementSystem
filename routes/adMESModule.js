@@ -61,7 +61,7 @@ router.get('/adProductionProjectAdd', function(req, res) {
 });
 
 /* POST adProjectAdd Page */
-router.post('/adProductionProjectAdd', upload.single('updateFileName'), function (req, res) {
+router.post('/adProductionProjectAdd', function (req, res) {
     var saveDate, year, month, day, hour, min, sec, dateOutput1, dateOutput2;
     saveDate = new Date();
     year = saveDate.getFullYear();
