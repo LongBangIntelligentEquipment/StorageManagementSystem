@@ -45,12 +45,23 @@ var upload = multer({
 
 
 /*                            ***************************************************生产管理***************************************************                  */
-router.get('/adProductionProjectAdd', function(req, res, next) {
-    res.render('adProductionProjectAdd', {user:req.session.user });
+router.get('/adProductionProjectAdd', function(req, res) {
+    let userSql = 'SELECT userName, userId FROM user;'
+    connection.query(userSql, function (err, users) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send(err);
+            return;
+        }
+        res.render('adProductionProjectAdd', {
+            user: req.session.user,
+            users: users
+        });
+    });
 });
 
 /* POST adProjectAdd Page */
-router.post('/adProductionProjectAdd', function (req, res) {
+router.post('/adProductionProjectAdd', upload.single('updateFileName'), function (req, res) {
     var saveDate, year, month, day, hour, min, sec, dateOutput1, dateOutput2;
     saveDate = new Date();
     year = saveDate.getFullYear();
