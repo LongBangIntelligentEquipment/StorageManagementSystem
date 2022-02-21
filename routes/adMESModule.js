@@ -161,7 +161,7 @@ router.post('/adProductionProjectEdit', function(req, res) {
 //   ---查找项目主页---
 /* GET adProductionProjectMan */
 router.get('/adProductionProjectMan', function(req, res) {
-    let projectSql = 'SELECT projectName, projectCode, projectState, projectManager, projectStartDate, projectFinishDate, progressRate FROM project;';
+    let projectSql = 'SELECT projectId, projectName, projectCode, projectState, projectManager, projectStartDate, projectFinishDate, progressRate FROM project;';
 
     connection.query(projectSql,function (err,project) {
         if(err){
