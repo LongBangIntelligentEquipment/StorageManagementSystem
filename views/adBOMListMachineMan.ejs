@@ -25,6 +25,7 @@
             $('#componentDelButton').removeAttr('hidden')
             $('#editButtonControl').attr('hidden','hidden')
             $('#cancelEditButtonControl').removeAttr('hidden')
+            $('#addProductionMachineButton').attr('hidden','hidden')
         }
 
         function cancelDetailEditable() {
@@ -42,6 +43,7 @@
             $('#componentDelButton').attr('hidden','hidden')
             $('#editButtonControl').removeAttr('hidden')
             $('#cancelEditButtonControl').attr('hidden','hidden')
+            $('#addProductionMachineButton').removeAttr('hidden')
         }
 
         function InfoDisplay(rolejudgement,type1,type2,type3,type4,ojIdJudge,ojId){
@@ -158,14 +160,14 @@
                         <td >
                             <a id="editButtonControl"><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: none;" >编辑</button></a>
                             <a id="cancelEditButtonControl" hidden> <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="cancelDetailEditable()" style="background-color: #fa5000!important;" >取消编辑</button></a>
-
                             <style onload="Authority('系统管理员','editButton')"></style>
                             <style onload="Authority('技术员','editButton')"></style>
 
-
-
-                            <a hidden id="confirmEditButton"> <button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" style="margin-left: 2%">确定</button></a>
+                            <a hidden id="confirmEditButton"><button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" style="margin-left: 2%">确定</button></a>
                             <a hidden id="componentDelButton"><button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick='confirmAgainDelete()' style="background-color: red!important; margin-left: 30%;" ><img src='images/bin.png' height="30px" width="30px"></button></a>
+                            <a  id="addProductionMachineButton"><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="addProductionMachineBtn" onclick="location.href='/adProductionMachineAdd?machineId=<%=machine[0].machineId%>'" style="margin-left: 50%; width: 100px; background-color: rgb(0, 203, 70) !important;">添加至项目</button></a>
+                            <style onload="Authority('系统管理员','addProductionMachineBtn')"></style>
+                            <style onload="Authority('生产主管','addProductionMachineBtn')"></style>
 
                         </td>
                     </tr>
@@ -211,7 +213,7 @@
                         </td>
                     </tr>
                     <% }} else {%>
-                        此部件未添加物料
+                        此设备未添加部件
                     <%}%>
                     </tr>
                 </table>

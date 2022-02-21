@@ -1,0 +1,107 @@
+<%- include('zHeader') %>
+
+<script language="javascript">
+
+    function comfirmAgain() {
+        var checkOne=false;
+        var checkBox=$('input[name = belongMachine]')
+        for(var i=0;i<checkBox.length;i++){
+            if(checkBox[i].checked){
+                checkOne=true;
+            }
+        }
+        if(checkOne){
+            return window.confirm("确认执行【添加新型设备】操作?");
+        }else{
+            alert('请至少选择一款【所属机型】')
+            return false
+        }
+    }
+
+    function checkboxIsOn(objectId,num) {
+        var actAddQtyDiv='#'+'addQtyDiv'+num
+        var actMachineQty='#'+'machineQty'+num
+        if(document.getElementById(objectId).checked){
+            $(actAddQtyDiv).removeAttr('hidden')
+            $(actMachineQty).attr('required','required')
+        }else{
+            $(actAddQtyDiv).attr('hidden','hidden')
+            $(actMachineQty).removeAttr('required')
+        }
+    }
+
+
+</script>
+
+<body>
+
+
+<section class="functionBoard">
+    <%- include('zMenu') %>
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+            <header role="banner">
+                <div class="headcontainer">
+                    <div id="pageTitle" class="page-title">
+                        生产管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%= user.role %></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%= user.userName %></span>
+                </div>
+            </header>
+
+            <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data">
+                <div class="itemDetailsPage">
+                    <div class="itemDetail">添加生产设备：</div>
+                    <div class="itemDetail">所属项目 <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="belongProject" required="required" style="height: 35px;width: 440px;color:black;" >
+                            <% for(let i = 0; i < project.length; i++) { %>
+                            <%if(parseInt(project[i].projectId)===parseInt(url.projectId)){%>
+                            <option value="<%=project[i].projectName%>"><%=project[i].projectName%>&emsp;<%=project[i].projectCode%></option>
+                            <% break;}if(i+1===project.length){ %>
+                            <option value="">请选择项目</option>
+                            <%}%>
+                            <%}%>
+
+                            <% for(let j = 0; j < project.length; j++) { %>
+                            <%if(parseInt(project[j].projectId)!==parseInt(url.projectId)){%>
+
+                            <option value="<%=project[j].projectName%>"><%=project[j].projectName%>&emsp;<%=project[j].projectCode%></option>
+                            <%}}%>
+
+                        </select>
+                    </div>
+                    <div id="shellBox" style="margin-top: 3%;width: 800px">
+                        请选择添加入项目的生产设备<a style="color: red; font-size: x-large">*</a>：
+                        <% for (let i = 0; i < machine.length; i++){ %>
+                        <div style="margin-bottom: 5px">
+                            <%if(url.machineId===machine[i].machineId){%>
+                            <input checked  type="checkbox" onchange="checkboxIsOn(this.id,<%=i%>)" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
+                            <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
+                        </div>
+                        <div id="addQtyDiv<%=i%>" style="margin-left: 45px" >添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="'+'Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" >&emsp;台 </div>
+
+                        <%}else{%>
+                            <input  type="checkbox" onchange="checkboxIsOn(this.id,<%=i%>)" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
+                        <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
+                    </div>
+                    <div id="addQtyDiv<%=i%>" style="margin-left: 45px" hidden>添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="'+'Input"  style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" >&emsp;台 </div>
+
+                    <%}%>
+
+                        <% } %>
+                    </div>
+
+                <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton" style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">
+                    添加生产设备
+                </button>
+
+            </form>
+
+        </main>
+    </div>
+</section>
+
+
+<%- include('zFooter') %>
+</body>
+</html>

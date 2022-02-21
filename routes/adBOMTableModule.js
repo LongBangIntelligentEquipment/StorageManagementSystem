@@ -386,7 +386,7 @@ router.get('/ajaxComponents', function(req, res) {
                 '                                </button>\n' +
                 '                            </td>\n' +
                 '                            <td style="width: 13%!important;">\n' +
-                '<table  style="width: 100%">\n' +
+                '<table cellspacing="0" cellpadding="0" style="width: 100%">\n' +
                 '                                <tr >\n' +
                 '                                    <td>\n' +
                 '                                        <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=\'/adBOMList?componentId=' + component[j].componentId + '\'"><img src=\'images/components.png\' height="50px" width="50px"></button>\n' +

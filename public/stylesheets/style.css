@@ -247,6 +247,11 @@ input, button, select, optgroup, textarea {
   color:black;
 }
 
+.textarea1{
+  outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;
+}
+
+
 article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
   display: block;
 }
@@ -578,6 +583,21 @@ footer {
   margin: 0;
 }
 
+.noteButton4{
+   background-color: transparent!important;
+   color: #666!important;
+   border: 0;
+   text-align: left;
+   width: 101%;
+ }
+
+.noteButton4:hover{
+  background-color: #fff6d6 !important;
+  border-radius: 0px;
+  width: 115.5%;
+}
+
+
 .indexOf{
   position: absolute;
   width: 330px;
@@ -678,7 +698,7 @@ footer {
   border:0px;
 }
 
-.itemInfo,.componentInfo{
+.itemInfo,.componentInfo,.MachineProductionInfo{
   position: absolute;
   font-weight: bold;
 }
@@ -777,7 +797,7 @@ input::-webkit-inner-spin-button {
 }
 
 
-.BOMInfo{
+.BOMInfo,.ProductionProjectInfo{
   position: absolute;
   font-weight: bold;
   font-size: large;
@@ -881,8 +901,5 @@ li:hover{
   list-style-image: url("../images/order1.png") ;
 }
 
-.ProductionProjectInfo{
-  position: absolute;
-  font-weight: bold;
-  font-size: large;
-}
+
+
