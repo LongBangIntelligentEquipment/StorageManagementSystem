@@ -4,6 +4,7 @@
     <script language="javascript">
         function showProjectDetail() {
             //ajax to show the project Detail
+
         }
     </script>
 
@@ -31,7 +32,7 @@
                     <div class="pageCard"  style="width: 100%">
                         <div class="pageTitle" style="width: 100%">
 
-                            <input class="indexOf" name="searchText" id="searchText" value="" style="margin-left: 4px" placeholder="根据...">
+                            <input class="indexOf" name="searchText" id="searchText" value="" style="margin-left: 4px" placeholder="根据项目信息或设备信息关键词进行搜索">
                             <button class="searchInputBoxButton" value="1" name="indexOfButton" type="submit">搜&emsp;索</button>
                             <div  style="height: 30px">
                                 <button class="searchBarButton" onclick="location.href='/adProductionProjectAdd'" type="button" style="margin-left: 390px;" id="addNewProjectButton">创建生产项目</button>
@@ -41,11 +42,11 @@
 
                         <div class="pageBody" style="width: 100%">
                             <% for(let i = 0 ; i < project.length ; i++) { %>
-                            <table class="noteButton" style="width: 100%;font-size: 1rem;">
+                            <table class="noteButton4" style="width: 100%;font-size: 1rem;">
                                 <tr style="width: 100%;">
                                     <td style="width: 82%;">
 
-                                        <button class="noteButton" name="ProductionProjectBtn" id="ProductionProjectBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showProjectDetail()">
+                                        <button class="noteButton4" name="ProductionProjectBtn" id="ProductionProjectBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showProjectDetail()">
                                             <div  style= "font-size: 0.7rem; height: 35px; ">
                                                 <span class="ProductionProjectInfo" name="ProductionProjectName" style="margin-left: -50px; color: #0050fa "><%=project[i].projectName%></span>
                                                 <span class="ProductionProjectInfo" style="margin-left: 430px">负责人：<a  style="color: #0050fa; "><%=project[i].projectManager%> </a></span>
@@ -58,7 +59,9 @@
                                             </div>
 
                                             <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                                <span class="ProductionProjectInfo" style="margin-left: -50px">周期：<a style="font-weight:normal;color: #0050fa; "><%=project[i].projectStartDate%>&nbsp;至&nbsp;<%=project[i].projectFinishDate%></a></span>
+                                                <span class="ProductionProjectInfo" style="margin-left: -50px">周期：<a style="font-weight:normal;color: #0050fa; "><%=project[i].projectStartDate.getFullYear()%>-<%=project[i].projectStartDate.getMonth()+1%>-<%=project[i].projectStartDate.getDate()%>&nbsp;&nbsp;至&nbsp;&nbsp;<%=project[i].projectFinishDate.getFullYear()%>-<%=project[i].projectFinishDate.getMonth()+1%>-<%=project[i].projectFinishDate.getDate()%></a></span>
+
+
                                                 <span class="ProductionProjectInfo" style="margin-left: 430px">进度：<a  style="color: #0050fa; "><%=project[i].progressRate * 100 + "%"%> </a></span>
                                             </div>
                                         </button>
@@ -69,52 +72,50 @@
                                         <table cellspacing="0" cellpadding="0" style="width: 100%">
                                             <tr >
                                                 <td>
-                                                    <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=('/')">编辑</button>
+                                                    <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="location.href=('/adProductionProject?projectId=<%=project[i].projectId%>')"><img src="images/project.png" height="50px" width="50px"></button>
                                                 </td>
-                                                <td>
-                                                    <button class="itemButton2" id="copyBtn<%=i%>" style="height: 90px;border: 0;display: none" type="button" onclick="">。。</button>
 
-                                                </td>
                                             </tr>
                                         </table>
                                     </td>
                                 </tr>
                                 <tr id="MachineProductionBox<%=i%>" style="width: 100%">
-                                    <div class="noteButton2" cellspacing="0" cellpadding="0" style="width: 122.5%; ">
-                                        <tbody><tr class="noteButton2" style="width: 87%;" id="DSII-46F-STcomponent0">
+                                    <div class="noteButton" cellspacing="0" cellpadding="0" style="width: 122.5%; ">
+                                        <tbody><tr class="noteButton" style="width: 87%;" id="DSII-46F-STcomponent0">
                                             <td style="width: 80%;">
-                                                <div class="noteButton2" name="componentBtn" id="DSII-46F-ST256" value="0" style="padding-left: 80px;" type="button" onclick="showItems(0,'DSII-46F-ST','256')">
+                                                <div class="noteButton" name="componentBtn" id="DSII-46F-ST256" value="0" style="padding-left: 80px;" type="button" onclick="showItems(0,'DSII-46F-ST','256')">
                                                     <div style="font-size: 0.7rem; height: 30px; ">
-                                                        <span class="componentInfo" style="margin-left: -50px;color: #0050fa;   ">设备&nbsp;1</span>
-                                                        <span class="componentInfo" style="margin-left: 0px">名称：<a style="font-weight: normal;color: #0050fa;">双主轴双排刀46全防护（上通定制）</a></span>
-                                                        <span class="componentInfo" style="margin-left: 270px">对应订单：<a style="font-weight:normal;color: #0050fa; ">order2022001</a></span>
-                                                        <span class="componentInfo" style="margin-left: 460px">状态：<a style="font-weight:normal;color: #0050fa; ">生产中</a></span>
+                                                        <span class="MachineProductionInfo" style="margin-left: -50px;color: #0050fa;   ">设备&nbsp;1</span>
+                                                        <span class="MachineProductionInfo" style="margin-left: 0px">名称：<a style="font-weight: normal;color: #0050fa;">双主轴双排刀46全防护（上通定制）</a></span>
+                                                        <span class="MachineProductionInfo" style="margin-left: 270px">型号：<a style="font-weight:normal;color: #0050fa; ">DSII-46F-ST</a></span>
+                                                        <span class="MachineProductionInfo" style="margin-left: 460px">状态：<a style="font-weight:normal;color: #0050fa; ">生产中</a></span>
                                                     </div>
                                                     <div style="font-size: 0.7rem; height: 30px; ">
-                                                        <span class="componentInfo" style="margin-left: 0px">型号：<a style="font-weight:normal;color: #0050fa; ">DSII-46F-ST</a></span>
-                                                        <span class="componentInfo" style="margin-left: 270px;">周期：<a style="font-weight:normal;color: #0050fa; ">2022-02-15&nbsp;至&nbsp;2022-03-15</a></span>
+                                                        <span class="MachineProductionInfo" style="margin-left: 0px">序列号：<a style="font-weight:normal;color: #0050fa; ">LBIE2022001</a></span>
+                                                        <span class="MachineProductionInfo" style="margin-left: 180px">对应订单：<a style="font-weight:normal;color: #0050fa; ">order2022001</a></span>
+                                                        <span class="MachineProductionInfo" style="margin-left: 355px;">周期：<a style="font-weight:normal;color: #0050fa; ">2022-02-15&nbsp;至&nbsp;2022-03-15</a></span>
                                                     </div>
                                                     <div style="font-size: 0.7rem; height: 30px;" id="">
-                                                        <span class="componentInfo" style="margin-left: 0px">出仓进度：<a style="font-weight: normal;color: #0050fa;">95.5%</a></span>
-                                                        <span class="componentInfo" style="margin-left: 150px">质检进度：<a style="font-weight:normal;color: #0050fa; ">50.5%</a></span>
-                                                        <span class="componentInfo" style="margin-left: 300px">任务进度：<a style="font-weight:normal;color: #0050fa; ">20.5%</a></span>
-                                                        <span class="componentInfo" style="margin-left: 460px">总进度：<a style="font-weight:normal;color: #0050fa; ">80%</a></span>
+                                                        <span class="MachineProductionInfo" style="margin-left: 0px">出仓进度：<a style="font-weight: normal;color: #0050fa;">95.5%</a></span>
+                                                        <span class="MachineProductionInfo" style="margin-left: 150px">质检进度：<a style="font-weight:normal;color: #0050fa; ">50.5%</a></span>
+                                                        <span class="MachineProductionInfo" style="margin-left: 300px">任务进度：<a style="font-weight:normal;color: #0050fa; ">20.5%</a></span>
+                                                        <span class="MachineProductionInfo" style="margin-left: 460px">总进度：<a style="font-weight:normal;color: #0050fa; ">80%</a></span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td style="width: 13%!important;">
-                                                <table style="width: 100%">
+                                            <td  style="width: 13%!important;">
+                                                <table cellspacing="0" cellpadding="0" style="width: 100%">
                                                     <tbody>
                                                     <tr>
                                                         <td>
-                                                            <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href='/adBOMList?componentId=256'"><img src="images/machine.png" height="50px" width="50px"></button>
+                                                            <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="location.href='/adBOMList?componentId=256'"><img src="images/machine.png" height="50px" width="50px"></button>
                                                         </td>
                                                     </tr>
                                                     </tbody>
                                                 </table>
                                             </td>
                                         </tr>
-                                        <tr cellspacing="0" cellpadding="0" id="256itemBox" style="width: 100%">
+                                        <tr cellspacing="0" cellpadding="0" id="" style="width: 100%">
                                         </tr>
                                         </tbody></div>
                                 </tr>

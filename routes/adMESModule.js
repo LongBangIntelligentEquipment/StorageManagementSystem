@@ -198,7 +198,7 @@ router.get('/adProductionProject', function(req, res) {
     connection.query(projectSql,function (err,project) {
         if(err){
             console.log('[SELECT ERROR] - ',err.message);
-            res.send('查找设备出错：' + '\n' + err);
+            res.send('查找页面出错：' + '\n' + err);
             return;
         }
         connection.query(userSql,function (err, users) {
@@ -207,7 +207,7 @@ router.get('/adProductionProject', function(req, res) {
                 res.send(err);
                 return;
             }
-            res.render('adProject', {
+            res.render('adProductionProject', {
                 user:req.session.user,
                 project: project,
                 users: users,
@@ -217,21 +217,27 @@ router.get('/adProductionProject', function(req, res) {
 });
 
 
+//   ---添加生产设备详细---
+/* GET adProductionMachineAdd */
+router.get('/adProductionMachineAdd', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    let projectSql = 'SELECT * FROM project;';
+    let machineSql = 'SELECT * FROM machine;';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    connection.query(projectSql,function (err,project) {
+        connection.query(machineSql, function (err, machine) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+                res.send('查找设备出错：' + '\n' + err);
+                return;
+            }
+            res.render('adProductionMachineAdd', {
+                user: req.session.user,
+                project: project,
+                machine: machine,
+                url:url
+            });
+        });
+    });
+});
 module.exports = router;
