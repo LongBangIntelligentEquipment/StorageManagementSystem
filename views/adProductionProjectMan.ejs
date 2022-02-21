@@ -48,7 +48,7 @@
                                         <button class="noteButton" name="ProductionProjectBtn" id="ProductionProjectBtn<%=i%>" value=0 style="margin-top: 5px;margin-bottom: 5px;padding-left: 80px;" type="button" onclick="showProjectDetail()">
                                             <div  style= "font-size: 0.7rem; height: 35px; ">
                                                 <span class="ProductionProjectInfo" name="ProductionProjectName" style="margin-left: -50px; color: #0050fa "><%=project[i].projectName%></span>
-                                                <span class="ProductionProjectInfo" style="margin-left: 430px">负责人：<a  style="color: #0050fa; "><%=project[i].projectManager%> </a></span>
+                                                <span class="ProductionProjectInfo" style="margin-left: 430px">负责人：<a  style="color: #0050fa; "><%=project[i].userName%> </a></span>
                                             </div>
                                             <div  style= "font-size: 0.7rem; height: 35px; ">
                                                 <span class="ProductionProjectInfo" style="margin-left: -50px">代号：<a  style="font-weight:normal;color: #0050fa; "><%=project[i].projectCode%>  </a></span>
@@ -58,7 +58,9 @@
                                             </div>
 
                                             <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                                <span class="ProductionProjectInfo" style="margin-left: -50px">周期：<a style="font-weight:normal;color: #0050fa; "><%=project[i].projectStartDate%>&nbsp;至&nbsp;<%=project[i].projectFinishDate%></a></span>
+                                                <%var projectStartDate = project[i].projectStartDate.getFullYear() + '-' + project[i].projectStartDate.getMonth() + '-' + project[i].projectStartDate.getDate()%>
+                                                <%var projectFinishDate = project[i].projectFinishDate.getFullYear() + '-' + project[i].projectFinishDate.getMonth() + '-' + project[i].projectFinishDate.getDate()%>
+                                                <span class="ProductionProjectInfo" style="margin-left: -50px">周期：<a style="font-weight:normal;color: #0050fa; "><%=projectStartDate%>&nbsp;至&nbsp;<%=projectFinishDate%></a></span>
                                                 <span class="ProductionProjectInfo" style="margin-left: 430px">进度：<a  style="color: #0050fa; "><%=project[i].progressRate * 100 + "%"%> </a></span>
                                             </div>
                                         </button>
@@ -79,6 +81,8 @@
                                         </table>
                                     </td>
                                 </tr>
+
+
                                 <tr id="MachineProductionBox<%=i%>" style="width: 100%">
                                     <div class="noteButton2" cellspacing="0" cellpadding="0" style="width: 122.5%; ">
                                         <tbody><tr class="noteButton2" style="width: 87%;" id="DSII-46F-STcomponent0">
@@ -114,10 +118,12 @@
                                                 </table>
                                             </td>
                                         </tr>
-                                        <tr cellspacing="0" cellpadding="0" id="256itemBox" style="width: 100%">
-                                        </tr>
-                                        </tbody></div>
+                                        <tr cellspacing="0" cellpadding="0" id="256itemBox" style="width: 100%"></tr>
+                                        </tbody>
+                                    </div>
                                 </tr>
+
+
                             </table>
                             <% } %>
                         </div>

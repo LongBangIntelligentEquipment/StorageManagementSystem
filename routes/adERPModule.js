@@ -1890,7 +1890,25 @@ router.get('/adItemReturnSelect', function(req, res, next) {
 
 /* GET adOrderMan*/
 router.get('/adOrderMan', function(req, res, next) {
-    var sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum,' +
+    var sql='SELECT COUNT(orderId) AS orderCount FROM orderlist;'
+
+    connection.query( sql,function (err, orderCount) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+        }
+        res.render('adOrderMan', {
+            orderCount: orderCount[0].orderCount,
+            user:req.session.user
+        });
+    });
+});
+
+
+router.get('/AjaxFetchOrder', function(req, res) {
+    const limit = req.query.limit;
+    const start = req.query.start;
+
+    let sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,' +
         'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,' +
         'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel,\n' +
         'CASE  \n' +
@@ -1906,17 +1924,93 @@ router.get('/adOrderMan', function(req, res, next) {
         'ON orderlist.itemId = item.itemId\n' +
         'LEFT JOIN item_one\n' +
         'ON orderlist.orderId = item_one.orderId\n' +
-        'ORDER BY  order_param,commingDate DESC,orderDate ASC;'
+        'ORDER BY  order_param,commingDate DESC,orderDate ASC\n' +
+        'LIMIT ' + start + ',' + limit;
+
+    function getOrderURL(orderId){return "location.href='/adOrder?orderId=" + orderId + "'";}
+
+
+    function orderStateColor (state){
+        switch (state){
+            case '已下单': return 'green'; break;
+            case '申请中': return 'orange'; break;
+            case '已到货': return 'green'; break;
+            case '已取消': return 'red'; break;
+            case '已拒绝': return 'red'; break;
+            case '已完成': return 'grey'; break;
+            case '有退回': return '#fe007b'; break;
+        }
+    }
+
+    function comingDateColor (getNum,totalNum, state){if (getNum === totalNum && state === '已到货') {return 'green';} return '#0050fa'}
+    function comingDateText (getNum,totalNum, comingDate, state){if (getNum === totalNum && state === '已到货') {return '订单货物已全部到达';}return comingDate.getFullYear()+"-"+(comingDate.getMonth()+1)+"-"+comingDate.getDate()}
+    function comingDateDisplay(state){if (state === '已完成' || state === '已拒绝' || state === '已取消'){return 'none'}return ''}
+
+    function isDisplay(state, judge){
+        if (state === '申请中'){
+            if (judge === 'applyDate'){
+                return ''
+            } else if (judge === 'orderDate'){
+                return 'none'
+            }
+        } else {
+            if (judge === 'applyDate'){
+                return 'none'
+            } else if (judge === 'orderDate'){
+                return ''
+            }
+        }
+    }
+
+    function overDateDisplay(overDays, state){if (overDays>=0 && (state === '申请中' || state === '已下单')){return ''}return 'none'}
+    function overDaysColor(overDays){if (overDays===0){return 'orange'} return 'red'}
+    function overDaysText(overDays){if (overDays===0){return '(今天应到货)'}return '（已逾期' + overDays +'天）'}
 
     connection.query( sql,function (err, orderList) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
         }
-        res.render('adOrderMan', {
-            orderList: orderList,
-            user:req.session.user
-        });
-    });
+
+        var HTMLText='';
+
+        for(let i = 0; i < orderList.length ;i++){
+            let startInt = parseInt(start);
+            let overDays = parseInt((new Date()-orderList[i].commingDate)/ (1000 * 60 * 60 * 24));
+            let state = orderList[i].state;
+
+            HTMLText += 
+                '                    <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%" cellpadding="0" cellspacing="0">\n' +
+                '                        <tr >\n' +
+                '                            <td style="width: 87%;">\n' +
+                '                                <button class="noteButton" style="padding-left: 80px;" type="button" onclick="' + getOrderURL(orderList[i].orderId) + '">\n' +
+                '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
+                '                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#' + (startInt+i+1) + '</span>\n' +
+                '                                        <span class="itemInfo" >采购单号：<a style="font-weight: normal;color: #0050fa;">' + orderList[i].orderId + '</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 170px">状态：<a id=orderState' + i + ' style="color:'+orderStateColor(state)+'; ">' + state + '</a></span>\n' +
+                // '                                        <style onload="OrderState('+"orderState"+i+','+"comingDate"+i+','+"applyDate"+i+','+"orderDate"+i+','+(parseInt(orderList[i].getNum)+parseInt(orderList[i].pendingNum))+','+orderList[i].totalNum+')"></style>\n' +
+                '                                        <span class="itemInfo" id="applyDate'+i+'" style="margin-left: 280px;display: '+isDisplay(state, "applyDate")+'">申请日期：<a style="font-weight:normal;color: #0050fa; ">'+orderList[i].orderDate.getFullYear()+'-'+(orderList[i].orderDate.getMonth()+1)+'-'+orderList[i].orderDate.getDate()+' &emsp;'+orderList[i].orderDate.getHours()+':'+orderList[i].orderDate.getMinutes()+':'+orderList[i].orderDate.getSeconds()+' </a></span>\n' +
+                '                                        <span class="itemInfo" id="orderDate'+i+'" style="margin-left: 280px;display: '+isDisplay(state, "orderDate")+'">下单日期：<a style="font-weight:normal;color: #0050fa; ">'+orderList[i].orderDate.getFullYear()+'-'+(orderList[i].orderDate.getMonth()+1)+'-'+orderList[i].orderDate.getDate()+' &emsp;'+orderList[i].orderDate.getHours()+':'+orderList[i].orderDate.getMinutes()+':'+orderList[i].orderDate.getSeconds()+' </a></span>\n' +
+                '                                        <span class="itemInfo" id="comingDate'+i+'" style="margin-left: 480px; display: '+comingDateDisplay(state)+'">到货预期：<span  style="font-weight:normal;color:'+comingDateColor(orderList[i].getNum, orderList[i].totalNum, state)+'; ">'+comingDateText(orderList[i].getNum, orderList[i].totalNum, orderList[i].commingDate, state)+'<span style="color:'+overDaysColor(overDays)+';display: '+ overDateDisplay(overDays, state) +'" id="overDate'+i+'">'+overDaysText(overDays)+'</span></span></span>\n' +
+                // '                                        <style onload="overDate(\'overDate'+i+'\',\'overDays'+i+'\')"></style>\n' +
+                '                                    </div>\n' +
+                '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
+                '                                        <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;">'+orderList[i].itemName + orderList[i].oneItemName+'</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 170px">型号（图号）：<a style="font-weight:normal;color: #0050fa; ">'+orderList[i].itemModel + orderList[i].oneItemModel+'</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 480px">订单数量：<a style="font-weight:normal;color: #0050fa; ">'+orderList[i].totalNum+'</a></span>\n' +
+                '                                    </div>\n' +
+                '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
+                '                                        <span class="itemInfo"  >供货商：<a style="font-weight: normal;color: #0050fa;">'+orderList[i].itemSupplier + orderList[i].oneItemSupplier+'</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 170px">申请备注：<a style="font-weight: normal;color: #0050fa;">'+orderList[i].applyNote+'</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 480px" >审批备注：<a style="font-weight: normal;color: #0050fa;">'+orderList[i].replyNote+'</a></span>\n' +
+                '                                    </div>\n' +
+                '                                </button>\n' +
+                '                            </td>\n' +
+                '                        </tr>\n' +
+                '                    </table>\n' +
+                '                </div>'
+        }
+        res.send(HTMLText);
+    })
 });
 
 router.post('/adOrderMan', function(req, res, next) {
@@ -1933,12 +2027,9 @@ router.post('/adOrderMan', function(req, res, next) {
         case '5':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'有退回\' ORDER BY orderlist.orderDate DESC'; break;
         case '6':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已完成\' ORDER BY orderlist.orderDate DESC'; break;
         case '7':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已取消\' ORDER BY orderlist.orderDate DESC'; break;
-
     }
 
-
     if(req.body.indexOfButton){
-
         sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND (orderlist.orderId Like' +indexOf+' OR item.itemName Like '+indexOf+' OR item.itemId Like '+indexOf+' OR item.itemSupplier Like '+indexOf+' OR orderlist.applyNote Like '+indexOf+' OR orderlist.replyNote Like '+indexOf+')';
     }
 

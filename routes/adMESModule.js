@@ -73,7 +73,6 @@ router.post('/adProductionProjectAdd', function (req, res) {
     dateOutput1 = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
     dateOutput2= year.toString() +month.toString() + day.toString() + hour.toString() + min.toString() + sec.toString();
 
-
     var projectName, projectStartDate, projectFinishDate, projectManager, projectDesc, projectFolder;
     projectName = req.body.projectName;
     projectStartDate = req.body.projectStartDate;
@@ -126,7 +125,7 @@ router.get('/adProductionProjectDelete', function(req, res) {
 });
 
 //   ---修改项目---
-/* POST adProjectEdit Page */
+/* POST adProductionProjectEdit Page */
 router.post('/adProductionProjectEdit', function(req, res) {
     var saveDate, year, month, day, hour, min, sec, dateOutput1, dateOutput2;
     saveDate = new Date();
@@ -155,15 +154,14 @@ router.post('/adProductionProjectEdit', function(req, res) {
             res.send('[UPDATE ERROR] - 更新项目信息错误！ ' + err);
             return;
         }
-        res.redirect('/adBOMListCategoryMan')
+        res.redirect('/adProductionProjectMan')
     });
 });
 
 //   ---查找项目主页---
-/* GET adProjectMan */
+/* GET adProductionProjectMan */
 router.get('/adProductionProjectMan', function(req, res) {
-    let projectSql = 'SELECT * FROM project;';
-    let userSql = 'SELECT userName,role FROM user;';
+    let projectSql = 'SELECT projectName, userName, projectCode, projectState, projectStartDate, projectFinishDate, progressRate FROM project JOIN user ON project.userId = user.userId;';
 
     connection.query(projectSql,function (err,project) {
         if(err){
@@ -171,24 +169,16 @@ router.get('/adProductionProjectMan', function(req, res) {
             res.send('查找设备出错：' + '\n' + err);
             return;
         }
-        connection.query(userSql,function (err, users) {
-            if (err) {
-                console.log('[SELECT ERROR] - ', err.message);
-                res.send(err);
-                return;
-            }
-            res.render('adProductionProjectMan', {
-                user:req.session.user,
-                project: project,
-                users: users,
-            });
+        res.render('adProductionProjectMan', {
+            user:req.session.user,
+            project: project,
         });
     });
 });
 
 
 //   ---查找项目详细---
-/* GET adProject */
+/* GET adProductionProject */
 router.get('/adProductionProject', function(req, res) {
     let url=URL.parse(req.url,true).query;
     let projectId = url.projectId;
