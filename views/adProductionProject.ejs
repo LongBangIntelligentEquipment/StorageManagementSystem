@@ -195,7 +195,7 @@
                             <%for(let j = 0 ; j < projectMachine.length; j++) { %>
                             <tr id="productionMachine<%=j%>" style="width: 100%;">
                                 <td style="width: 100%">
-                                    <button class="noteButton" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/'">
+                                    <button class="noteButton" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adProductionMachineMan?p_machineId=<%=projectMachine[j].p_machineId%>'">
                                             <div style="font-size: 0.7rem; height: 30px; ">
                                                 <span class="MachineProductionInfo" style="margin-left: -50px;color: #0050fa;   ">设备&nbsp;<%=j+1%></span>
                                                 <span class="MachineProductionInfo" style="margin-left: 0px">名称：<a style="font-weight: normal;color: #0050fa;"><%=projectMachine[j].machineName%></a></span>
