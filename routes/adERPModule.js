@@ -1898,7 +1898,8 @@ router.get('/adOrderMan', function(req, res, next) {
         }
         res.render('adOrderMan', {
             orderCount: orderCount[0].orderCount,
-            user:req.session.user
+            user:req.session.user,
+            isFetch: true
         });
     });
 });
@@ -2016,35 +2017,99 @@ router.get('/AjaxFetchOrder', function(req, res) {
 router.post('/adOrderMan', function(req, res, next) {
     var sql;
     var stateJudge=req.body.state;
-    let indexOf =  '\'\%%' + req.body.indexOf + '%\'';
+    let indexOf =  '%' + req.body.indexOf + '%';
 
     switch (stateJudge) {
         case '0':  sql=undefined; break;
-        case '1':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已下单\' ORDER BY orderlist.orderDate DESC'; break;
-        case '2':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'申请中\' ORDER BY orderlist.orderDate DESC'; break;
-        case '3':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已拒绝\' ORDER BY orderlist.orderDate DESC'; break;
-        case '4':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已到货\' ORDER BY orderlist.orderDate DESC'; break;
-        case '5':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'有退回\' ORDER BY orderlist.orderDate DESC'; break;
-        case '6':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已完成\' ORDER BY orderlist.orderDate DESC'; break;
-        case '7':  sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderlist.state=\'已取消\' ORDER BY orderlist.orderDate DESC'; break;
+        case '1':  sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,\n' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel\n' +
+            'FROM orderlist LEFT JOIN item ON orderlist.itemId = item.itemId LEFT JOIN item_one ON orderlist.orderId = item_one.orderId \n' +
+            'WHERE orderlist.state=\'已下单\' ORDER BY orderlist.orderDate DESC'; break;
+
+        case '2':  sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,\n' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel\n' +
+            'FROM orderlist LEFT JOIN item ON orderlist.itemId = item.itemId LEFT JOIN item_one ON orderlist.orderId = item_one.orderId \n' +
+            'WHERE orderlist.state=\'申请中\' ORDER BY orderlist.orderDate DESC'; break;
+
+        case '3':  sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,\n' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel\n' +
+            'FROM orderlist LEFT JOIN item ON orderlist.itemId = item.itemId LEFT JOIN item_one ON orderlist.orderId = item_one.orderId \n' +
+            'WHERE orderlist.state=\'已拒绝\' ORDER BY orderlist.orderDate DESC'; break;
+
+        case '4':  sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,\n' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel\n' +
+            'FROM orderlist LEFT JOIN item ON orderlist.itemId = item.itemId LEFT JOIN item_one ON orderlist.orderId = item_one.orderId \n' +
+            'WHERE orderlist.state=\'已到货\' ORDER BY orderlist.orderDate DESC'; break;
+
+        case '5':  sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,\n' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel\n' +
+            'FROM orderlist LEFT JOIN item ON orderlist.itemId = item.itemId LEFT JOIN item_one ON orderlist.orderId = item_one.orderId \n' +
+            'WHERE orderlist.state=\'有退回\' ORDER BY orderlist.orderDate DESC'; break;
+
+        case '6':  sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,\n' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel\n' +
+            'FROM orderlist LEFT JOIN item ON orderlist.itemId = item.itemId LEFT JOIN item_one ON orderlist.orderId = item_one.orderId \n' +
+            'WHERE orderlist.state=\'已完成\' ORDER BY orderlist.orderDate DESC'; break;
+
+        case '7':  sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,\n' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel\n' +
+            'FROM orderlist LEFT JOIN item ON orderlist.itemId = item.itemId LEFT JOIN item_one ON orderlist.orderId = item_one.orderId \n' +
+            'WHERE orderlist.state=\'已取消\' ORDER BY orderlist.orderDate DESC'; break;
     }
 
     if(req.body.indexOfButton){
-        sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND (orderlist.orderId Like' +indexOf+' OR item.itemName Like '+indexOf+' OR item.itemId Like '+indexOf+' OR item.itemSupplier Like '+indexOf+' OR orderlist.applyNote Like '+indexOf+' OR orderlist.replyNote Like '+indexOf+')';
+        sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,\n' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel\n' +
+            'FROM orderlist LEFT JOIN item ON orderlist.itemId = item.itemId LEFT JOIN item_one ON orderlist.orderId = item_one.orderId \n' +
+            'WHERE orderlist.orderId Like "' +indexOf+'" OR item.itemName Like "'+indexOf+'" OR item.itemId Like "'+indexOf+'" OR item.itemSupplier Like "'+indexOf+'" OR orderlist.applyNote Like "'+indexOf+'" OR orderlist.replyNote Like "'+indexOf +'";';
     }
 
     switch (req.body.order) {
         case '0':sql=undefined;break
-        case '1':sql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId  ORDER BY orderlist.orderDate DESC';break
+        case '1':sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,\n' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel\n' +
+            'FROM orderlist LEFT JOIN item ON orderlist.itemId = item.itemId LEFT JOIN item_one ON orderlist.orderId = item_one.orderId \n' +
+            'ORDER BY orderlist.orderDate DESC;';break
+    }
+
+    if (sql === undefined){
+        sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel,\n' +
+            'CASE  \n' +
+            'WHEN state = \'申请中\' OR state = \'已下单\' OR state = \'有退回\' OR (state = \'已到货\' AND getNum+pendingNum != totalNum) THEN 1\n' +
+            'WHEN (state = \'已到货\' AND getNum+pendingNum = totalNum)\n' +
+            ' THEN 2\n' +
+            'WHEN state = \'已取消\'  THEN 3\n' +
+            'WHEN state = \'已拒绝\'  THEN 4\n' +
+            'WHEN state = \'已完成\' THEN 5\n' +
+            'END AS order_param\n' +
+            'FROM orderlist\n' +
+            'LEFT JOIN item\n' +
+            'ON orderlist.itemId = item.itemId\n' +
+            'LEFT JOIN item_one\n' +
+            'ON orderlist.orderId = item_one.orderId\n' +
+            'ORDER BY  order_param,commingDate DESC,orderDate ASC'
     }
 
     connection.query( sql,function (err, result) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
         }
-        res.render('adOrderMan', {
+
+        res.render('adOrderManFilter', {
             orderList:result,
-            user:req.session.user
+            user:req.session.user,
+            orderCount: result.length,
         });
     });
 

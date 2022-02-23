@@ -1,0 +1,146 @@
+<%- include('zHeader') %>
+
+    <script language="javascript">
+
+        function OrderState(ojId,ojId2,ojId3,ojId4,arriveNum,orderNum){
+            if(document.getElementById(ojId).innerText==='已下单'){
+                document.getElementById(ojId).style.color='green';
+            }else if(document.getElementById(ojId).innerText==='申请中'){
+                document.getElementById(ojId).style.color='orange';
+                document.getElementById(ojId3).style.display='';
+                document.getElementById(ojId4).style.display='none';
+            }else if(document.getElementById(ojId).innerText==='已到货'){
+                document.getElementById(ojId).style.color='green';
+                if(arriveNum===orderNum){
+                    document.getElementById(ojId2).innerText='订单货物已全部到达';
+                    document.getElementById(ojId2).style.color='green'
+                }
+            }else if(document.getElementById(ojId).innerText==='已拒绝'||document.getElementById(ojId).innerText==='已取消'){
+                document.getElementById(ojId2).style.display='none';
+                document.getElementById(ojId).style.color='red';
+            } else if(document.getElementById(ojId).innerText==='已完成'){
+                document.getElementById(ojId2).style.display='none';
+                document.getElementById(ojId).style.color='gray';
+            }else if(document.getElementById(ojId).innerText==='有退回'){
+                document.getElementById(ojId).style.color='#fe007b';
+            }
+        }
+
+        function overDate(ojId,judgeId) {
+            var judgement=parseInt(document.getElementById(judgeId).innerText)
+            if(judgement>0){
+                document.getElementById(ojId).style.display='';
+            }else if(judgement===0){
+                document.getElementById(ojId).style.display='';
+                document.getElementById(ojId).innerText='(今天应到货)'
+                document.getElementById(ojId).style.color='orange';
+            }
+        }
+
+        function display(ojId,hidenId){
+            if(document.getElementById(ojId).style.display===''){
+                document.getElementById(ojId).style.display='none';
+            }else{
+                document.getElementById(ojId).style.display=''
+                document.getElementById(hidenId).style.display='none';
+            }
+        }
+
+    </script>
+
+<body >
+
+
+<section class="functionBoard">
+
+    <%- include('zMenu') %>
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div id="pageTitle" class="page-title">
+                        采购管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <form method="post">
+                <div class="pageCard" >
+                    <div class="pageTitle">
+                        <a class="typeFilter">
+                            <button class="filterButton" type="button" onclick="display('typeOption1','typeOption2')"> —状态—<span style="float: right;margin-right: 4px">▼</span></button>
+                        </a>
+                        <a class="typeFilter">
+                            <button class="filterButton" type="button" onclick="display('typeOption2','typeOption1')"> —排序—<span style="float: right;margin-right: 4px">▼</span></button>
+                        </a>
+
+                        <input class="indexOf" name="indexOf" style="margin-left: 4px;width: 320px" placeholder="根据订单号/物料名称/型号(图号)/供货商/备注进行搜索">
+                        <button class="searchInputBoxButton" name="indexOfButton" value="true" type="submit" style="margin-left: 320px">搜&emsp;索</button>
+                        <button class="searchInputBoxButton" onclick="location.href='/adItemOrderOne'" type="button" style="margin-left: 420px;background-color: #00cb46!important;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem; padding-left: 10px;padding-right: 10px">一次性订单</button>
+
+                        <div class="filterBox" id="typeOption1" style="display: none">
+                            <button  class="filterButton filterOption" name="state" value="0" type="submit"> 全部</button>
+                            <button  class="filterButton filterOption" name="state" value="2" type="submit"> 申请中</button>
+                            <button  class="filterButton filterOption" name="state" value="1" type="submit"> 已下单</button>
+                            <button  class="filterButton filterOption" name="state" value="3" type="submit"> 已拒绝</button>
+                            <button  class="filterButton filterOption" name="state" value="4" type="submit"> 已到货</button>
+                            <button  class="filterButton filterOption" name="state" value="5" type="submit"> 有退回</button>
+                            <button  class="filterButton filterOption" name="state" value="7" type="submit"> 已取消</button>
+                            <button  class="filterButton filterOption" name="state" value="6" type="submit"style="border-bottom-left-radius: 0.3rem;border-bottom-right-radius: 0.3rem" >已完成</button>
+                        </div>
+
+                        <div class="filterBox" id="typeOption2" style="display: none;margin-left: 112px">
+                            <button  class="filterButton filterOption" name="order" value="0" type="submit"> 默认排序</button>
+                            <button  class="filterButton filterOption" name="order" value="1" type="submit"style="border-bottom-left-radius: 0.3rem;border-bottom-right-radius: 0.3rem" >按下单日期排序</button>
+                        </div>
+
+                    </div>
+
+                    <div style="margin-left: 30px;color: #0050fa; font-weight: bold; font-size: small; ">订单数量：<%= orderCount %></div>
+
+                    <%for(let i = 0 ; i < orderList.length ; i++) { %>
+                    <table class="noteButton" style=";width: 100%;font-size: 1rem;height: 100%" cellpadding="0" cellspacing="0">
+                        <tr >
+                            <td style="width: 87%;">
+                                <button class="noteButton" style="padding-left: 80px;" type="button" onclick="location.href='/adOrder?orderId=<%=orderList[i].orderId%>'">
+                                    <div  style= "font-size: 0.7rem; height: 30px; ">
+                                        <span class="itemInfo" style="margin-left: -50px;color: #0050fa;   ">#<%=i+1%></span>
+                                        <span class="itemInfo" >采购单号：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].orderId%></a></span>
+                                        <span class="itemInfo" style="margin-left: 170px">状态：<a id='orderState<%=i%>' style="color: #0050fa; "><%=orderList[i].state%></a></span>
+                                        <style onload="OrderState('orderState<%=i%>','comingDate<%=i%>','applyDate<%=i%>','orderDate<%=i%>','<%=orderList[i].getNum+orderList[i].pendingNum%>','<%=orderList[i].totalNum%>')"></style>
+                                        <span class="itemInfo" id="applyDate<%=i%>" style="margin-left: 280px;display: none">申请日期：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].orderDate.getFullYear()%>-<%=orderList[i].orderDate.getMonth()+1%>-<%=orderList[i].orderDate.getDate()%> &emsp;<%=orderList[i].orderDate.getHours()%>:<%=orderList[i].orderDate.getMinutes()%>:<%=orderList[i].orderDate.getSeconds()%> </a></span>
+                                        <span class="itemInfo" id="orderDate<%=i%>" style="margin-left: 280px">下单日期：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].orderDate.getFullYear()%>-<%=orderList[i].orderDate.getMonth()+1%>-<%=orderList[i].orderDate.getDate()%> &emsp;<%=orderList[i].orderDate.getHours()%>:<%=orderList[i].orderDate.getMinutes()%>:<%=orderList[i].orderDate.getSeconds()%> </a></span>
+                                        <span class="itemInfo" id="comingDate<%=i%>" style="margin-left: 480px">到货预期：<span  style="font-weight:normal;color: #0050fa; "><%=orderList[i].commingDate.getFullYear()%>-<%=orderList[i].commingDate.getMonth()+1%>-<%=orderList[i].commingDate.getDate()%><span style="color:red;display: none" id="overDate<%=i%>">（已逾期<a id="overDays<%=i%>"><%=parseInt((new Date()-orderList[i].commingDate)/ (1000 * 60 * 60 * 24))%></a>天）</span></span></span>
+                                        <style onload="overDate('overDate<%=i%>','overDays<%=i%>')"></style>
+                                    </div>
+                                    <div  style= "font-size: 0.7rem; height: 30px; ">
+                                        <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].itemName + orderList[i].oneItemName%></a></span>
+                                        <span class="itemInfo" style="margin-left: 170px">型号（图号）：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].itemModel + orderList[i].oneItemModel%></a></span>
+                                        <span class="itemInfo" style="margin-left: 480px">订单数量：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].totalNum%></a></span>
+                                    </div>
+                                    <div  style= "font-size: 0.7rem; height: 30px; ">
+                                        <span class="itemInfo"  >供货商：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].itemSupplier + orderList[i].oneItemSupplier%>%></a></span>
+                                        <span class="itemInfo" style="margin-left: 170px">申请备注：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].applyNote%></a></span>
+                                        <span class="itemInfo" style="margin-left: 480px" >审批备注：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].replyNote%></a></span>
+                                    </div>
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <%}%>
+
+
+                </div>
+            </form>
+        </main>
+    </div>
+</section>
+
+<%- include('zFooter') %>
+
+</body>
+</html>

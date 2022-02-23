@@ -3,17 +3,14 @@
 
     //
     function confirmAgainDelete() {
-        if (window.confirm("确认执行【删除设备 <%=project[0].projectId%>-<%=project[0].projectName%>】操作?")){
+        if (window.confirm("确认执行【删除设备 <%=projectMachine[0].projectId%>-<%=projectMachine[0].projectName%>】操作?")){
             return location.href=('/')
         }
     }
 
     function confirmAgainEdit() {
-        return window.confirm("确认执行【修改设备  <%=project[0].projectId%>-<%=project[0].projectName%>】操作?");
+        return window.confirm("确认执行【修改设备  <%=projectMachine[0].projectId%>-<%=projectMachine[0].projectName%>】操作?");
     }
-
-
-
 
     function detailEditable(){
         if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
@@ -134,14 +131,6 @@
                 </div>
             </header>
 
-
-
-
-
-
-
-
-
             <form method="post" enctype="multipart/form-data" onsubmit="confirmAgainEdit()" action="/adBOMListMachineEdit?machineId=DSII-46F-ST">
                 <table cellpadding="0" cellspacing="0" class="itemDetailsPage" style="">
                     <tbody>
@@ -149,11 +138,11 @@
                         <td>
                             <div style="width: 450px;margin-top: -10px;height: 380px;font-size: 1.16rem   ">
                                 <div class="itemDetail">设备信息：</div>
-                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="ProductionProjectName" id="detail1" value="<%=project[0].projectName%>" disabled=""></div>
-                                <div class="itemDetail">代号：<input class="itemDetailsInput" name="ProductionProjectCode"  value="<%=project[0].projectCode%>" disabled=""></div>
-                                <div class="itemDetail">负责人：<select class="itemDetailsInput" name="MachineDesigner" id="detail2" disabled="" required="required">
+                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="ProductionProjectName" id="detail1" value="<%=projectMachine[0].projectName%>" disabled=""></div>
+                                <div class="itemDetail">代号：<input class="itemDetailsInput" name="ProductionProjectCode"  value="<%=projectMachine[0].projectCode%>" disabled=""></div>
+                                <div class="itemDetail">负责人：<select class="itemDetailsInput" name="ProjectManager" id="detail2" disabled="" required="required">
                                         <% for(let i = 0; i < users.length; i++) { %>
-                                            <% if (project[0].projectManager === users[i].userName) {
+                                            <% if (projectMachine[0].projectManager === users[i].userName) {
                                                 if (i < users.length - 1) {
                                                     i++;
                                                 } else {
@@ -164,13 +153,13 @@
                                         <% } %>
                                     </select>
                                 </div>
-                                <div class="itemDetail" >开始时间：<%=project[0].projectStartDate.getFullYear()%>-<%=project[0].projectStartDate.getMonth()+1%>-<%=project[0].projectStartDate.getDate()%></div>
-                                <div class="itemDetail" >结束时间：<%=project[0].projectFinishDate.getFullYear()%>-<%=project[0].projectFinishDate.getMonth()+1%>-<%=project[0].projectFinishDate.getDate()%></div>
-                                <div class="itemDetail" id="changeEndDate" hidden>修改结束日期：<input class="itemDetailsInput" id="detail3" type="date" name="addEndDate" value="<%=project[0].projectFinishDate.getFullYear()%>-<%=project[0].projectFinishDate.getMonth()+1%>-<%=project[0].projectFinishDate.getDate()%>"  disabled></div>
+                                <div class="itemDetail" >开始时间：<%=projectMachine[0].projectStartDate.getFullYear()%>-<%=projectMachine[0].projectStartDate.getMonth()+1%>-<%=projectMachine[0].projectStartDate.getDate()%></div>
+                                <div class="itemDetail" >结束时间：<%=projectMachine[0].projectFinishDate.getFullYear()%>-<%=projectMachine[0].projectFinishDate.getMonth()+1%>-<%=projectMachine[0].projectFinishDate.getDate()%></div>
+                                <div class="itemDetail" id="changeEndDate" hidden>修改结束日期：<input class="itemDetailsInput" id="detail3" type="date" name="addEndDate" value="<%=projectMachine[0].projectFinishDate.getFullYear()%>-<%=projectMachine[0].projectFinishDate.getMonth()+1%>-<%=projectMachine[0].projectFinishDate.getDate()%>"  disabled></div>
                                 <div class="itemDetail" >状态：进行中</div>
-                                <div class="itemDetail" >总进度：<%=project[0].progressRate*100%>%</div>
+                                <div class="itemDetail" >总进度：<%=projectMachine[0].progressRate*100%>%</div>
                                 <div class="itemDetail">项目描述：</div>
-                                <textarea class="itemDetailsInput" name="MachineNote" id="projectDesc"   autoHeight="true"  style="resize: none;overflow-y:hidden;width: 380px" disabled=""><%=project[0].projectDecs%></textarea>
+                                <textarea class="itemDetailsInput" name="MachineNote" id="projectDesc"   autoHeight="true"  style="resize: none;overflow-y:hidden;width: 380px" disabled=""><%=projectMachine[0].projectDecs%></textarea>
                                 <div class="itemDetail" id="updateFile" style="display: none">上传文件：<input type="file" name="machineFileName" id="detail4" value=""></div>
                                 <a id="editButtonControl"><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: inline;">编辑</button></a>
                                 <a id="cancelEditButtonControl" hidden=""> <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="cancelDetailEditable()" style="background-color: #fa5000!important;">取消编辑</button></a>
@@ -197,26 +186,28 @@
                         <div style="margin-left: -320px;margin-bottom: 50px;">
                             <!--                        <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑所属部件</button></a>-->
                             <!--                        <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>-->
-                            <button class="searchInputBoxButton" type="button" id="addProductionMachineBtn" onclick="location.href='/adProductionMachineAdd?projectId=<%=project[0].projectId%>'" style="margin-top: -45px; margin-left: 345px; border-bottom-left-radius: 0.3rem; border-top-left-radius: 0.3rem; display: inline; position: absolute !important; background-color: rgb(0, 203, 70) !important;">添加生产设备</button>
+                            <button class="searchInputBoxButton" type="button" id="addProductionMachineBtn" onclick="location.href='/adProductionMachineAdd?projectId=<%=projectMachine[0].projectId%>'" style="margin-top: -45px; margin-left: 345px; border-bottom-left-radius: 0.3rem; border-top-left-radius: 0.3rem; display: inline; position: absolute !important; background-color: rgb(0, 203, 70) !important;">添加生产设备</button>
                             <style onload="Authority('系统管理员','addProductionMachineBtn')"></style>
                             <style onload="Authority('生产主管','addProductionMachineBtn')"></style>
                             <!--                        <a name="editItemBtn" hidden> <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: -45px; margin-left: 800px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;BOM表</button></a>-->
                         </div>
-                            <%if (1===1){%>
-                            <%for(let j = 0 ; j < 2 ; j++) { %>
+                            <%if (projectMachine[0].machineId !== undefined){%>
+                            <%for(let j = 0 ; j < projectMachine.length; j++) { %>
                             <tr id="productionMachine<%=j%>" style="width: 100%;">
                                 <td style="width: 100%">
                                     <button class="noteButton" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/'">
                                             <div style="font-size: 0.7rem; height: 30px; ">
                                                 <span class="MachineProductionInfo" style="margin-left: -50px;color: #0050fa;   ">设备&nbsp;<%=j+1%></span>
-                                                <span class="MachineProductionInfo" style="margin-left: 0px">名称：<a style="font-weight: normal;color: #0050fa;">双主轴双排刀46全防护（上通定制）</a></span>
-                                                <span class="MachineProductionInfo" style="margin-left: 270px">型号：<a style="font-weight:normal;color: #0050fa; ">DSII-46F-ST</a></span>
+                                                <span class="MachineProductionInfo" style="margin-left: 0px">名称：<a style="font-weight: normal;color: #0050fa;"><%=projectMachine[j].machineName%></a></span>
+                                                <span class="MachineProductionInfo" style="margin-left: 270px">型号：<a style="font-weight:normal;color: #0050fa; "><%=projectMachine[j].machineId%></a></span>
                                                 <span class="MachineProductionInfo" style="margin-left: 460px">状态：<a style="font-weight:normal;color: #0050fa; ">生产中</a></span>
                                             </div>
                                             <div style="font-size: 0.7rem; height: 30px; ">
-                                                <span class="MachineProductionInfo" style="margin-left: 0px">序列号：<a style="font-weight:normal;color: #0050fa; ">LBIE2022001</a></span>
-                                                <span class="MachineProductionInfo" style="margin-left: 180px">对应订单：<a style="font-weight:normal;color: #0050fa; ">order2022001</a></span>
-                                                <span class="MachineProductionInfo" style="margin-left: 355px;">周期：<a style="font-weight:normal;color: #0050fa; ">2022-02-15&nbsp;至&nbsp;2022-03-15</a></span>
+                                                <span class="MachineProductionInfo" style="margin-left: 0px">序列号：<a style="font-weight:normal;color: #0050fa; "><%=projectMachine[j].machineCode%></a></span>
+                                                <span class="MachineProductionInfo" style="margin-left: 180px">对应订单：<a style="font-weight:normal;color: #0050fa; "><%=projectMachine[j].customerOrderId%></a></span>
+                                                <%var productionStart = projectMachine[j].productionStart.getFullYear() + '-' + projectMachine[j].productionStart.getMonth() + '-' + projectMachine[j].productionStart.getDate()%>
+                                                <%var productionFinish = projectMachine[j].productionFinish.getFullYear() + '-' + projectMachine[j].productionFinish.getMonth() + '-' + projectMachine[j].productionFinish.getDate()%>
+                                                <span class="MachineProductionInfo" style="margin-left: 355px;">周期：<a style="font-weight:normal;color: #0050fa; "><%=productionStart%>&nbsp;至&nbsp;<%=productionFinish%></a></span>
                                             </div>
                                             <div style="font-size: 0.7rem; height: 30px;" id="">
                                                 <span class="MachineProductionInfo" style="margin-left: 0px">出仓进度：<a style="font-weight: normal;color: #0050fa;">95.5%</a></span>

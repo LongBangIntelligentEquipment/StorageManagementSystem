@@ -138,15 +138,14 @@ router.post('/adProductionProjectEdit', function(req, res) {
     dateOutput1 = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
     dateOutput2= year.toString() +month.toString() + day.toString() + hour.toString() + min.toString() + sec.toString();
 
-    var projectName, projectStartDate, projectFinishDate, projectManager, projectDesc;
+    var projectName, projectFinishDate, projectManager, projectDesc;
     projectName = req.body.projectName;
-    projectStartDate = req.body.projectStartDate;
     projectFinishDate = req.body.projectFinishDate;
     projectManager = req.body.projectManager;
     projectDesc = req.body.projectDesc;
 
     let url=URL.parse(req.url,true).query;
-    let modSql = 'UPDATE project SET projectName = ? projectStartDate = ? projectFinishDate = ? projectManager = ? projectDesc = ? WHERE projectId = ' + url.projectId;
+    let modSql = 'UPDATE project SET projectName = ? projectFinishDate = ? projectManager = ? projectDesc = ? WHERE projectId = ' + url.projectId;
     let modSqlParams = [projectName, projectStartDate, projectFinishDate, projectManager, projectDesc];
     connection.query(modSql,modSqlParams,function (err) {
         if(err){
@@ -182,26 +181,42 @@ router.get('/adProductionProjectMan', function(req, res) {
 router.get('/adProductionProject', function(req, res) {
     let url=URL.parse(req.url,true).query;
     let projectId = url.projectId;
-    let projectSql = 'SELECT * FROM project WHERE projectId = ' + projectId;
+    let projectMachineSql = 'SELECT * FROM project JOIN p_machine ON project.projectId = p_machine.projectId WHERE project.projectId = ' + projectId;
     let userSql = 'SELECT userName,role FROM user;';
-
-    connection.query(projectSql,function (err,project) {
-        if(err){
-            console.log('[SELECT ERROR] - ',err.message);
-            res.send('查找页面出错：' + '\n' + err);
+    connection.query(userSql, function (err, users) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send(err);
             return;
         }
-        connection.query(userSql,function (err, users) {
+        connection.query(projectMachineSql, function (err, projectMachine) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
-                res.send(err);
+                res.send('查找项目详细页面出错：' + '\n' + err);
                 return;
             }
-            res.render('adProductionProject', {
-                user:req.session.user,
-                project: project,
-                users: users,
-            });
+
+            if (projectMachine.length === 0){
+                let projectSql = 'SELECT * FROM project WHERE projectId = ' + projectId;
+                connection.query(projectSql, function (err, project) {
+                    if (err) {
+                        console.log('[SELECT ERROR] - ', err.message);
+                        res.send('查找项目详细页面出错：' + '\n' + err);
+                        return;
+                    }
+                    res.render('adProductionProject', {
+                        user: req.session.user,
+                        projectMachine: project,
+                        users: users,
+                    });
+                });
+            } else {
+                res.render('adProductionProject', {
+                    user: req.session.user,
+                    projectMachine: projectMachine,
+                    users: users,
+                });
+            }
         });
     });
 });
@@ -230,4 +245,116 @@ router.get('/adProductionMachineAdd', function(req, res) {
         });
     });
 });
+
+
+//   ---查找设备部件---  A-B-C  设备，部件，物料
+/* AJax get component List */
+router.get('/ajaxProductionMachines', function(req, res) {
+    const machineId = req.query.machineId;
+    const sql = 'SELECT *\n' +
+        'FROM project \n' +
+        'INNER JOIN p_machine\n' +
+        'ON project.projectId = p_machine.projectId\n' +
+        'ORDER BY projectCode'
+
+    connection.query( sql,function (err, machine) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send(err);
+            return;
+        }
+        var HTMLText='';
+        for(var j=0;j<machine.length;j++){
+            // HTMLText +=
+            //     '<table class="noteButton2" cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n'+
+            //     '                        <tr class="noteButton2" style="width: 87%;" id="'+machineId+'component'+j+'" >\n' +
+            //     '                            <td style="width: 80%;">\n' +
+            //     '                                <button class="noteButton2" name="componentBtn" id="'+machineId+component[j].componentId+'" value=0 style="padding-left: 80px;" type="button" onclick="showItems('+j+','+'\''+machineId+'\''+','+'\''+component[j].componentId+'\''+')">\n' +
+            //     '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
+            //     '                                        <span class="componentInfo" style="margin-left: -60px;color: #0050fa;   ">部件&nbsp;'+parseInt(j+1)+'</span>\n' +
+            //     '                                        <span class="componentInfo" style="margin-left: -20px">部件名称：<a style="font-weight: normal;color: #0050fa;">' + component[j].componentName + '</a></span>\n' +
+            //     '                                        <span class="componentInfo" style="margin-left: 200px">制表人：<a style="font-weight:normal;color: #0050fa; ">' + component[j].userName + '</a></span>\n' +
+            //     '                                        <span class="componentInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; ">' + component[j].updateTime.getFullYear()+'-'+component[j].updateTime.getMonth()+1+'-'+component[j].updateTime.getDate()+ '</a></span>\n' +
+            //     '                                    </div>\n' +
+            //     '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
+            //     '                                        <span class="componentInfo" style="margin-left: -20px">部件型号：<a style="font-weight:normal;color: #0050fa; ">' + component[j].componentModel + '</a></span>\n' +
+            //     '                                        <span class="componentInfo" id="'+machineId+'componentCostRow'+j+'" style="margin-left: 430px; display: none;">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + component[j].cost + '</a></span>\n' +
+            //     '                                            <style onload="Authority(\'系统管理员\',\''+machineId+'componentCostRow'+j+'\')"></style>\n' +
+            //     '                                    </div>\n' +
+            //     '                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">\n' +
+            //     '                                        <span class="componentInfo" style="margin-left: -20px" >备注：<a style="font-weight: normal;color: red;">' + component[j].cNote + '</a></span>\n' +
+            //     '                                    </div>\n' +
+            //     '                                </button>\n' +
+            //     '                            </td>\n' +
+            //     '                            <td style="width: 13%!important;">\n' +
+            //     '<table cellspacing="0" cellpadding="0" style="width: 100%">\n' +
+            //     '                                <tr >\n' +
+            //     '                                    <td>\n' +
+            //     '                                        <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=\'/adBOMList?componentId=' + component[j].componentId + '\'"><img src=\'images/components.png\' height="50px" width="50px"></button>\n' +
+            //     '                                    </td>\n' +
+            //     '                                </tr>\n' +
+            //     '                            </table> \n'+
+            //     '                            </td>\n' +
+            //     '                        </tr>\n'+
+            //
+            //
+            //     '                                    <tr cellspacing="0" cellpadding="0" id="'+component[j].componentId+'itemBox'+'"  style="width: 100%">\n' +
+            //     '                                    </tr>\n' +
+            //
+            //
+            //     '</table>'
+
+
+            HTMLText +=
+                '                                    <div class="noteButton" cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n' +
+                '                                        <tbody><tr class="noteButton" style="width: 87%;" id="' + machine[j].machineId + j + '">\n' +
+                '                                            <td style="width: 80%;">\n' +
+                '                                                <div class="noteButton" name="componentBtn" id="DSII-46F-ST256" value="0" style="padding-left: 80px;" type="button" onclick="">\n' +
+                '                                                    <div style="font-size: 0.7rem; height: 30px; ">\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: -50px;color: #0050fa;   ">设备&nbsp;1</span>\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: 0px">名称：<a style="font-weight: normal;color: #0050fa;">' + machine[j].machineName + '</a></span>\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: 270px">型号：<a style="font-weight:normal;color: #0050fa; ">' + machine[j].machineId + j + '</a></span>\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: 460px">状态：<a style="font-weight:normal;color: #0050fa; ">' + machine[j].productionState + '</a></span>\n' +
+                '                                                    </div>\n' +
+                '                                                    <div style="font-size: 0.7rem; height: 30px; ">\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: 0px">序列号：<a style="font-weight:normal;color: #0050fa; ">' + machine[j].machineCode + '</a></span>\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: 180px">对应订单：<a style="font-weight:normal;color: #0050fa; ">order2022001</a></span>\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: 355px;">周期：<a style="font-weight:normal;color: #0050fa; ">2022-02-15&nbsp;至&nbsp;2022-03-15</a></span>\n' +
+                '                                                    </div>\n' +
+                '                                                    <div style="font-size: 0.7rem; height: 30px;" id="">\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: 0px">出仓进度：<a style="font-weight: normal;color: #0050fa;">95.5%</a></span>\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: 150px">质检进度：<a style="font-weight:normal;color: #0050fa; ">50.5%</a></span>\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: 300px">任务进度：<a style="font-weight:normal;color: #0050fa; ">20.5%</a></span>\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: 460px">总进度：<a style="font-weight:normal;color: #0050fa; ">80%</a></span>\n' +
+                '                                                    </div>\n' +
+                '                                                </div>\n' +
+                '                                            </td>\n' +
+                '                                            <td  style="width: 13%!important;">\n' +
+                '                                                <table cellspacing="0" cellpadding="0" style="width: 100%">\n' +
+                '                                                    <tbody>\n' +
+                '                                                    <tr>\n' +
+                '                                                        <td>\n' +
+                '                                                            <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="location.href=\'/adBOMList?componentId=256\'"><img src="images/machine.png" height="50px" width="50px"></button>\n' +
+                '                                                        </td>\n' +
+                '                                                    </tr>\n' +
+                '                                                    </tbody>\n' +
+                '                                                </table>\n' +
+                '                                            </td>\n' +
+                '                                        </tr>\n' +
+                '                                        <tr cellspacing="0" cellpadding="0" id="" style="width: 100%">\n' +
+                '                                        </tr>\n' +
+                '                                        </tbody>' +
+                '                                    </div>'
+
+        }
+        res.json({
+            machine:machine,
+            HTMLText:HTMLText
+        });
+
+    });
+});
+
+
+
 module.exports = router;

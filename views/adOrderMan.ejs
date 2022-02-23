@@ -2,7 +2,6 @@
 
     <script language="javascript">
 
-        //
         // function OrderState(ojId,ojId2,ojId3,ojId4,arriveNum,orderNum){
         //     if(document.getElementById(ojId).innerText==='已下单'){
         //         document.getElementById(ojId).style.color='green';
@@ -47,7 +46,7 @@
             }
         }
 
-        $(document).ready(function(){
+        $(document).ready(function (){
             // control variables
             const limit = 20;
             let start = 0; //The starting pointer of the data
@@ -78,7 +77,6 @@
                     }
                 });
             }
-
             if(action === 'inactive')
             {
                 action = 'active';
@@ -95,8 +93,6 @@
                 }
             });
         })
-
-
 
     </script>
 
@@ -151,9 +147,10 @@
 
                     </div>
 
-                    <div  style="margin-left: 30px;color: #0050fa; font-weight: bold; font-size: small; ">订单数量：<%=orderCount%></div>
+                    <div style="margin-left: 30px;color: #0050fa; font-weight: bold; font-size: small; ">订单数量：<%= orderCount %></div>
 
-                    <div id="load_data"></div>
+                    <div id="load_data">
+                    </div>
 
                 </div>
             </form>
