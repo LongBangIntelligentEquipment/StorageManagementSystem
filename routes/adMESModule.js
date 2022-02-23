@@ -157,14 +157,15 @@ router.post('/adProductionProjectEdit', function(req, res) {
     sec = saveDate.getSeconds();
     dateOutput = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
 
-    var projectName, projectFinishDate, projectManager, projectDesc;
+    var projectName, projectStartDate, projectFinishDate, projectManager, projectDesc;
     projectName = req.body.projectName;
+    projectStartDate = req.body.projectStartDate;
     projectFinishDate = req.body.projectFinishDate;
     projectManager = req.body.projectManager;
     projectDesc = req.body.projectDesc;
 
     let url=URL.parse(req.url,true).query;
-    let modSql = 'UPDATE project SET projectName = ? projectFinishDate = ? projectManager = ? projectDesc = ? WHERE projectId = ' + url.projectId;
+    let modSql = 'UPDATE project SET projectName = ? projectStartDate = ? projectFinishDate = ? projectManager = ? projectDesc = ? WHERE projectId = ' + url.projectId;
     let modSqlParams = [projectName, projectStartDate, projectFinishDate, projectManager, projectDesc];
     connection.query(modSql,modSqlParams,function (err) {
         if(err){
@@ -285,7 +286,7 @@ router.get('/ajaxProductionMachines', function(req, res) {
         var HTMLText='';
         for(var j=0;j<machine.length;j++){
             HTMLText +=
-                '                                    <div class="noteButton" cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n' +
+                '                                    <table class="noteButton" cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n' +
                 '                                        <tbody><tr class="noteButton" style="width: 87%;" id="' + machine[j].machineId + j + '">\n' +
                 '                                            <td style="width: 80%;">\n' +
                 '                                                <div class="noteButton" name="componentBtn" id="DSII-46F-ST256" value="0" style="padding-left: 80px;" type="button" onclick="">\n' +
@@ -323,14 +324,47 @@ router.get('/ajaxProductionMachines', function(req, res) {
                 '                                        <tr cellspacing="0" cellpadding="0" id="" style="width: 100%">\n' +
                 '                                        </tr>\n' +
                 '                                        </tbody>' +
-                '                                    </div>'
+                '                                    </table>'
 
         }
         res.json({
             machine:machine,
             HTMLText:HTMLText
         });
+    });
+});
 
+
+//   ---添加生产设备详细---
+/* GET adProductionMachineMan */
+router.get('/adProductionMachineMan', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    let projectSql = 'SELECT * FROM project;';
+    let machineSql = 'SELECT * FROM p_machine WHERE p_machineId= \''+url.p_machineId+'\'';
+    let userSql = 'SELECT userName,role FROM user;';
+    connection.query(userSql, function (err, users) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send(err);
+            return;
+        }
+
+        connection.query(projectSql, function (err, project) {
+            connection.query(machineSql, function (err, machine) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                    res.send('查找设备出错：' + '\n' + err);
+                    return;
+                }
+                res.render('adProductionMachineMan', {
+                    user: req.session.user,
+                    project: project,
+                    machine: machine,
+                    url: url,
+                    users:users
+                });
+            });
+        });
     });
 });
 
