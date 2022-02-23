@@ -141,7 +141,7 @@
                                         <% } %>
                                     </select>
                                 </div>
-                                <div class="itemDetail">序列号：<%=machine[0].machineCode%></div>
+                                <div class="itemDetail">序列号：<%=machine[0].p_machineId%></div>
                                 <div class="itemDetail">关联订单：<%=machine[0].customerOrderId%></div>
                                 <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="MachineUpdateTime" value=" <%=machine[0].updateTime.getFullYear()%>-<%=machine[0].updateTime.getMonth()+1%>-<%=machine[0].updateTime.getDate()%>" disabled ></div>
                                 <div class="itemDetail" >开始时间：<%=machine[0].productionStart.getFullYear()%>-<%=machine[0].productionStart.getMonth()+1%>-<%=machine[0].productionStart.getDate()%></div>
@@ -158,14 +158,24 @@
                                 <button style="background-color: transparent!important;width: 200px;height: 200px;border: none" type="button" onclick="window.open('uploads/<%=machine[0].machineFileName%>')"><img src="uploads/<%=machine[0].machineFileName%>" height="200px" width="200px"></button>
                             </div>
                             <div style="width: 200px; margin-top: 20px"  id="accountButtons">
-                                <button class="btn btn-block btn-submit button button--primary " type="button" id="directlyExit" onclick="location.href='/'" style="background-image: linear-gradient(90deg, #fff3e3 0%, #EA5455 100%);border: none;height: 50px;width: 200px;">出仓进度：50.0%</button>
-                                <button class="btn btn-block btn-submit button button--primary " type="button" id="temEnter" onclick="location.href=''" style="background-image: linear-gradient(90deg, #fef7c1 0%, #ffcc00 100%);border: none;height: 50px;">质检进度：50.0%</button>
-                                <button class="btn btn-block btn-submit button button--primary " type="button" id="enter"   onclick="location.href='/'" style="background-image: linear-gradient(90deg, #0396FF 50%, rgba(0,67,214,0.6) 50%);border:none;height: 50px;;margin-top: 0px;width: 200px">任务进度：50.0%</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="directlyExit" onclick="location.href='/'" style="background-image: linear-gradient(90deg, #EA5455 <%=machine[0].exitProgressRate.toFixed(2)*100%>%, #838383 0%);border: 3px solid #EA5455;height: 50px;width: 200px;">出仓进度：<%=machine[0].exitProgressRate.toFixed(2)*100+'%'%></button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="temEnter" onclick="location.href=''" style="background-image: linear-gradient(90deg, #ffcc00 <%=machine[0].QCProgressRate.toFixed(2)*100%>%, #838383 0%);border: 3px solid #ffcc00;height: 50px;">质检进度：<%=machine[0].QCProgressRate.toFixed(2)*100%>%</button>
+                                <button class="btn btn-block btn-submit button button--primary " type="button" id="enter"   onclick="location.href='/'" style="background-image: linear-gradient(90deg, #0396FF <%=machine[0].TaskProgressRate.toFixed(2)*100%>%, #838383 0%);border:3px solid #0396FF;height: 50px;;margin-top: 0px;width: 200px">任务进度：<%=machine[0].TaskProgressRate.toFixed(2)*100%>%</button>
                             </div>
                         </td>
 
                     </tr>
                 </table>
+
+                <div class="circleProgress_wrapper">
+                    <div class="wrapper right">
+                        <div class="circleProgress rightcircle"></div>
+                    </div>
+                    <div class="wrapper left">
+                        <div class="circleProgress leftcircle"></div>
+                    </div>
+                </div>
+
 
                 <div style="margin-top: 30px;margin-left: 30px">
                     <a id="editButtonControl"><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: none;" >编辑</button></a>
