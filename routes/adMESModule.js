@@ -62,7 +62,7 @@ router.get('/adProductionProjectAdd', function(req, res) {
 
 /* POST adProjectAdd Page */
 router.post('/adProductionProjectAdd', function (req, res) {
-    var saveDate, year, month, day, hour, min, sec, dateOutput1, dateOutput2;
+    var saveDate, year, month, day, hour, min, sec, dateOutput;
     saveDate = new Date();
     year = saveDate.getFullYear();
     month = saveDate.getMonth() + 1;
@@ -70,20 +70,22 @@ router.post('/adProductionProjectAdd', function (req, res) {
     hour = saveDate.getHours();
     min = saveDate.getMinutes();
     sec = saveDate.getSeconds();
-    dateOutput1 = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
-    dateOutput2= year.toString() +month.toString() + day.toString() + hour.toString() + min.toString() + sec.toString();
+    dateOutput = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
 
-    var projectName, projectStartDate, projectFinishDate, projectManager, projectDesc, projectFolder;
+    var projectName, projectManager, projectStartDate, projectFinishDate, progressRate, projectState, projectDesc, projectFolder, projectCode;
     projectName = req.body.projectName;
+    projectManager = req.body.projectManager;
     projectStartDate = req.body.projectStartDate;
     projectFinishDate = req.body.projectFinishDate;
-    projectManager = req.body.projectManager;
+    progressRate = 0;
+    projectState = '待确认';
     projectDesc = req.body.projectDesc;
-    projectFolder = projectName + dateOutput2;
+    projectFolder = projectName;
 
     // 项目名查重
     let unique = true;
     let checkProjectNameSQL = 'SELECT * FROM project WHERE projectName= ' + projectName;
+    let maxProjectCodeSql = 'SELECT MAX(projectCode) AS maxProjectCode FROM project;'
 
     connection.query(checkProjectNameSQL, function (err, checkResult) {
         if (err) {
@@ -95,14 +97,32 @@ router.post('/adProductionProjectAdd', function (req, res) {
             unique = false;
             return res.send('项目添加失败：您所添加的项目【项目于名称】已存在于项目列表中。')
         } else if (unique) {
-            let addSql = 'INSERT INTO project(projectName, projectStartDate, projectFinishDate, projectManager, projectDesc, projectFolder) VALUES(?,?,?,?,?)';
-            let  addSqlParams = [projectName, projectStartDate, projectFinishDate, projectManager, projectDesc, projectFolder];
 
-            connection.query(addSql,addSqlParams, function (err) {
+            connection.query(maxProjectCodeSql, function (err, maxProjectCode) {
                 if (err) {
-                    console.log('[INSERT ERROR] - 添加项目错误！\n ', err.message);
-                    res.send('[INSERT ERROR] - 添加项目错误！\n ' + err);
+                    console.log('[SELECT ERROR] - ', err.message);
+                    res.send(err);
+                    return;
                 }
+
+                maxProjectCode = maxProjectCode[0].maxProjectCode;
+                console.log(maxProjectCode);
+                if (projectCode.substring(2,5) === year.toString()){
+                    projectCode = 'PP' + year + (parseInt(maxProjectCode.substring(6)) + 1).toString();
+                } else {
+                    projectCode = 'PP' + year + '001';
+                }
+
+
+                let addSql = 'INSERT INTO project(projectName, projectManager, projectStartDate, projectFinishDate, progressRate, projectState, projectDesc, projectFolder, projectCode) VALUES(?,?,?,?,?,?,?,?,?)';
+                let  addSqlParams = [projectName, projectManager, projectStartDate, projectFinishDate, progressRate, projectState, projectDesc, projectFolder, projectCode];
+
+                connection.query(addSql,addSqlParams, function (err) {
+                    if (err) {
+                        console.log('[INSERT ERROR] - 添加项目错误！\n ', err.message);
+                        res.send('[INSERT ERROR] - 添加项目错误！\n ' + err);
+                    }
+                });
             });
         }
     });
@@ -127,7 +147,7 @@ router.get('/adProductionProjectDelete', function(req, res) {
 //   ---修改项目---
 /* POST adProductionProjectEdit Page */
 router.post('/adProductionProjectEdit', function(req, res) {
-    var saveDate, year, month, day, hour, min, sec, dateOutput1, dateOutput2;
+    var saveDate, year, month, day, hour, min, sec, dateOutput;
     saveDate = new Date();
     year = saveDate.getFullYear();
     month = saveDate.getMonth() + 1;
@@ -135,8 +155,7 @@ router.post('/adProductionProjectEdit', function(req, res) {
     hour = saveDate.getHours();
     min = saveDate.getMinutes();
     sec = saveDate.getSeconds();
-    dateOutput1 = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
-    dateOutput2= year.toString() +month.toString() + day.toString() + hour.toString() + min.toString() + sec.toString();
+    dateOutput = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
 
     var projectName, projectStartDate, projectFinishDate, projectManager, projectDesc;
     projectName = req.body.projectName;
@@ -266,46 +285,6 @@ router.get('/ajaxProductionMachines', function(req, res) {
         }
         var HTMLText='';
         for(var j=0;j<machine.length;j++){
-            // HTMLText +=
-            //     '<table class="noteButton2" cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n'+
-            //     '                        <tr class="noteButton2" style="width: 87%;" id="'+machineId+'component'+j+'" >\n' +
-            //     '                            <td style="width: 80%;">\n' +
-            //     '                                <button class="noteButton2" name="componentBtn" id="'+machineId+component[j].componentId+'" value=0 style="padding-left: 80px;" type="button" onclick="showItems('+j+','+'\''+machineId+'\''+','+'\''+component[j].componentId+'\''+')">\n' +
-            //     '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
-            //     '                                        <span class="componentInfo" style="margin-left: -60px;color: #0050fa;   ">部件&nbsp;'+parseInt(j+1)+'</span>\n' +
-            //     '                                        <span class="componentInfo" style="margin-left: -20px">部件名称：<a style="font-weight: normal;color: #0050fa;">' + component[j].componentName + '</a></span>\n' +
-            //     '                                        <span class="componentInfo" style="margin-left: 200px">制表人：<a style="font-weight:normal;color: #0050fa; ">' + component[j].userName + '</a></span>\n' +
-            //     '                                        <span class="componentInfo" style="margin-left: 430px">更新日期：<a style="font-weight:normal;color: #0050fa; ">' + component[j].updateTime.getFullYear()+'-'+component[j].updateTime.getMonth()+1+'-'+component[j].updateTime.getDate()+ '</a></span>\n' +
-            //     '                                    </div>\n' +
-            //     '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
-            //     '                                        <span class="componentInfo" style="margin-left: -20px">部件型号：<a style="font-weight:normal;color: #0050fa; ">' + component[j].componentModel + '</a></span>\n' +
-            //     '                                        <span class="componentInfo" id="'+machineId+'componentCostRow'+j+'" style="margin-left: 430px; display: none;">部件成本：<a style="font-weight:normal;color: #0050fa; ">' + component[j].cost + '</a></span>\n' +
-            //     '                                            <style onload="Authority(\'系统管理员\',\''+machineId+'componentCostRow'+j+'\')"></style>\n' +
-            //     '                                    </div>\n' +
-            //     '                                    <div  style= "font-size: 0.7rem; height: 30px;" id="">\n' +
-            //     '                                        <span class="componentInfo" style="margin-left: -20px" >备注：<a style="font-weight: normal;color: red;">' + component[j].cNote + '</a></span>\n' +
-            //     '                                    </div>\n' +
-            //     '                                </button>\n' +
-            //     '                            </td>\n' +
-            //     '                            <td style="width: 13%!important;">\n' +
-            //     '<table cellspacing="0" cellpadding="0" style="width: 100%">\n' +
-            //     '                                <tr >\n' +
-            //     '                                    <td>\n' +
-            //     '                                        <button class="itemButton1" style="height: 90px;border: 0" type="button" onclick="location.href=\'/adBOMList?componentId=' + component[j].componentId + '\'"><img src=\'images/components.png\' height="50px" width="50px"></button>\n' +
-            //     '                                    </td>\n' +
-            //     '                                </tr>\n' +
-            //     '                            </table> \n'+
-            //     '                            </td>\n' +
-            //     '                        </tr>\n'+
-            //
-            //
-            //     '                                    <tr cellspacing="0" cellpadding="0" id="'+component[j].componentId+'itemBox'+'"  style="width: 100%">\n' +
-            //     '                                    </tr>\n' +
-            //
-            //
-            //     '</table>'
-
-
             HTMLText +=
                 '                                    <table class="noteButton" cellspacing="0" cellpadding="0" style="width: 122.5%; ">\n' +
                 '                                        <tbody><tr class="noteButton" style="width: 87%;" id="' + machine[j].machineId + j + '">\n' +
