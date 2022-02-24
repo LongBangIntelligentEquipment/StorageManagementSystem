@@ -167,14 +167,6 @@
                     </tr>
                 </table>
 
-                <div class="circleProgress_wrapper">
-                    <div class="wrapper right">
-                        <div class="circleProgress rightcircle"></div>
-                    </div>
-                    <div class="wrapper left">
-                        <div class="circleProgress leftcircle"></div>
-                    </div>
-                </div>
 
 
                 <div style="margin-top: 30px;margin-left: 30px">
@@ -188,12 +180,60 @@
                 </div>
 
 
+                <div class="pageCard" style="border-top: 0.1rem solid #404142; width: auto;margin-top: 100px">
+                    <div class="pageTitle">
+                        <div style="margin-bottom: 30px;font-weight: bold;font-size: 1.3rem">所属部件：(共<%=machine.length%>个部件)</div>
+                    </div>
+
+                    <div id="BomListDetail" style="width: auto">
+                        <table   style="width: 100%;font-size: 1rem;">
+                            <div style="margin-left: -320px;margin-bottom: 50px;">
+                                <!--                        <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑所属部件</button></a>-->
+                                <!--                        <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>-->
+                                <button class="searchInputBoxButton" type="button" id="addComponentBtn" onclick="location.href='/adBOMListComponentAdd?machineId=<%=machine[0].machineId%>'" style="position: absolute!important; margin-top: -45px; margin-left: 345px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;display: none" >添加所属部件</button>
+                                <style onload="Authority('系统管理员','addComponentBtn')"></style>
+                                <style onload="Authority('技术员','addComponentBtn')"></style>
+                                <!--                        <a name="editItemBtn" hidden> <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: -45px; margin-left: 800px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;BOM表</button></a>-->
+                            </div>
+                            <%if (machine[0].componentName){%>
+                            <%for(let j = 0 ; j < machine.length ; j++) { %>
+                            <tr id="machine<%=j%>" style="width: 100%;">
+                                <td style="width: 100%">
+                                    <button class="noteButton2" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList?componentId=<%=machine[j].componentId%>'">
+                                        <div  style= "font-size: 0.7rem; height: 30px; ">
+                                            <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
+                                            <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"><%=machine[j].componentName%></a></span>
+                                            <span class="itemInfo" style="margin-left: 260px">部件编号：<a style="font-weight:normal;color: #0050fa; "><%=machine[j].componentModel%></a></span>
+                                        </div>
+                                        <div  style= "font-size: 0.7rem; height: 30px; ">
+                                            <span class="itemInfo" >更新日期：<a style="font-weight: normal;color: #0050fa;"><%=machine[j].cUpdateTime.getFullYear()%>-<%=machine[j].cUpdateTime.getMonth()+1%>-<%=machine[j].cUpdateTime.getDate()%></a></span>
+                                            <span class="itemInfo" id="componentCostRow<%=j%>" style="margin-left: 260px;display: none;">部件成本：<a style="font-weight:normal;color: #0050fa; "><%=machine[j].componentCost%></a></span>
+                                            <style onload="Authority('系统管理员','componentCostRow<%=j%>')"></style>
+
+                                            <span class="itemInfo" style="margin-left: 420px">类型：<a style="font-weight: normal; color: #0050fa;"><%=machine[j].categoryName%></a></span>
+                                        </div>
+
+                                        <div  style= "font-size: 0.7rem; height: 30px;" id="">
+                                            <span class="itemInfo" >备注：<a style="font-weight:normal;color: red;"><%=machine[j].cNote%></a></span>
+                                        </div>
+                                    </button>
+                                </td>
+                            </tr>
+                            <% }} else {%>
+                                此设备未添加部件
+                            <%}%>
+                        </table>
+                    </div>
+                </div>
+
 
 
             </form>
         </main>
     </div>
 </section>
+
+
 
 
 
