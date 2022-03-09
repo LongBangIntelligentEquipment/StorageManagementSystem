@@ -72,7 +72,8 @@ function getInfo(url,callback){
     var statesCounter;
     var states=[];
     var statesList=[];
-    var sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId='+'\''+url.itemId+'\'';
+    // var sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId='+'\''+url.itemId+'\'';
+    var sql='SELECT * FROM item JOIN itemstate ON item.itemId = itemstate.itemId JOIN itemtype ON item.itemTypeId = itemType.itemTypeId where item.itemId=itemstate.itemId AND item.itemId='+'\''+url.itemId+'\'';
 
     if (url.orderId) {
         if (url.orderId.toString().substring(0,3) === 'ONE'){
@@ -1727,7 +1728,7 @@ router.get('/adItemReturn', function(req, res, next) {
     var getDate=y+"-"+mon+"-"+day+" "+h+':'+min+':'+sec;
     //console.log(getDate)
     getInfo(url,function (err,result) {
-        // console.log(result)
+        console.log(result)
         return  res.render('adItemReturn', {
             itemList:result.item,
             itemStateList:result.itemStateList,
@@ -2069,7 +2070,9 @@ router.post('/adOrderMan', function(req, res, next) {
             'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
             'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel\n' +
             'FROM orderlist LEFT JOIN item ON orderlist.itemId = item.itemId LEFT JOIN item_one ON orderlist.orderId = item_one.orderId \n' +
-            'WHERE orderlist.orderId Like "' +indexOf+'" OR item.itemName Like "'+indexOf+'" OR item.itemId Like "'+indexOf+'" OR item.itemSupplier Like "'+indexOf+'" OR orderlist.applyNote Like "'+indexOf+'" OR orderlist.replyNote Like "'+indexOf +'";';
+            'WHERE orderlist.orderId Like "' +indexOf+'" OR item.itemName Like "'+indexOf+'" OR item.itemId Like "'+indexOf+'"OR item.itemSupplier Like "'+indexOf+'"' +
+            'OR item_one.itemName Like "'+indexOf+'" OR item_one.itemModel Like "'+indexOf+'" OR item_one.itemSupplier Like "'+indexOf+'" OR item_one.itemId Like "'+indexOf+'"' +
+            'OR orderlist.applyNote Like "'+indexOf+'" OR orderlist.replyNote Like "'+indexOf +'";';
     }
 
     switch (req.body.order) {
@@ -2101,6 +2104,7 @@ router.post('/adOrderMan', function(req, res, next) {
             'ORDER BY  order_param,commingDate DESC,orderDate ASC'
     }
 
+    // console.log(sql);
     connection.query( sql,function (err, result) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);

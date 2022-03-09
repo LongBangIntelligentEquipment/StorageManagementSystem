@@ -226,7 +226,7 @@
                                 <div class="itemDetail">物料编号：<input class="itemDetailsInput" name="updateId" id="detail2" value="<%=item[0].itemId%>" placeholder="<%=item[0].itemId%>" disabled></div>
                                 <div class="itemDetail">型号（图号）：<input class="itemDetailsInput" name="updateModel" id="detail3" value="<%=item[0].itemModel%>" placeholder="<%=item[0].itemModel%>" disabled></div>
                                 <div class="itemDetail" >类型：<select class="itemDetailsInput" name="updateType" id="detail4" disabled style="width: 100px;color:black;">
-                                        <option value="<%=item[0].itemTypeName%>"><%=item[0].itemTypeName%></option>
+                                        <option value="<%=item[0].itemTypeId%>"><%=item[0].itemTypeName%></option>
                                         <% for(let i = 0; i < itemTypes.length; i++) { %>
                                             <% if (itemTypes[i].itemTypeName === item[0].itemTypeName) {
                                                 if (i < itemTypes.length - 1) {

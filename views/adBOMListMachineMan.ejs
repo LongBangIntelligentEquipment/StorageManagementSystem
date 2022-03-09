@@ -92,7 +92,7 @@
 
         //计算成本
         <%var machineCost = 0;%>
-        <%for(let i=0; i<machine.length; i++) {
+        <%for(let i=0; i<machineComponentCount; i++) {
             machineCost += machine[i].componentCost;
         }%>
     </script>
@@ -175,7 +175,7 @@
 
             <div class="pageCard" style="border-top: 0.1rem solid #404142; width: auto;">
                 <div class="pageTitle">
-                    <div style="margin-bottom: 30px;font-weight: bold;font-size: 1.3rem">所属部件：(共<%=machine.length%>个部件)</div>
+                    <div style="margin-bottom: 30px;font-weight: bold;font-size: 1.3rem">所属部件：(共<%=machineComponentCount%>个部件)</div>
                 </div>
 
                 <div id="BomListDetail" style="width: auto">

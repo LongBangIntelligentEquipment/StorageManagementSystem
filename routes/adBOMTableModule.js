@@ -6,6 +6,7 @@ var pinyin = require("pinyin");
 const URL=require('url');
 var multer = require('multer');
 const {response} = require("express");
+const {promises} = require("fs");
 var connection=require('../databaseConfig/config').connection();
 
 
@@ -40,6 +41,19 @@ var upload = multer({
 //-----------------------------------------------------------------------------//
 //-----------------------------------------------------------------------------//
 /*******************************  function  *********************************************/
+function getDateTime(){
+    var saveDate, year, month, day, hour, min, sec, dateTime;
+    saveDate = new Date();
+    year = saveDate.getFullYear();
+    month = saveDate.getMonth() + 1;
+    day = saveDate.getDate();
+    hour = saveDate.getHours();
+    min = saveDate.getMinutes();
+    sec = saveDate.getSeconds();
+    dateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    return dateTime;
+}
+
 function addNote(event,itemName,id,changedState){
     var saveDate= new Date();
     var year= saveDate.getFullYear();
@@ -147,82 +161,91 @@ function updateMachineCost(machineId){
     });
 }
 
-function copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, count){
-    var saveDate, year, month, day, hour, min, sec, updateTime;
-    saveDate = new Date();
-    year = saveDate.getFullYear();
-    month = saveDate.getMonth() + 1;
-    day = saveDate.getDate();
-    hour = saveDate.getHours();
-    min = saveDate.getMinutes();
-    sec = saveDate.getSeconds();
-    updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+async function copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, count){
 
-    let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, itemOrderBy, cost, componentFileName\n' +
-        'FROM component\n' +
-        'INNER JOIN component_has_item\n' +
-        'ON component_has_item.component_componentId = component.componentId\n' +
-        'WHERE componentId = ' + '"' + componentId + '";';
-    connection.query( componentSql,function (err, componentItems) {
-        if (err) {
-            console.log('[SELECT ERROR] - ', err.message);
-            return;
+    let updateTime = getDateTime();
+
+    let componentItems = await getComponentItems(componentId);
+
+    var newComponentCost = 0;
+    if (componentItems.length > 0){
+        newComponentCost = componentItems[0].cost;
+        if (componentFileName === 'no-image-available.jpg'){
+            componentFileName = componentItems[0].componentFileName
         }
+    }
 
-        var newComponentCost = 0;
+    let insertSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,componentFileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
+    let insertParam = [componentModel,componentName,updateTime,'正常',componentNote,userId,componentType,newComponentCost,componentFileName, machineId];
 
-        if (componentItems.length > 0){
-            newComponentCost = componentItems[0].cost;
-            if (componentFileName === 'no-image-available.jpg'){
-                componentFileName = componentItems[0].componentFileName
-            }
-        }
+    await addComponentItems(insertSql,insertParam);
 
-        let insertSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,componentFileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
-        let insertParam = [componentModel,componentName,updateTime,'正常',componentNote,userId,componentType,newComponentCost,componentFileName, machineId]
-        connection.query( insertSql, insertParam,function (err) {
-            if (err) {
-                console.log('[INSERT ERROR] 添加复制部件错误！ - ', err.message);
-                return;
-            }
-            updateMachineCost(machineId);
-            let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity, itemOrderBy) VALUES(?,?,?,?,?)'
-            connection.query( 'SELECT LAST_INSERT_ID() AS newComponentId;', function (err, newComponentIds) {
-                if (err) {
-                    console.log('查找插入ID错误！ - ', err.message);
-                    return;
-                }
-                let newComponentId = newComponentIds[0].newComponentId - count;
-                for (let i = 0; i < componentItems.length; i++) {
-                    let itemId = componentItems[i].item_itemId;
-                    let itemModel = componentItems[i].item_itemModel;
-                    let itemQty = componentItems[i].itemQuantity;
-                    let itemOrderBy = componentItems[i].itemOrderBy;
-                    let addSqlParams = [newComponentId, itemId, itemModel, itemQty, itemOrderBy];
-                    connection.query(addSql, addSqlParams, function (err) {
-                        if (err) {
-                            console.log('[INSERT ERROR] 从部件中添加物料错误！ - ', err.message);
-                        }
-                    });
-                }
-            });
-        });
+    updateMachineCost(machineId);
+
+    let newComponentId = await getLastInsertId();
+    console.log("newComponentId:" + newComponentId);
+
+    for (let i = 0; i < componentItems.length; i++) {
+        let itemId = componentItems[i].item_itemId;
+        let itemModel = componentItems[i].item_itemModel;
+        let itemQty = componentItems[i].itemQuantity;
+        let itemOrderBy = componentItems[i].itemOrderBy;
+        let addSql = 'INSERT INTO component_has_item(component_componentId, item_itemId, item_itemModel, itemQuantity, itemOrderBy) VALUES(?,?,?,?,?)'
+        let addSqlParams = [newComponentId, itemId, itemModel, itemQty, itemOrderBy];
+        await addComponentItems(addSql,addSqlParams);
+    }
 
         // --添加事件更新到首页--
         // addNote('部件事件更新', componentName, componentModel, '添加新部件');
-    });
+
+    // functions
+    function getLastInsertId(){
+        return new Promise((resolve, reject) => {
+            connection.query( 'SELECT LAST_INSERT_ID() AS newComponentId;', function (err, newComponentIds) {
+                if (err) {
+                    console.log('查找插入ID错误！ - ', err.message);
+                } else {
+                    resolve(newComponentIds[0].newComponentId)
+                }
+            });
+        })
+    }
+
+    function getComponentItems(componentId){
+        return new Promise((resolve, reject) => {
+            let componentSql = 'SELECT item_itemId, item_itemModel, itemQuantity, itemOrderBy, cost, componentFileName\n' +
+                'FROM component\n' +
+                'INNER JOIN component_has_item\n' +
+                'ON component_has_item.component_componentId = component.componentId\n' +
+                'WHERE componentId = ' + '"' + componentId + '";';
+            connection.query(componentSql, function (err, componentItems) {
+                if (err) {
+                    reject(err);
+                    throw err;
+                }
+                resolve(componentItems);
+            })
+        })
+    }
+
+    function addComponentItems(insertSql, insertParam){
+        return new Promise((resolve, reject) => {
+            connection.query( insertSql, insertParam,async function (err) {
+                if (err) {
+                    console.log('[INSERT ERROR] 添加复制部件错误！ - ', err.message);
+                    reject();
+                    throw err;
+                }
+                resolve();
+            })
+        })
+    }
+
 }
 
+
 function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, machineNote, machineFileName){
-    var saveDate, year, month, day, hour, min, sec, updateTime;
-    saveDate = new Date();
-    year = saveDate.getFullYear();
-    month = saveDate.getMonth() + 1;
-    day = saveDate.getDate();
-    hour = saveDate.getHours();
-    min = saveDate.getMinutes();
-    sec = saveDate.getSeconds();
-    updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    let updateTime = getDateTime();
 
     let copyMachineSql = 'SELECT *\n' +
         'FROM machine\n' +
@@ -244,7 +267,7 @@ function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, 
 
         let newMachineSql = 'INSERT INTO machine (machineId,machineName,updateTime,designer,note, machineFileName) VALUES(?,?,?,?,?,?)';
         let newMachineParams = [machineModel, machineName, updateTime, machineDesigner, machineNote, machineFileName];
-        connection.query(newMachineSql, newMachineParams, function (err) {
+        connection.query(newMachineSql, newMachineParams, async function (err) {
             if (err) {
                 console.log('[INSERT ERROR] 添加复制设备错误 - ', err.message);
                 return;
@@ -261,7 +284,7 @@ function copyMachine(copyMachineId, machineName, machineModel, machineDesigner, 
                 componentNote = machineComponents[i].componentNote;
                 componentFileName = machineComponents[i].componentFileName;
                 userId = machineComponents[i].userId;
-                copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineModel, userId, i);
+                await copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineModel, userId, i);
             }
         });
     });
@@ -696,7 +719,8 @@ router.get('/adBOMListMachineMan', function (req, res) {
                                 user: req.session.user,
                                 category: category,
                                 machine: machine,
-                                users: users
+                                users: users,
+                                machineComponentCount: 0
                             });
                         }
                     });
@@ -706,7 +730,8 @@ router.get('/adBOMListMachineMan', function (req, res) {
                         user: req.session.user,
                         category: category,
                         machine: machineComponent,
-                        users: users
+                        users: users,
+                        machineComponentCount: machineComponent.length
                     });
                 }
             });
@@ -748,16 +773,8 @@ router.get('/adBOMListComponentAdd', function(req, res) {
 });
 
 /* POST adBOMListComponentAdd*/
-router.post('/adBOMListComponentAdd', upload.single('BomListFileName'), function (req, res) {
-    var saveDate, year, month, day, hour, min, sec, updateTime;
-    saveDate = new Date();
-    year = saveDate.getFullYear();
-    month = saveDate.getMonth() + 1;
-    day = saveDate.getDate();
-    hour = saveDate.getHours();
-    min = saveDate.getMinutes();
-    sec = saveDate.getSeconds();
-    updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+router.post('/adBOMListComponentAdd', upload.single('BomListFileName'), async function (req, res) {
+    let updateTime = getDateTime();
 
     var addComponentName, addComponentModel, addComponentNote, addComponentType, designerId, fileName, addToMachineId;
     addComponentName = req.body.addComponentName;
@@ -774,37 +791,70 @@ router.post('/adBOMListComponentAdd', upload.single('BomListFileName'), function
         fileName = 'no-image-available.jpg';
     }
 
-    let categorySql = 'SELECT * FROM category WHERE categoryName = ' + '"' + addComponentType + '"';
-    connection.query(categorySql, function (err, category) {
-        if (err) {
-            console.log('[SELECT ERROR] - ', err.message);
-            res.send('查找类别出错：' + '\n' + err);
-            return;
-        }
-        let categoryId = category[0].categoryId;
-        let addSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,componentFileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
-        let addSqlParams = [addComponentModel, addComponentName, updateTime, "正常", addComponentNote, designerId, categoryId,0,fileName, addToMachineId];
-        connection.query(addSql, addSqlParams, function (err) {
+    if (await checkAddComponentDuplicate()){
+
+        let categorySql = 'SELECT * FROM category WHERE categoryName = ' + '"' + addComponentType + '"';
+        connection.query(categorySql, function (err, category) {
             if (err) {
-                console.log('[INSERT ERROR] - ', err.message);
-                res.send('添加错误, 检查部件图号是否重复' + err);
+                console.log('[SELECT ERROR] - ', err.message);
+                res.send('查找类别出错：' + '\n' + err);
                 return;
             }
-
-            let lastIdSql = 'SELECT LAST_INSERT_ID() AS lastId';
-            connection.query(lastIdSql, function (err, lastId) {
-                // --添加事件更新到首页--
-                addNote('部件事件更新', addComponentName + " " + addComponentModel, lastId[0].lastId , '添加新部件');
-
-                res.redirect('/adBOMListMachineMan?machineId=' + addToMachineId);
-
+            let categoryId = category[0].categoryId;
+            let addSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,componentFileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
+            let addSqlParams = [addComponentModel, addComponentName, updateTime, "正常", addComponentNote, designerId, categoryId,0,fileName, addToMachineId];
+            connection.query(addSql, addSqlParams, function (err) {
                 if (err) {
-                    console.log('[SELECT ERROR] - ', err.message);
-                    res.send(err);
+                    console.log('[INSERT ERROR] - ', err.message);
+                    res.send('添加错误, 检查部件图号是否重复' + err);
+                    return;
                 }
+
+                let lastIdSql = 'SELECT LAST_INSERT_ID() AS lastId';
+                connection.query(lastIdSql, function (err, lastId) {
+                    // --添加事件更新到首页--
+                    addNote('部件事件更新', addComponentName + " " + addComponentModel, lastId[0].lastId , '添加新部件');
+
+                    res.redirect('/adBOMListMachineMan?machineId=' + addToMachineId);
+
+                    if (err) {
+                        console.log('[SELECT ERROR] - ', err.message);
+                        res.send(err);
+                    }
+                });
             });
         });
-    });
+
+    } else {
+        res.send("<h1>添加部件查重错误！ <br> 请检查部件名称或部件型号已存在！</h1>")
+    }
+
+
+    //function
+    //查重
+    function checkAddComponentDuplicate(){
+        return new Promise((resolve, reject) => {
+            let checkSql = 'SELECT * FROM component WHERE machineId = "' + addToMachineId + '"' +
+                ' AND (componentName = "' + addComponentName + '"' +
+                ' OR componentModel = "' + addComponentModel + '")';
+
+            console.log(checkSql);
+
+            connection.query(checkSql, function (err, result) {
+                if (err) {
+                    console.log('[SELECT ERROR] - 添加部件查重错误！ ', err.message);
+                    reject(err);
+                }
+                else if (result.length > 0){
+                    resolve(false);
+                } else {
+                    resolve(true);
+                }
+            })
+
+        })
+    }
+
 });
 
 //   ---从设备中删除部件---
@@ -853,15 +903,8 @@ router.get('/adBOMListComponentDelete', function (req, res) {
 router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
     var url=URL.parse(req.url,true).query;
     var componentId = url.componentId;
-    var saveDate, year, month, day, hour, min, sec, updateTime;
-    saveDate = new Date();
-    year = saveDate.getFullYear();
-    month = saveDate.getMonth() + 1;
-    day = saveDate.getDate();
-    hour = saveDate.getHours();
-    min = saveDate.getMinutes();
-    sec = saveDate.getSeconds();
-    updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    let updateTime = getDateTime();
+
 
     var BomListName, BomListModel, BomListNote, BomListType, userId, componentFileName, modSql, modSqlParams;
     BomListName = req.body.BomListName;
@@ -1297,7 +1340,7 @@ router.get('/adBOMListCategoryMan', function(req, res) {
 /*                            ***************************************************复制***************************************************                  */
 //   ---复制部件---
 /* POST componentCopy */
-router.post('/componentCopy', upload.single('BomListFileName'), function(req, res) {
+router.post('/componentCopy', upload.single('BomListFileName'), async function(req, res) {
     let url=URL.parse(req.url,true).query;
     let componentId = url.componentId;
     var userId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, machineIds, i;
@@ -1320,10 +1363,10 @@ router.post('/componentCopy', upload.single('BomListFileName'), function(req, re
     if (Array.isArray(machineIds)){
         for (i=0; i<machineIds.length;i++) {
             machineId = machineIds[i];
-            copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, i);
+            await copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineId, userId, i);
         }
     } else {
-        copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineIds, userId, 0);
+        await copyComponent(componentId, componentName, componentModel, componentType, componentNote, componentFileName, machineIds, userId, 0);
     }
 
     let flashUrl = '/adBOMListMan';

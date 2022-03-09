@@ -25,21 +25,20 @@
                 </div>
             </header>
 
-            <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data">
+            <form onsubmit="return confirmAgain()" method="post">
                 <div class="itemDetailsPage">
                     <div class="itemDetail">创建新生产项目：</div>
-                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addProjectName" class="itemDetailsInput addItemInfo"  style="width: 500px" placeholder="请输入生产项目名称" required></div>
-                    <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addProjectModel" class="itemDetailsInput addItemInfo"  style="width: 500px" placeholder="请输入生产项目代号" required></div>
-                    <div class="itemDetail">负责人: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addProjectManager"  required="required" style="height: 35px;width: 130px;color:black;" >
+                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="projectName" class="itemDetailsInput addItemInfo"  style="width: 500px" placeholder="请输入生产项目名称" required></div>
+                    <div class="itemDetail">负责人: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="projectManager"  required="required" style="height: 35px;width: 130px;color:black;" >
                             <% for(let i = 0; i < users.length; i++) { %>
                                 <option value="<%= users[i].userName %>"><%= users[i].userName %></option>
                             <% } %>
                         </select>
                     </div>
-                    <div class="itemDetail" >开始时间<a style="color: red; font-size: x-large">*</a>：<input class="itemDetailsInput addItemInfo" type="date" name="addStartDate" style="height: 35px;width: 35%" required></div>
-                    <div class="itemDetail" >结束时间<a style="color: red; font-size: x-large">*</a>：<input class="itemDetailsInput addItemInfo" type="date" name="addEndDate" style="height: 35px;width: 35%" required></div>
+                    <div class="itemDetail" >开始时间<a style="color: red; font-size: x-large">*</a>：<input class="itemDetailsInput addItemInfo" type="date" name="projectStartDate" style="height: 35px;width: 35%" required></div>
+                    <div class="itemDetail" >结束时间<a style="color: red; font-size: x-large">*</a>：<input class="itemDetailsInput addItemInfo" type="date" name="projectFinishDate" style="height: 35px;width: 35%"></div>
 
-                    <div class="itemDetail">项目描述：</div><textarea type="text" name="addProjectDescription" class="itemDetailsInput addItemInfo" rows="14" style="width: 570px;resize: none" ></textarea>
+                    <div class="itemDetail">项目描述：</div><textarea type="text" name="projectDesc" class="itemDetailsInput addItemInfo" rows="14" style="width: 570px;resize: none" ></textarea>
                 </div>
 
                 <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton" style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">
