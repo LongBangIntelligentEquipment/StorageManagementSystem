@@ -13,11 +13,11 @@
 
         function editable(){
             if(document.getElementById('role').innerText==='仓库管理员'){
-                for(var i=0;i<4;i++){
+                for(var i=0;i<3;i++){
                     var id='detail'+(i+1);
                     document.getElementById(id).disabled=true;
                 }
-                for(var i=4;i<7;i++){
+                for(var i=3;i<7;i++){
                     var id='detail'+(i+1);
                     document.getElementById(id).disabled=false;
                     document.getElementById(id).style="outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;";

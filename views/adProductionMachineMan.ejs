@@ -12,12 +12,28 @@
         return window.confirm("确认执行【修改设备 <%=machine[0].machineId%>-<%=machine[0].machineName%>】操作?");
     }
 
+    function comfirmAgain() {
+        var checkOne=false;
+        var checkBox=$('input[name = belongProject]')
+        for(var i=0;i<checkBox.length;i++){
+            if(checkBox[i].checked){
+                checkOne=true;
+            }
+        }
+        if(checkOne){
+            return true
+        }else{
+            alert('请选择1个【项目】')
+            return false
+        }
+    }
+
 
 
 
     function detailEditable(){
         if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
-            btnEdi('5','detail');
+            btnEdi('6','detail');
             $('#updateFile').attr('style','display:/'/';');
             $('#confirmEditButton').removeAttr('hidden');
         }
@@ -26,11 +42,13 @@
         $('#editButtonControl').attr('hidden','hidden')
         $('#cancelEditButtonControl').removeAttr('hidden')
         $('#addProductionMachineButton').attr('hidden','hidden')
+        $('#changeEndDate').removeAttr('hidden')
+        $("#moveButtonControl").attr('hidden','hidden');
     }
 
     function cancelDetailEditable() {
         if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
-            for(var i=0;i<5;i++){
+            for(var i=0;i<6;i++){
                 var elementId='#'+'detail'+i;
                 $(elementId).attr('disabled','disabled');
                 $(elementId).attr('style','')
@@ -44,6 +62,9 @@
         $('#editButtonControl').removeAttr('hidden')
         $('#cancelEditButtonControl').attr('hidden','hidden')
         $('#addProductionMachineButton').removeAttr('hidden')
+        $('#changeEndDate').attr('hidden','hidden')
+        $('#moveButtonControl').removeAttr('hidden')
+
     }
 
     function InfoDisplay(rolejudgement,type1,type2,type3,type4,ojIdJudge,ojId){
@@ -59,8 +80,9 @@
 
     function Authority(role, ojId) {
         var sessionRole='<%= user.role %>'
+
         if ( sessionRole=== role) {
-            document.getElementById(ojId).style.display = '';
+            $(ojId).removeAttr('hidden')
         }
 
     }
@@ -72,22 +94,31 @@
         }
     }
 
-    function editItemBtn() {
-        var editItemBtn='[name=editItemBtn]';
-        var itemButton='[name=itemButton]';
 
-        $(editItemBtn).removeAttr('hidden');
-        $(itemButton).attr('disabled','disabled');
-        $("#editBomBtn").attr('hidden','hidden')
+
+    function moveAct() {
+
+        $('#moveInputBox').removeAttr('hidden')
+        $('#blankCover').removeAttr('hidden')
+        $('#bodyPage').attr('style','position:fixed')
     }
 
-    function cancelEditItemBtn() {
-        var editItemBtn='[name=editItemBtn]';
-        var itemButton='[name=itemButton]';
+    function cancelMoveAct() {
 
-        $(editItemBtn).attr('hidden','hidden');
-        $(itemButton).removeAttr('disabled');
-        $("#editBomBtn").removeAttr('hidden')
+        $('#moveInputBox').attr('hidden','hidden')
+        $('#blankCover').attr('hidden','hidden')
+        $('#bodyPage').removeAttr('style')
+    }
+
+
+    function slideSwitch() {
+        if(document.getElementById('checkBoxSwitch').checked){
+            document.getElementById('switchPage1').style.display='none'
+            document.getElementById('switchPage2').style.display=''
+        }else{
+            document.getElementById('switchPage1').style.display=''
+            document.getElementById('switchPage2').style.display='none'
+        }
     }
 
     //计算成本
@@ -95,11 +126,12 @@
     <%for(let i=0; i<machine.length; i++) {
         machineCost += machine[i].componentCost;
     }%>
+
 </script>
 
 
-<body >
-
+<body id="bodyPage">
+<div id="blankCover" style="position: absolute;background-color: rgba(255,255,255,0.5);width: 100%;height: 100%;z-index: 998" hidden></div>
 
 <section class="functionBoard" >
 
@@ -125,7 +157,7 @@
                                 <div class="itemDetail">生产设备信息：</div>
                                 <div class="itemDetail">名称：<input class="itemDetailsInput" name="MachineName" id="detail0" value="<%=machine[0].machineName%>" disabled ></div>
                                 <div class="itemDetail">型号：<input class="itemDetailsInput" name="MachineModel" id="detail1" value="<%=machine[0].machineId%>" disabled  ></div>
-                                <div class="itemDetail">设计师：<select class="itemDetailsInput" name="MachineDesigner" id="detail2" disabled required="required"  >
+                                <div class="itemDetail">负责人：<select class="itemDetailsInput" name="MachineDesigner" id="detail2" disabled required="required"  >
                                         <option value="<%= machine[0].designer %>" selected><%= machine[0].designer %></option>
                                          <% for(let i = 0; i < users.length; i++) { %>
                                             <% if (machine[0].designer === users[i].userName) {
@@ -142,15 +174,17 @@
                                     </select>
                                 </div>
                                 <div class="itemDetail">序列号：<%=machine[0].p_machineId%></div>
-                                <div class="itemDetail">关联订单：<%=machine[0].customerOrderId%></div>
+                                <div class="itemDetail">关联订单：<select  class="itemDetailsInput" name="MachineDesigner" id="detail3" disabled>
+                                        <option  value="<%=machine[0].customerOrderId%>"><%=machine[0].customerOrderId%></option>
+                                    </select></div>
                                 <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="MachineUpdateTime" value=" <%=machine[0].updateTime.getFullYear()%>-<%=machine[0].updateTime.getMonth()+1%>-<%=machine[0].updateTime.getDate()%>" disabled ></div>
                                 <div class="itemDetail" >开始时间：<%=machine[0].productionStart.getFullYear()%>-<%=machine[0].productionStart.getMonth()+1%>-<%=machine[0].productionStart.getDate()%></div>
-                                <div class="itemDetail" >结束时间：<input class="itemDetailsInput" name="productionFinish" value=" <%=machine[0].productionFinish.getFullYear()%>-<%=machine[0].productionFinish.getMonth()+1%>-<%=machine[0].productionFinish.getDate()%>" disabled ></div>
+                                <div class="itemDetail" >结束时间：<%=machine[0].productionFinish.getFullYear()%>-<%=machine[0].productionFinish.getMonth()+1%>-<%=machine[0].productionFinish.getDate()%></div>
+                                <div class="itemDetail" id="changeEndDate" hidden>修改结束日期：<input class="itemDetailsInput" id="detail4" type="date" name="addEndDate" value="<%=machine[0].productionFinish.getFullYear()%>-<%=machine[0].productionFinish.getMonth()+1%>-<%=machine[0].productionFinish.getDate()%>"  disabled></div>
                                 <div class="itemDetail">状态：<%=machine[0].productionState%></div>
-                                <div class="itemDetail" id="machineCostRow" style="display: none">设备成本：<input class="itemDetailsInput" name="MachineCost" value="<%=machineCost%>元" disabled ></div>
-                                <style onload="Authority('系统管理员','machineCostRow')"></style>
-                                <div class="itemDetail">备注：<input class="itemDetailsInput" name="MachineNote" id="detail3" value="<%=machine[0].mNote%>" disabled ></div>
-
+                                <div class="itemDetail" id="machineCostRow" hidden >设备成本：<input class="itemDetailsInput" name="MachineCost" value="<%=machineCost%>元" disabled ></div>
+                                <style onload="Authority('系统管理员','#machineCostRow')"></style>
+                                <div class="itemDetail">备注：<input class="itemDetailsInput" name="MachineNote" id="detail5" value="<%=machine[0].mNote%>" disabled ></div>
                             </div>
                         </td>
                         <td style="margin-left: -35px;margin-top: 0px">
@@ -169,52 +203,91 @@
 
 
 
-                <div style="margin-top: 30px;margin-left: 30px">
-                    <a id="editButtonControl"><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()" style="display: none;" >编辑</button></a>
+                <div style="margin-top: 80px;margin-left: 30px">
+                    <a id="editButtonControl" hidden><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()">编辑</button></a>
                     <a id="cancelEditButtonControl" hidden> <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="cancelDetailEditable()" style="background-color: #fa5000!important;" >取消编辑</button></a>
-                    <style onload="Authority('系统管理员','editButton')"></style>
-                    <style onload="Authority('技术员','editButton')"></style>
+                    <style onload="Authority('系统管理员','#editButtonControl')"></style>
+                    <style onload="Authority('生产主管','#editButtonControl')"></style>
 
                     <a hidden id="confirmEditButton"><button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" style="margin-left: 2%">确定</button></a>
                     <a hidden id="componentDelButton"><button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick='confirmAgainDelete()' style="background-color: red!important; margin-left: 30%;" ><img src='images/bin.png' height="30px" width="30px"></button></a>
+                    <a id="moveButtonControl" hidden ><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="moveAct()" style="background-color: #00cb46!important;margin-left:30%; " ><img src='images/move.png' height="30px" width="30px"></button></a>
+                    <style onload="Authority('系统管理员','#moveButtonControl')"></style>
+                    <style onload="Authority('生产主管','#moveButtonControl')"></style>
                 </div>
-
-
-                <div class="pageCard" style="border-top: 0.1rem solid #404142; width: auto;margin-top: 100px">
-                    <div class="pageTitle">
-                        <div style="margin-bottom: 30px;font-weight: bold;font-size: 1.3rem">所属部件：(共<%=machine.length%>个部件)</div>
+                <form method="post" enctype="multipart/form-data" onsubmit="return comfirmAgain()" action="">
+                    <div id="moveInputBox" hidden style="position: absolute;margin-top: -500px;width: 50%;height: 60%;margin-left: 15%;z-index: 999">
+                        <div class="col-md" >
+                            <div class="card" style="border-radius: 10px;overflow: hidden ">
+                                <div class="card-header text-center">
+                                    <h2 id="searchResultHeader">转移至其它项目</h2>
+                                </div>
+                                <div class="card-body"  style="height: 400px;overflow:auto ;padding: 0px ">
+                                    <div  class="itemDetailsPage" style="width: 100%">
+                                        <div id="shellBox" style="margin-top: 3%">
+                                            请选择该设备所要转移至的项目<a style="color: red; font-size: x-large">*</a>：
+                                            <% for (let i = 0; i < project.length; i++){ %>
+                                            <div style="margin-bottom: 5px">
+                                                <input  type="radio" value="<%=project[i].projectId%>" name="belongProject" id="<%=project[i].projectId%>">
+                                                <label style="width: 80%" for="<%=project[i].projectId%>"><%=project[i].projectName%>&emsp;<%=project[i].projectCode%></label>
+                                            </div>
+                                            <% } %>
+                                        </div>
+                                        <table cellspacing="0" cellpadding="0" style="width: 100%;margin-top: 20px">
+                                            <tr style="width: 100%">
+                                                <td style="width: 100%;">
+                                                    <button class="btn btn-block btn-submit button button--primary smaller" style="float: right;border: 0;margin-right: 10%;background-color: red!important;" type="button" onclick="cancelMoveAct()">取消</button>
+                                                    <button class="btn btn-block btn-submit button button--primary smaller" id="moveCofirmBtn"  style="float: right;border: 0;margin-right: 2%;background-color: #00cb46!important;" type="submit" onsubmit="">确认</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="BomListDetail" style="width: auto">
-                        <table   style="width: 100%;font-size: 1rem;">
-                            <div style="margin-left: -320px;margin-bottom: 50px;">
-                                <!--                        <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑所属部件</button></a>-->
-                                <!--                        <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style="position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>-->
-                                <button class="searchInputBoxButton" type="button" id="addComponentBtn" onclick="location.href='/adBOMListComponentAdd?machineId=<%=machine[0].machineId%>'" style="position: absolute!important; margin-top: -45px; margin-left: 345px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;display: none" >添加所属部件</button>
-                                <style onload="Authority('系统管理员','addComponentBtn')"></style>
-                                <style onload="Authority('技术员','addComponentBtn')"></style>
-                                <!--                        <a name="editItemBtn" hidden> <button class="searchInputBoxButton" type="submit" style="position: absolute!important; margin-top: -45px; margin-left: 800px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >保存&emsp;BOM表</button></a>-->
+                </form>
+
+
+                <div class="pageCard" style="border-top: 0.1rem solid #404142; width: auto;margin-top: 150px">
+                    <div  class="pageTitle" >
+                        <div  style="font-weight: bold;width: 340px;font-size: 1.3rem;color: #404143">部件详情/操作记录:</div>
+                        <input   type="checkbox" id="checkBoxSwitch" onchange="slideSwitch()" class="onoff sw1" style="background-color: transparent!important;margin-left: 225px;"  >
+                    </div>
+
+                    <div id="switchPage1" style="width: auto">
+                        <div style="margin-left: -320px;margin-bottom: 50px;">
+
+                            <a  id="addComponentBtn" hidden><button class="searchInputBoxButton" type="button" id="addComponentBtn" onclick="location.href='/adBOMListComponentAdd?machineId=<%=machine[0].machineId%>'" style="position: absolute!important; margin-top: -45px; margin-left: 345px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属部件</button></a>
+                            <style onload="Authority('系统管理员','#addComponentBtn')"></style>
+                            <style onload="Authority('技术员','#addComponentBtn')"></style>
+                            <style onload="Authority('生产主管','#addComponentBtn')"></style>
+                        </div>
+                        <table   style="width: 100%;font-size: 1rem;margin-top: -20px">
+
+                            <div class="pageTitle" style="margin-top: -30px;" >
+                                <a style="margin-bottom: 30px;font-weight: bold;font-size: 1.3rem">所属部件：(共<%=machine.length%>个部件)</a>
                             </div>
-                            <%if (machine[0].componentName){%>
-                            <%for(let j = 0 ; j < machine.length ; j++) { %>
+                          <%if (true){%>
+                            <%for(let j = 0 ; j < 3 ; j++) { %>
                             <tr id="machine<%=j%>" style="width: 100%;">
                                 <td style="width: 100%">
-                                    <button class="noteButton2" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList?componentId=<%=machine[j].componentId%>'">
+                                    <button class="noteButton2" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList?componentId='">
                                         <div  style= "font-size: 0.7rem; height: 30px; ">
                                             <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
-                                            <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"><%=machine[j].componentName%></a></span>
-                                            <span class="itemInfo" style="margin-left: 260px">部件编号：<a style="font-weight:normal;color: #0050fa; "><%=machine[j].componentModel%></a></span>
+                                            <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>
+                                            <span class="itemInfo" style="margin-left: 260px">部件编号：<a style="font-weight:normal;color: #0050fa; "></a></span>
                                         </div>
                                         <div  style= "font-size: 0.7rem; height: 30px; ">
-                                            <span class="itemInfo" >更新日期：<a style="font-weight: normal;color: #0050fa;"><%=machine[j].cUpdateTime.getFullYear()%>-<%=machine[j].cUpdateTime.getMonth()+1%>-<%=machine[j].cUpdateTime.getDate()%></a></span>
-                                            <span class="itemInfo" id="componentCostRow<%=j%>" style="margin-left: 260px;display: none;">部件成本：<a style="font-weight:normal;color: #0050fa; "><%=machine[j].componentCost%></a></span>
-                                            <style onload="Authority('系统管理员','componentCostRow<%=j%>')"></style>
-
-                                            <span class="itemInfo" style="margin-left: 420px">类型：<a style="font-weight: normal; color: #0050fa;"><%=machine[j].categoryName%></a></span>
+                                            <span class="itemInfo" >更新日期：<a style="font-weight: normal;color: #0050fa;"></a></span>
+                                            <span class="itemInfo" style="margin-left: 260px;"><a  id="componentCostRow<%=j%>" hidden>部件成本：<a style="font-weight:normal;color: #0050fa; "></a></a></span>
+                                            <style onload="Authority('系统管理员','#componentCostRow<%=j%>')"></style>
+                                            <span class="itemInfo" style="margin-left: 420px">类型：<a style="font-weight: normal; color: #0050fa;"></a></span>
                                         </div>
 
                                         <div  style= "font-size: 0.7rem; height: 30px;" id="">
-                                            <span class="itemInfo" >备注：<a style="font-weight:normal;color: red;"><%=machine[j].cNote%></a></span>
+                                            <span class="itemInfo" >备注：<a style="font-weight:normal;color: red;"></a></span>
                                         </div>
                                     </button>
                                 </td>
@@ -224,11 +297,41 @@
                             <%}%>
                         </table>
                     </div>
+
+                    <div id="switchPage2" style="display: none;">
+                        <div class="pageTitle" style="margin-top: -30px">
+                            <div style="margin-bottom: 15px;font-weight: bold;">操作记录：</div>
+                        </div>
+                        <%for(let i = 0; i <5 ;i++) { %>
+                        <div style="margin-left: -50px;font-size: 1rem;margin-top: 5px">
+                            <div  class="noteButton" style="padding-left:200px; ">
+                                <div  style= "size: 1rem; height: 40px;">
+                                    <span style=" margin-left: -65px;font-size: 0.8rem">2022-3-14 &emsp; 10:40:31 </span>
+                                    <span style="margin-left: 30px;"><img src='images/RecentPoint.png' height="40px" width="35px"></span>
+                                    <span style="font-size: 0.8rem;padding-top: 10px;margin-left: 45px;line-height: 10%;"><span id="stateRecord">Felix&emsp;&emsp;<span id="noteState<%=i%>" style="font-weight: bold">操作信息</span></span></span>
+
+                                </div>
+                                <div style="margin-left: 120px;height: 18px">
+                                    <span style="line-height: 10px;"><img src='images/timeLine.png' height="100%" width="10px"></span>
+                                </div>
+                                <div style="height: 18.5px">
+                                    <span style="margin-left: 120px"><img src='images/timeLine.png' height="100%" width="10px"></span>
+                                </div>
+                                <div style="height: 19px">
+                                    <span style="margin-left: 120px;"><img src='images/timeLine.png' height="100%" width="10px"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <% } %>
+                        <a style="margin-left: 264.5px"><img src='images/timeLineEnd.png' height="20px" width="20px"></a>
+                    </div>
                 </div>
 
 
 
             </form>
+
+
         </main>
     </div>
 </section>

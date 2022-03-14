@@ -3086,6 +3086,14 @@ router.get('/adItemTypeMan', function(req, res) {
 });
 
 
+router.get('/qrCodeTest', function(req, res) {
+
+        res.render('qrCodeTest', {
+
+        })
+});
+
+
 
 
 

@@ -4,14 +4,14 @@
 
     function comfirmAgain() {
         var checkOne=false;
-        var checkBox=$('input[name = machineId]')
+        var checkBox=$('input[name = belongMachine]')
         for(var i=0;i<checkBox.length;i++){
             if(checkBox[i].checked){
                 checkOne=true;
             }
         }
         if(checkOne){
-            return window.confirm("确认执行【添加新型设备】操作?");
+            return window.confirm("确认执行【添加生产设备】操作?");
         }else{
             alert('请至少选择一款【所属机型】')
             return false
@@ -23,8 +23,8 @@
         var actMachineQty='#'+'machineQty'+num
         if(document.getElementById(objectId).checked){
             $(actAddQtyDiv).removeAttr('hidden')
-            $(actMachineQty).attr('required','required')
             $(actMachineQty).removeAttr('disabled')
+            $(actMachineQty).attr('required','required')
         }else{
             $(actAddQtyDiv).attr('hidden','hidden')
             $(actMachineQty).attr('disabled','disabled')
@@ -52,7 +52,7 @@
                 </div>
             </header>
 
-            <form onsubmit="return comfirmAgain()" method="post">
+            <form  onsubmit="return comfirmAgain()" method="post" enctype="multipart/form-data">
                 <div class="itemDetailsPage">
                     <div class="itemDetail">添加生产设备：</div>
                     <div class="itemDetail">所属项目 <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="belongProject" required="required" style="height: 35px;width: 440px;color:black;" >
@@ -80,7 +80,7 @@
                             <input checked  type="checkbox" onchange="checkboxIsOn(this.id,<%=i%>)" value="<%=machine[i].machineId%>" name="machineId" id="<%=machine[i].machineId%>">
                             <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
                         </div>
-                        <div id="addQtyDiv<%=i%>" style="margin-left: 45px" >添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="addQty" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" disabled >&emsp;台 </div>
+                        <div id="addQtyDiv<%=i%>" style="margin-left: 45px" >添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="addQty" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"  >&emsp;台 </div>
 
                         <%}else{%>
                             <input  type="checkbox" onchange="checkboxIsOn(this.id,<%=i%>)" value="<%=machine[i].machineId%>" name="machineId" id="<%=machine[i].machineId%>" >

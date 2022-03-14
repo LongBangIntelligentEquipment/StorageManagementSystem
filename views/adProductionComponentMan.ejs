@@ -1,0 +1,68 @@
+<%- include('zHeader') %>
+<script type="text/javascript" language="javascript">
+
+    function confirmAgain() {
+        return window.confirm("确认执行【添加新部件】操作?");
+    }
+</script>
+
+
+<body >
+
+
+<section class="functionBoard" >
+
+    <%- include('zMenu') %>
+
+    <div class="functionBoard right">
+        <main role="main" class="container mt-3 mb-3">
+
+            <header role="banner">
+                <div class="headcontainer">
+                    <div id="pageTitle" class="page-title">
+                        BOM表管理
+                    </div>
+                    <span class="page-title" style="position: absolute;padding-top: 45px;margin-left: 5px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">欢迎您，</span><span id="role" class="page-title" style="position: absolute;margin-left: 55px; padding-top: 45px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem"><%=user.role%></span><span class="page-title" style="padding-top: 45px;position: absolute;margin-left: 120px;flex:0 1 auto;font-weight: normal; font-size: 0.8rem">&emsp;<%=user.userName%></span>
+                </div>
+            </header>
+
+            <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data" >
+                <div  class="itemDetailsPage" style="width: 100%">
+                    <div class="itemDetail">创建新部件到：<%=machineName%>&emsp;<%=machineId%></div>
+                    <input name="addToMachineId" value="<%=machineId%>" type="hidden">
+                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="detail1" required style="width: 500px" placeholder="请输入部件名称" ></div>
+                    <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="detail2"  required  style="width: 500px" placeholder="请输入部件图号" ></div>
+                    <div class="itemDetail" >类型<a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addComponentType" id="detail3" required  style="height: 35px;width: 130px;color:black;" >
+                            <%for(let i = 0; i < categoryName.length; i++) { %>
+                            <option value="<%=categoryName[i].categoryName%>"><%=categoryName[i].categoryName%></option>
+                            <%}%>
+                        </select>
+                        <span>
+                                        <button class="searchBarButton" onclick="location.href='/adBOMListCategoryMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>
+                                    </span>
+                    </div>
+
+                    <div id="shellBox">
+                        <div class="itemDetail" >备注：<input name="addComponentNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
+                        <div class="itemDetail" id="detail7" >上传图纸：<input name="BomListFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
+                    </div>
+                </div>
+
+                <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">创建新部件</button>
+
+
+            </form>
+
+        </main>
+    </div>
+</section>
+
+
+
+
+
+<%- include('zFooter') %>
+
+</body>
+
+</html>

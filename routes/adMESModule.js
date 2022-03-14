@@ -302,7 +302,7 @@ router.get('/ajaxProductionMachines', function(req, res) {
                 '                                                    <tbody>\n' +
                 '                                                    <tr>\n' +
                 '                                                        <td>\n' +
-                '                                                            <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="location.href=\'/adBOMList?componentId=256\'"><img src="images/machine.png" height="50px" width="50px"></button>\n' +
+                '                                                            <button class="itemButton2" style="height: 90px;border: 0" type="button" onclick="location.href=\'/adProductionMachineMan?p_machineId='+machine[j].p_machineId+'\'"><img src="images/machine.png" height="50px" width="50px"></button>\n' +
                 '                                                        </td>\n' +
                 '                                                    </tr>\n' +
                 '                                                    </tbody>\n' +
