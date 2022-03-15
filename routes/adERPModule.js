@@ -682,7 +682,7 @@ router.get('/adItem', function(req, res, next) {
 router.post('/adItem', upload.single('updateFileName'), function(req, res, next) {
 
     var url=URL.parse(req.url,true).query;
-    var sql;
+    var sql = '';
     //console.log(URL.parse(req.url,true).query);
     var typeJudge=req.body.type;
     let indexOf = '\'%' +'\\'+ req.body.date  + '%\'';
@@ -850,28 +850,157 @@ router.post('/adItem', upload.single('updateFileName'), function(req, res, next)
 
 
 
-    }else{
+    }else {
         switch (typeJudge) {
-            case '0':  sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\''+url.itemId+'\';SELECT * FROM record WHERE itemId=\''+url.itemId+'\''+'ORDER BY date DESC'; break;
-            case '1':  sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\''+url.itemId+'\';SELECT * FROM record WHERE itemId=\''+url.itemId+'\' AND type=\'进仓\''+'ORDER BY date DESC'; break;
-            case '2':  sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\''+url.itemId+'\';SELECT * FROM record WHERE itemId=\''+url.itemId+'\' AND type=\'出仓\''+'ORDER BY date DESC'; break;
-            case '3':  sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\''+url.itemId+'\';SELECT * FROM record WHERE itemId=\''+url.itemId+'\' AND type=\'临时进仓\''+'ORDER BY date DESC'; break;
-            case '4':  sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\''+url.itemId+'\';SELECT * FROM record WHERE itemId=\''+url.itemId+'\' AND type=\'归还进仓\''+'ORDER BY date DESC'; break;
+            case '0':
+                sql = 'SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\'' + url.itemId + '\';SELECT * FROM record WHERE itemId=\'' + url.itemId + '\'' + 'ORDER BY date DESC';
+                break;
+            case '1':
+                sql = 'SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\'' + url.itemId + '\';SELECT * FROM record WHERE itemId=\'' + url.itemId + '\' AND type=\'进仓\'' + 'ORDER BY date DESC';
+                break;
+            case '2':
+                sql = 'SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\'' + url.itemId + '\';SELECT * FROM record WHERE itemId=\'' + url.itemId + '\' AND type=\'出仓\'' + 'ORDER BY date DESC';
+                break;
+            case '3':
+                sql = 'SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\'' + url.itemId + '\';SELECT * FROM record WHERE itemId=\'' + url.itemId + '\' AND type=\'临时进仓\'' + 'ORDER BY date DESC';
+                break;
+            case '4':
+                sql = 'SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\'' + url.itemId + '\';SELECT * FROM record WHERE itemId=\'' + url.itemId + '\' AND type=\'归还进仓\'' + 'ORDER BY date DESC';
+                break;
         }
 
 
         //console.log(indexOf);
 
-        if(req.body.dateButton){
-            sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\''+url.itemId+'\';SELECT * FROM record WHERE itemId=\''+url.itemId+'\'AND date LIKE'+indexOf+'ORDER BY date DESC';
+        if (req.body.dateButton) {
+            sql = 'SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId=\'' + url.itemId + '\';SELECT * FROM record WHERE itemId=\'' + url.itemId + '\'AND date LIKE' + indexOf + 'ORDER BY date DESC';
         }
 
 
+        let itemOrderListSql = sql;
+        // var returnURL = '/adItem?sql=' + sql + '&itemId=' + url.itemId + '&returnSql=' + url.returnSql + '&itemModel=' + url.itemModel;
+        // //console.log(returnURL);
+        // return res.redirect(returnURL)
+
+        var statesCounter;
+        var states = [];
+        var statesList = [];
+        var sql1 = 'SELECT * FROM item \n' +
+            'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+            'JOIN itemtype ON item.itemTypeId = itemtype.itemTypeId\n' +
+            'WHERE item.itemId = "' + url.itemId + '";\n'
+
+        var sql2 = 'SELECT * FROM item \n' +
+            'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+            'JOIN itemtype ON item.itemTypeId = itemtype.itemTypeId\n' +
+            'JOIN record ON item.itemId = record.itemId\n' +
+            'WHERE item.itemId = "' + url.itemId + '"\n' +
+            'ORDER BY date DESC;';
+
+        var sql = sql1 + sql2;
+
+        router.get('/create_qrcode', function (req, res, next) {
+            var text = req.query.text;
+            try {
+                var img = qr.image(text, {size: 10});
+                res.writeHead(200, {'Content-Type': 'image/png'});
+                img.pipe(res);
+            } catch (e) {
+                res.writeHead(414, {'Content-Type': 'text/html'});
+                res.end('<h1>414 Request-URI Too Large</h1>');
+            }
+        });
+
+        connection.query(sql, function (err, result) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+            }
+
+            for (var i = 0; i < result[0].length; i++) {
+                states = [];
+                statesCounter = -1;
+                if (result[0][i].hasOrder === 1) {
+                    statesCounter++;
+                    states[statesCounter] = '有订单未处理';
+                }
+                if (result[0][i].lessRest === 1) {
+                    statesCounter++;
+                    states[statesCounter] = '少剩余';
+                }
+                if (result[0][i].hasUncheck === 1) {
+                    statesCounter++;
+                    states[statesCounter] = '存在未检测'
+                }
+                if (result[0][i].needReturn === 1) {
+                    statesCounter++;
+                    states[statesCounter] = '需归还物料'
+                }
+                statesList[i] = states;
+            }
+
+            if (states.length === 0) {
+                statesCounter++;
+                states[statesCounter] = '无'
+            }
+
+            var sql3 = 'SELECT * FROM item \n' +
+                'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+                'WHERE item.itemId = "' + url.itemId + '";';
+
+            connection.query(sql3, function (err, result) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                    return;
+                }
+                ChangeState(result[0].itemNum > result[0].itemAlarmSetting, 'lessRest', 0, url);
+                if (result[0].itemNum > result[0].itemAlarmSetting && result[0].lessRest === 1) {
+                    addNote('物料事件更新', result[0].itemName, result[0].itemId, '取消少剩余状态');
+                }
+
+                ChangeState(result[0].itemNum <= result[0].itemAlarmSetting, 'lessRest', 1, url);
+                if (result[0].itemNum <= result[0].itemAlarmSetting && result[0].lessRest === 0) {
+                    addNote('物料事件更新', result[0].itemName, result[0].itemId, '少剩余');
+                }
+
+                connection.query(itemOrderListSql, function (err, itemOrderList) {
+                    if (err) {
+                        console.log('[SELECT ERROR] - ', err.message);
+                    }
+
+                    let itemTypeSql = 'SELECT * FROM itemtype;';
+                    connection.query(itemTypeSql, function (err, itemTypes) {
+                        if (err) {
+                            console.log('[SELECT ERROR] - ', err.message);
+                        }
+
+                        res.render('adItem', {
+                            user: req.session.user,
+                            item: itemOrderList[0],
+                            recordList: itemOrderList[1],
+
+                            itemStateList: statesList,
+                            itemTypes: itemTypes,
+                        });
+
+                    });
 
 
-        var returnURL = '/adItem?sql='+sql+'&itemId='+url.itemId+'&returnSql='+url.returnSql+'&itemModel='+url.itemModel;
-        //console.log(returnURL);
-        return  res.redirect(returnURL)
+                });
+
+
+            });
+
+        });
+
+
+        // res.render('adItem', {
+        //     item:result[0],
+        //     itemStateList:statesList,
+        //     recordList:result[1],
+        //     user:req.session.user,
+        //     itemTypes : itemTypes
+        // });
+
     }
 
 });

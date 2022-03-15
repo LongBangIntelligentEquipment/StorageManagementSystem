@@ -416,7 +416,7 @@ router.post('/adProductionMachineAdd', async function (req, res) {
             p_machineId = await formatMachineCode();
             let addSqlParams = [p_machineId, b_machineId, machineName, updateTime, productionStart, productionFinish, productionState, note, designer, machineCost, machineFileName, projectId, customerOrderId, exitProgressRate, QCProgressRate, taskProgressRate];
             // console.log(addSqlParams);
-            let addResult = await addProductionMachineDB(addSql,addSqlParams);
+            await addProductionMachineDB(addSql,addSqlParams);
 
 
             eachAddQty --;
@@ -473,7 +473,7 @@ router.post('/adProductionMachineAdd', async function (req, res) {
 
 
     for (let i = 0; i < machineId.length; i++) {
-        let result = await addProductionMachine(machineId[i],i);
+        await addProductionMachine(machineId[i],i);
 
         if (i === machineId.length){
             res.redirect('/adProductionProjectMan');
