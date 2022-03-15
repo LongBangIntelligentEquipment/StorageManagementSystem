@@ -82,13 +82,13 @@
                             <input checked  type="checkbox" onchange="checkboxIsOn(this.id,<%=i%>)" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
                             <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
                         </div>
-                        <div id="addQtyDiv<%=i%>" style="margin-left: 45px" >添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="'+'Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" >&emsp;台 </div>
+                        <div id="addQtyDiv<%=i%>" style="margin-left: 45px" >添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="'+'Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"  >&emsp;台 </div>
 
                         <%}else{%>
                             <input  type="checkbox" onchange="checkboxIsOn(this.id,<%=i%>)" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
                         <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
                     </div>
-                    <div id="addQtyDiv<%=i%>" style="margin-left: 45px" hidden>添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="'+'Input"  style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"  >&emsp;台 </div>
+                    <div id="addQtyDiv<%=i%>" style="margin-left: 45px" hidden>添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="'+'Input"  style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" disabled  >&emsp;台 </div>
 
                     <%}%>
 
