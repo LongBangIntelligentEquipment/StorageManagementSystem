@@ -259,7 +259,7 @@
                     <div id="switchPage1" style="width: auto">
                         <div style="margin-left: -320px;margin-bottom: 50px;">
 
-                            <a  id="addComponentBtn" hidden><button class="searchInputBoxButton" type="button" id="addComponentBtn" onclick="location.href='/adBOMListComponentAdd?machineId=<%=machine[0].machineId%>'" style="position: absolute!important; margin-top: -45px; margin-left: 345px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属部件</button></a>
+                            <a  id="addComponentBtn" hidden><button class="searchInputBoxButton" type="button" id="addComponentBtn" onclick="location.href='/adProductionComponentAdd?machineId=<%=machine[0].machineId%>'" style="position: absolute!important; margin-top: -45px; margin-left: 345px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属部件</button></a>
                             <style onload="Authority('系统管理员','#addComponentBtn')"></style>
                             <style onload="Authority('技术员','#addComponentBtn')"></style>
                             <style onload="Authority('生产主管','#addComponentBtn')"></style>
@@ -273,7 +273,7 @@
                             <%for(let j = 0 ; j < 3 ; j++) { %>
                             <tr id="machine<%=j%>" style="width: 100%;">
                                 <td style="width: 100%">
-                                    <button class="noteButton2" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList?componentId='">
+                                    <button class="noteButton2" name="itemButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adProductionComponentMan?componentId=2'">
                                         <div  style= "font-size: 0.7rem; height: 30px; ">
                                             <span class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
                                             <span class="itemInfo" >部件名称：<a style="font-weight: normal;color: #0050fa;"></a></span>

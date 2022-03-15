@@ -1,21 +1,563 @@
 <%- include('zHeader') %>
-<script type="text/javascript" language="javascript">
 
-    function confirmAgain() {
-        return window.confirm("确认执行【添加新部件】操作?");
+<script language="javascript">
+
+    function confirmAgainDelete() {
+        if (window.confirm("确认执行【删除部件 <%=component[0].componentName%>-<%=component[0].componentModel%>】操作?")){
+            return location.href=('/adBOMListComponentDelete?componentId=<%=component[0].componentId%>')
+        }
     }
+    function comfirmAgain() {
+        var checkOne=false;
+        var checkBox=$('input[name = belongMachine]')
+        for(var i=0;i<checkBox.length;i++){
+            if(checkBox[i].checked){
+                checkOne=true;
+            }
+        }
+        if(checkOne){
+            return true
+        }else{
+            alert('请至少选择一款【所属机型】')
+            return false
+        }
+    }
+    function btnEdi(length,actId){
+        for(var i=0;i<length;i++){
+            var elementId='#'+actId+i;
+            $(elementId).removeAttr('disabled');
+            $(elementId).attr('style','outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;')
+
+        }
+    }
+
+    function detailEditable(){
+        if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
+            btnEdi('5','detail');
+            $('#updateFile').attr('style','display:/'/';');
+            $('#confirmEditButton').removeAttr('hidden');
+        }
+
+        $('#componentDelButton').removeAttr('hidden')
+        $('#editButtonControl').attr('hidden','hidden')
+        $('#cancelEditButtonControl').removeAttr('hidden')
+        $('#copyButtonControl').attr('hidden','hidden')
+    }
+
+    function cancelDetailEditable() {
+        if('<%=user.role%>'==='系统管理员'||'<%=user.role%>'==='技术员'){
+            for(var i=0;i<5;i++){
+                var elementId='#'+'detail'+i;
+                $(elementId).attr('disabled','disabled');
+                $(elementId).attr('style','')
+
+            }
+            $('#updateFile').attr('style','display:none;');
+            $('#confirmEditButton').attr('hidden','hidden');
+        }
+
+        $('#componentDelButton').attr('hidden','hidden')
+        $('#editButtonControl').removeAttr('hidden')
+        $('#cancelEditButtonControl').attr('hidden','hidden')
+        $('#copyButtonControl').removeAttr('hidden')
+    }
+
+    function InfoDisplay(rolejudgement,type1,type2,type3,type4,ojIdJudge,ojId){
+        var judge=document.getElementById(ojIdJudge).innerText;
+        if((judge===type1||judge===type2||judge===type3||judge===type4)&&rolejudgement){
+            document.getElementById(ojId).style.display="";
+        }else {
+            document.getElementById(ojId).style.display="none";
+        }
+    }
+
+    function Authority(role, ojId) {
+        var sessionRole='<%= user.role %>'
+
+        if ( sessionRole=== role) {
+            $(ojId).removeAttr('hidden')
+        }
+
+    }
+
+    function slideSwitch() {
+        if(document.getElementById('checkboxswitch').checked){
+            document.getElementById('BomListDetail').style.display='none'
+            document.getElementById('BomListRecord').style.display=''
+            $('#BomEditBtn').attr('hidden','hidden')
+        }else{
+            document.getElementById('BomListDetail').style.display=''
+            document.getElementById('BomListRecord').style.display='none'
+            $('#BomEditBtn').removeAttr('hidden')
+        }
+    }
+
+    function editItemBtn() {
+        var editItemBtn='[name=editItemBtn]';
+        var itemButton='[name=itemButton]';
+        $(editItemBtn).removeAttr('hidden');
+        $(itemButton).attr('disabled','disabled');
+        $("#editBomBtn").attr('hidden','hidden');
+        $('#BOMListItem').attr('style','width: 100%;font-size: 1rem;padding-left: 60px')
+
+
+        var componentLength='<%=component.length%>'
+        for(var i=0;i<parseInt(componentLength);i++){
+            var requireNum="#"+'requireNum'+i;
+            $(requireNum).removeAttr('disabled');
+            $(requireNum).attr('style','width: 50px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;height: 100%')
+
+            var itemId="#"+'item'+i;
+            $(itemId).attr('draggable','true')
+        }
+        $('#addBomBtn').attr('hidden','hidden')
+    }
+
+    function cancelEditItemBtn() {
+        var editItemBtn='[name=editItemBtn]';
+        var itemButton='[name=itemButton]';
+
+        $(editItemBtn).attr('hidden','hidden');
+        $(itemButton).removeAttr('disabled');
+        $("#editBomBtn").removeAttr('hidden')
+        $('#BOMListItem').attr('style','width: 100%;font-size: 1rem; padding-left: 0px')
+
+        var componentLength='<%=component.length%>'
+        for(var i=0;i<parseInt(componentLength);i++){
+            var requireNum="#"+'requireNum'+i
+            $(requireNum).attr('disabled','disabled')
+            $(requireNum).attr('style','height:100%')
+
+            var itemId="#"+'item'+i;
+            $(itemId).attr('draggable','false')
+        }
+        $('#addBomBtn').removeAttr('hidden')
+
+        cancelRemoveItem();
+        cancelEditItemQty();
+    }
+
+    //计算成本
+    <%var componentCost = 0;%>
+    <%for(let i=0; i<component.length; i++) {
+        componentCost += component[i].itemPrice * component[i].itemQuantity;
+    }%>
+    <%if (!componentCost) {componentCost= 0;}%>
+
+    function packData(){
+        var confirmTable, itemAddBox, itemBtn, itemNum, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
+        var itemArray = [], itemIdArray = [], itemModelArray = [], itemQtyArray = [];
+
+        confirmTable = $('#comfirmAddBox');
+        itemAddBox = confirmTable.find('#itemAddBox');
+
+        itemBtn = itemAddBox.find('#itemBtn');
+        itemNum = itemBtn.length;
+        itemId = itemBtn.find('#itemId');
+        itemModel = itemBtn.find('#itemModel');
+        itemQty = itemBtn.find('#itemQty');
+
+        if (itemNum === 0){
+            alert('请搜索物料进行添加！')
+            return false;
+        }
+
+        for (i=0;i<itemNum;i++){
+            itemIdText = itemId[i].innerText;
+            itemModelText = itemModel[i].innerText;
+            itemQtyText = itemQty[i].value;
+
+            if (!itemQtyText){
+                alert('请输入所需数量！');
+                return false;
+            }
+
+            <%if (component[0].itemId){%>
+            <%for(let j = 0 ; j < component.length ; j++) { %>
+            if (itemIdText === '<%=component[j].itemId%>') {
+                alert('物料已存在，请检查所需数量！');
+                return false;
+            }
+            <%}}%>
+
+            itemIdArray.push(itemIdText);
+            itemModelArray.push(itemModelText);
+            itemQtyArray.push(itemQtyText);
+        }
+
+        itemArray.push(itemIdArray);
+        itemArray.push(itemModelArray);
+        itemArray.push(itemQtyArray);
+
+        return itemArray;
+    }
+
+    function saveAdd(){
+        var items = packData();
+        if (!items){return}
+
+        $.ajax({
+            url: './ajaxSaveAdd',
+            data: {
+                'items':items,
+                'componentId': '<%=component[0].componentId%>'
+            },
+            type: 'GET',
+            // dataType: 'json',
+            success: function (data) {
+                if(!data){
+                    window.location = './adBOMList?componentId=<%=component[0].componentId%>';
+                } else{
+                    alert(data);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('error ' + textStatus + " " + errorThrown);
+            }
+        })
+    }
+
+    function packData2(){
+        var ul, itemBtn, itemId, itemModel, itemQty, i, itemIdText, itemModelText, itemQtyText;
+        var itemArray = [], itemIdArray = [], itemModelArray = [], itemQtyArray = [];
+
+        ul = $('#BOMListItem');
+        itemBtn = ul.find('[name = itemButton]:visible');
+
+        console.log(itemBtn);
+
+        itemId = itemBtn.find('#itemId');
+        itemModel = itemBtn.find('#itemModel');
+        itemQty = itemBtn.find('#itemQty');
+        itemQty = itemQty.find('input');
+
+
+        for (i=0;i<itemBtn.length;i++){
+            itemIdText = itemId[i].innerText;
+            itemModelText = itemModel[i].innerText;
+            itemQtyText = itemQty[i].value;
+
+            if (!itemQtyText){
+                alert('请输入所需数量！');
+                return false;
+            }
+
+            itemIdArray.push(itemIdText);
+            itemModelArray.push(itemModelText);
+            itemQtyArray.push(itemQtyText);
+        }
+
+        itemArray.push(itemIdArray);
+        itemArray.push(itemModelArray);
+        itemArray.push(itemQtyArray);
+
+        return itemArray;
+    }
+
+    function saveEdit(){
+        var items = packData2();
+        if (!items){return}
+
+        // console.log(items);
+        // return;
+
+        $.ajax({
+            url: './ajaxSaveEdit',
+            data: {
+                'items':items,
+                'componentId': '<%=component[0].componentId%>'
+            },
+            type: 'GET',
+            // dataType: 'json',
+            success: function (data) {
+                if(!data){
+                    window.location = './adBOMList?componentId=<%=component[0].componentId%>';
+                } else{
+                    alert(data);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('error ' + textStatus + " " + errorThrown);
+            }
+        })
+    }
+
+    function selectItem(checkItemBoxChildId,itemOperationBtn,requiredNum) {
+        var reCheckItemBoxChildId="#"+checkItemBoxChildId
+        var itemBoxId=$(reCheckItemBoxChildId).children().attr('id')
+        var transferItemHTML=document.getElementById(checkItemBoxChildId).innerHTML
+        var reItemBoxId="#"+itemBoxId;
+
+
+        var canAdding=true;
+
+        for(var i=0;i<$("#itemAddBox").children().length;i++){
+            if($("#itemAddBox").children().eq(i).attr('value')===$(reItemBoxId).attr('value')){
+                canAdding=false;
+                break;
+            }
+        }
+        var reItemOperationBtn="#"+itemOperationBtn;
+        var reNameItemOperationBtnId=itemOperationBtn+'_original'
+
+        if(canAdding){
+            var reNameItemBoxId=itemBoxId+'_original'
+            $(reItemBoxId).attr('id',reNameItemBoxId)
+            $('[name=checkItemBtn]').attr('name','checkItemBtn_Original')
+            $("#itemAddBox").append(transferItemHTML)
+            $('[name=checkItemBtn]').attr('disabled','disabled')
+            $('[name=checkItemBtn_Original]').attr('name','checkItemBtn')
+
+
+            $(reItemOperationBtn).attr('id',reNameItemOperationBtnId)
+            document.getElementById(reNameItemOperationBtnId).setAttribute('style','display:none')
+
+            document.getElementById(itemOperationBtn).innerHTML="<button class=\"itemButton4\" type=\"button\" id=\"\" onclick=\"deleItem(\'"+reItemBoxId+"\',\'"+reNameItemOperationBtnId+"\')\" style=\"font-size: 0.7rem;height: 95px;\"><img src='images/bin.png' height=\"30px\" width=\"30px\"></button>\n"
+
+
+            var reRequiredNum='#'+requiredNum
+            var reNameRequiredNum=requiredNum+'_original'
+            $(reRequiredNum).attr('id',reNameRequiredNum)
+            $(reRequiredNum).attr('style','display:display')
+            $(reRequiredNum).removeAttr('disabled')
+
+
+        }else{
+            reItemOperationBtn="#"+itemOperationBtn;
+            reNameItemOperationBtnId=$("#itemAddBox").children().eq(i).children().children().children().eq(1).attr("id")+'_original'
+            $(reItemOperationBtn).attr('id',reNameItemOperationBtnId)
+            document.getElementById(reNameItemOperationBtnId).setAttribute('style','display:none')
+            alert("所选物料已存在【添加物料】列表中")
+        }
+
+    }
+
+    function deleItem(deleId,revoverBtnId) {
+        if (window.confirm("确认将所选物料从【添加物料】列表中移除？")){
+            $(deleId).remove()
+            document.getElementById(revoverBtnId).setAttribute('style','display:display')
+        }
+    }
+
+    var searchTimes=0;
+    function searchItems(){
+        searchTimes++;
+        var searchText = document.getElementById('searchText').value;
+
+        if (!searchText){
+            alert('请输入物料的名称/型号/备注进行搜索！');
+            return;
+        }
+
+        $.ajax({
+            url: './ajaxSearchItem',
+            data: {
+                'searchText':searchText,
+                'searchTimes':searchTimes
+            },
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (data.item.length !==0){
+                    document.getElementById('itemBox').innerHTML=data.HTMLText;
+                    document.getElementById('searchResultHeader').innerHTML ="搜索结果(" + data.item.length + ")";
+                }
+                else {
+                    $(itemBox).append('<div id=\'item0\'>此部件暂无设置所属物料</div>')
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('error ' + textStatus + " " + errorThrown);
+            }
+        })
+    }
+
+    var delArray = [];
+    function removeItem(itemIndex){
+        itemIndex = '#item' + itemIndex;
+        $(itemIndex).attr('hidden','');
+        delArray.push(itemIndex);
+    }
+
+    function cancelRemoveItem(){
+        for (let i=0;i<delArray.length;i++){
+            $(delArray[i]).removeAttr('hidden');
+        }
+        delArray = [];
+    }
+
+    function cancelEditItemQty(){
+        var itemIndexId;
+
+        <%for(let i=0; i<component.length; i++) { %>
+        itemIndexId = '#requireNum' + '<%=i%>';
+        $(itemIndexId).val(<%=component[i].itemQuantity%>)
+        <%}%>
+    }
+
+    function addItemsScreenDisplay() {
+        $('#addItemsScreen').attr('style','display:display')
+        $('#addItemsScreenDisplayBtn').attr('style','position: absolute!important; margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;display:display')
+        $('#editBomBtn').attr('hidden','hidden')
+        $('#addBomBtn').attr('hidden','hidden')
+    }
+
+    function CancelItemsScreenDisplay() {
+        $('#addItemsScreen').attr('style','display:none')
+        $('#addItemsScreenDisplayBtn').attr('style','display:none')
+        $('#editBomBtn').removeAttr('hidden')
+        $('#addBomBtn').removeAttr('hidden')
+    }
+
+    function copyAct(componentId,showComponentName) {
+
+
+        $('#copyDetail1').attr('required','required')
+        $('#copyDetail2').attr('required','required')
+        $('#copyDetail3').attr('required','required')
+        $('#copyDetail3').removeAttr('disabled')
+
+        $('#copyInputBox').removeAttr('hidden')
+        $('#copyComponentId').attr('value',componentId)
+        $('#blankCover').removeAttr('hidden')
+        document.getElementById('showComponentName').innerText=showComponentName
+        $('#bodyPage').attr('style','position:fixed')
+    }
+
+    function cancelCopyAct() {
+        $('#copyDetail1').removeAttr('required')
+        $('#copyDetail2').removeAttr('required')
+        $('#copyDetail3').removeAttr('required')
+        $('#copyDetail3').attr('disabled','disabled')
+
+
+        $('#copyInputBox').attr('hidden','hidden')
+        $('#blankCover').attr('hidden','hidden')
+        $('#bodyPage').removeAttr('style')
+    }
+
+
+    var draging = null;
+
+    function dragstart_handler(event) {
+        //console.log("start");
+        //firefox设置了setData后元素才能拖动！！！！
+        event.dataTransfer.setData("te", event.target.innerHTML); //不能使用text，firefox会打开新tab
+        //event.dataTransfer.setData("self", event.target);
+        draging = event.target;
+    }
+
+    function dragover_handler(event) {
+        //console.log("onDrop over");
+        event.preventDefault();
+        var target = event.target;
+        //因为dragover会发生在ul上，所以要判断是不是li
+        console.log(target.nodeName)
+        if (target.nodeName === "LI") {
+            if (target !== draging) {
+                var targetRect = target.getBoundingClientRect();
+                var dragingRect = draging.getBoundingClientRect();
+                if (target) {
+                    if (target.animated) {
+                        return;
+                    }
+                }
+                if (_index(draging) < _index(target)) {
+                    target.parentNode.insertBefore(draging, target.nextSibling);
+                } else {
+                    target.parentNode.insertBefore(draging, target);
+                }
+                _animate(dragingRect, draging);
+                _animate(targetRect, target);
+            }
+        }
+
+    }
+    //获取元素在父元素中的index
+    function _index(el) {
+        var index = 0;
+
+        if (!el || !el.parentNode) {
+            return -1;
+        }
+
+        while (el && (el = el.previousElementSibling)) {
+            //console.log(el);
+            index++;
+        }
+
+        return index;
+    }
+
+    function _animate(prevRect, target) {
+        var ms = 300;
+
+        if (ms) {
+            var currentRect = target.getBoundingClientRect();
+
+            if (prevRect.nodeType === 1) {
+                prevRect = prevRect.getBoundingClientRect();
+            }
+
+            _css(target, 'transition', 'none');
+            _css(target, 'transform', 'translate3d(' +
+                (prevRect.left - currentRect.left) + 'px,' +
+                (prevRect.top - currentRect.top) + 'px,0)'
+            );
+
+            target.offsetWidth; // 触发重绘
+            //放在timeout里面也可以
+            // setTimeout(function() {
+            //     _css(target, 'transition', 'all ' + ms + 'ms');
+            //     _css(target, 'transform', 'translate3d(0,0,0)');
+            // }, 0);
+            _css(target, 'transition', 'all ' + ms + 'ms');
+            _css(target, 'transform', 'translate3d(0,0,0)');
+
+            clearTimeout(target.animated);
+            target.animated = setTimeout(function() {
+                _css(target, 'transition', '');
+                _css(target, 'transform', '');
+                target.animated = false;
+            }, ms);
+        }
+    }
+    //给元素添加style
+    function _css(el, prop, val) {
+        var style = el && el.style;
+
+        if (style) {
+            if (val === void 0) {
+                if (document.defaultView && document.defaultView.getComputedStyle) {
+                    val = document.defaultView.getComputedStyle(el, '');
+                } else if (el.currentStyle) {
+                    val = el.currentStyle;
+                }
+
+                return prop === void 0 ? val : val[prop];
+            } else {
+                if (!(prop in style)) {
+                    prop = '-webkit-' + prop;
+                }
+
+                style[prop] = val + (typeof val === 'string' ? '' : 'px');
+            }
+        }
+    }
+
+
 </script>
 
 
-<body >
+<body id="bodyPage" >
+<div id="blankCover" style="position: absolute;background-color: rgba(255,255,255,0.5);width: 100%;height: 100%;z-index: 998" hidden></div>
 
 
-<section class="functionBoard" >
-
+<section class="functionBoard" style="height: 100%;">
     <%- include('zMenu') %>
 
-    <div class="functionBoard right">
-        <main role="main" class="container mt-3 mb-3">
+    <div class="functionBoard right" style="height: 100%;">
+        <main role="main" class="container mt-3 mb-3" style="height: 100%;">
 
             <header role="banner">
                 <div class="headcontainer">
@@ -26,32 +568,267 @@
                 </div>
             </header>
 
-            <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data" >
-                <div  class="itemDetailsPage" style="width: 100%">
-                    <div class="itemDetail">创建新部件到：<%=machineName%>&emsp;<%=machineId%></div>
-                    <input name="addToMachineId" value="<%=machineId%>" type="hidden">
-                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="detail1" required style="width: 500px" placeholder="请输入部件名称" ></div>
-                    <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="detail2"  required  style="width: 500px" placeholder="请输入部件图号" ></div>
-                    <div class="itemDetail" >类型<a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addComponentType" id="detail3" required  style="height: 35px;width: 130px;color:black;" >
-                            <%for(let i = 0; i < categoryName.length; i++) { %>
-                            <option value="<%=categoryName[i].categoryName%>"><%=categoryName[i].categoryName%></option>
-                            <%}%>
-                        </select>
-                        <span>
-                                        <button class="searchBarButton" onclick="location.href='/adBOMListCategoryMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>
-                                    </span>
-                    </div>
+            <form method="post" enctype="multipart/form-data">
+                <table cellpadding="0"cellspacing="0"  class="itemDetailsPage" >
+                    <tr>
+                        <td >
+                            <div style="width: 450px;margin-top: -10px">
+                                <a style="margin-top: 5px;font-size: 1.2rem;color:  #0050fa;"  href="/adBOMListMachineMan?machineId=<%=component[0].machineId%>"><%=component[0].machineName%><br><%=component[0].machineId%></a>
+                                <div class="itemDetail">部件信息：</div>
+                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="<%=component[0].componentName%>" disabled></div>
+                                <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=component[0].componentModel%>" disabled></div>
+                                <div class="itemDetail" id="typeSelect">类型：<select class="itemDetailsInput" name="BomListType" id="detail2" required="required" disabled style="height: 35px;width: 130px;" >
+                                        <option value="<%=component[0].categoryId%>" selected><%=component[0].categoryName%></option>
+                                        <%for(let i = 0; i < category.length; i++) { %>
+                                            <% if (component[0].categoryName === category[i].categoryName){
+                                                if (i < category.length-1 ){
+                                                    i++;
+                                                } else {break}
+                                            }%>
+                                            <option value="<%=category[i].categoryId%>"><%=category[i].categoryName%></option>
+                                        <%}%>
+                                    </select>
+                                </div>
 
-                    <div id="shellBox">
-                        <div class="itemDetail" >备注：<input name="addComponentNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
-                        <div class="itemDetail" id="detail7" >上传图纸：<input name="BomListFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
+                                <div class="itemDetail">制表人：<input class="itemDetailsInput" name="BomListMaker"  value="<%=component[0].userName%>" disabled ></div>
+                                <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="BomListUpdateTime"  value="<%=component[0].updateTime.getFullYear()%>-<%=component[0].updateTime.getMonth()+1%>-<%=component[0].updateTime.getDate()%>" disabled ></div>
+                                <div class="itemDetail" id="componentCostRow" hidden >部件成本：<input class="itemDetailsInput" name="BomListCost" value="<%=componentCost%>元" disabled ></div>
+                                <style onload="Authority('系统管理员','#componentCostRow')"></style>
+                                <div class="itemDetail">备注：<input class="itemDetailsInput" name="BomListNote" id="detail3" value="<%=component[0].note%>" disabled ></div>
+                                <div class="itemDetail" id="updateFile" style="display: none">重新上传图片：<input type="file"  name="BomListFileName"  id="detail4" value=""  style="width: 310px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" >
+                                    <div style="color: red">请上传图片格式文件</div>
+                                </div>
+
+                            </div>
+                        </td>
+                        <td>
+                            <div style="margin-left: -35px;margin-top: 0px">
+                                <button style="background-color: transparent!important;width: 320px;height: 320px;border: none" type="button" onclick="window.open('uploads/<%=component[0].componentFileName%>')"  ><img src="uploads/<%=component[0].componentFileName%>" height="320px" width="320px"></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <a id="editButtonControl" hidden><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()"  >编辑</button></a>
+                            <style onload="Authority('系统管理员','#editButtonControl')"></style>
+                            <style onload="Authority('技术员','#editButtonControl')"></style>
+                            <a id="cancelEditButtonControl" hidden> <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="cancelDetailEditable()" style="background-color: #fa5000!important;" >取消编辑</button></a>
+
+                            <a hidden id="confirmEditButton"> <button  class="btn btn-block btn-submit button button--primary smaller" name="updateButton" value=true type="submit" style="margin-left: 2%">确定</button></a>
+
+                            <a hidden id="componentDelButton"><button class="btn btn-block btn-submit button button--primary smaller" type="button" onclick='confirmAgainDelete()' style="background-color: red!important; margin-left: 30%;" ><img src='images/bin.png' height="30px" width="30px"></button></a>
+
+                            <a id="copyButtonControl" hidden><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="copyAct('<%=component[0].componentModel%>','<%=component[0].componentName%>')" style="background-color: #00cb46!important;margin-left:50%; " ><img src='images/copy.png' height="30px" width="30px"></button></a>
+                            <style onload="Authority('系统管理员','#copyButtonControl')"></style>
+                            <style onload="Authority('技术员','#copyButtonControl')"></style>
+
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            <form method="post" enctype="multipart/form-data" onsubmit="return comfirmAgain()" action="/componentCopy?componentId=<%=component[0].componentId%>">
+                <div id="copyInputBox" hidden style="position: absolute;margin-top: -400px;width: 50%;height: 60%;margin-left: 15%;z-index: 999">
+                    <div class="col-md" >
+                        <div class="card" style="border-radius: 10px;overflow: hidden ">
+                            <div class="card-header text-center">
+                                <h2 id="searchResultHeader">复制部件</h2>
+                            </div>
+                            <div class="card-body"  style="height: 400px;overflow:auto ;padding: 0px ">
+                                <div  class="itemDetailsPage" style="width: 100%">
+                                    <div class="itemDetail">复制部件：<a id="showComponentName"></a>&emsp;<input class="itemDetailsInput" id="copyComponentId" value="" disabled></div>
+                                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="copyDetail1" value=""   style="width: 500px" placeholder="请输入部件名称" ></div>
+                                    <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="copyDetail2"   value=""  style="width: 500px" placeholder="请输入部件图号" ></div>
+                                    <div class="itemDetail" id="typeSelect">类型：
+                                        <select class="itemDetailsInput addItemInfo" disabled name="BomListType" id="copyDetail3"   style="height: 35px;width: 130px;" >
+                                            <option value="<%=component[0].categoryId%>" selected><%=component[0].categoryName%></option>
+                                            <%for(let i = 0; i < category.length; i++) { %>
+                                                <% if (component[0].categoryName === category[i].categoryName){
+                                                    if (i < category.length-1 ){
+                                                        i++;
+                                                    } else {break}
+                                                }%>
+                                                <option value="<%=category[i].categoryId%>"><%=category[i].categoryName%></option>
+                                            <%}%>
+                                        </select>
+                                        <span>
+                                        <button class="searchBarButton" onclick="location.href='/adBOMListCategoryMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>
+                                        </span>
+
+                                        <div >
+                                            <div class="itemDetail" >备注：<input name="addComponentNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
+                                            <div class="itemDetail" id="detail7" >上传图纸：<input name="BomListFileName" class="itemDetailsInput addItemInfo" type="file" style="width: 462px"></div>
+                                        </div>
+                                        <div id="shellBox" style="margin-top: 3%">
+                                            请选择所属设备<a style="color: red; font-size: x-large">*</a>：
+                                            <% for (let i = 0; i < machine.length; i++){ %>
+                                            <!--                                                  if(machine[i].machineId===component[0].machineId){ 设备查重-->
+                                            <!--                                                continue;-->
+                                            <!--                                                 }-->
+                                            <div style="margin-bottom: 5px">
+                                                <input  type="checkbox" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
+                                                <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
+                                            </div>
+                                            <% } %>
+                                        </div>
+                                        <table cellspacing="0" cellpadding="0" style="width: 100%;margin-top: 20px">
+                                            <tr style="width: 100%">
+                                                <td style="width: 100%;">
+                                                    <button class="btn btn-block btn-submit button button--primary smaller" style="float: right;border: 0;margin-right: 10%;background-color: red!important;" type="button" onclick="cancelCopyAct()">取消</button>
+                                                    <button class="btn btn-block btn-submit button button--primary smaller" id="copyCofirmBtn"  style="float: right;border: 0;margin-right: 2%;background-color: #00cb46!important;" type="submit" onsubmit="">确认</button>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">创建新部件</button>
-
-
             </form>
+            <div class="pageCard" style="border-top: 0.1rem solid #404142;height: 100%">
+                <div  class="pageTitle" >
+                    <div  style="font-weight: bold;width: 340px;font-size: 1.3rem;color: #404143">BOM表详情/一键出仓记录:</div>
+                    <input   type="checkbox" id="checkboxswitch" onchange="slideSwitch()" class="onoff sw1" style="background-color: transparent!important;margin-left: 325px;"  >
+
+                </div>
+
+
+
+                <div id="BomListDetail" style="height: 100%;">
+                    <div id="BomEditBtn" hidden style="margin-left: -320px;">
+                        <a id="editBomBtn"><button class="searchInputBoxButton" type="button" onclick="editItemBtn()"  style=" margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >编辑&emsp;BOM表</button></a>
+                        <a name="editItemBtn" hidden><button class="searchInputBoxButton" type="button" onclick="cancelEditItemBtn()"   style=" margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;" >&emsp;取消编辑&emsp;</button></a>
+                        <a id="addBomBtn"><button  class="searchInputBoxButton" type="button" onclick="addItemsScreenDisplay()" style=" margin-top: -45px; margin-left: 480px;background-color: #00cb46!important;   border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;" >添加所属物料</button></a>
+                        <button class="searchInputBoxButton" id="addItemsScreenDisplayBtn" type="button" onclick="CancelItemsScreenDisplay()" style=" margin-top: -45px; margin-left: 345px;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;background-color: #fa5000!important;display: none" >&emsp;取消添加&emsp;</button>
+                    </div>
+                    <style onload="Authority('系统管理员','#BomEditBtn')"></style>
+                    <style onload="Authority('技术员','#BomEditBtn')"></style>
+
+                    <div id="addItemsScreen" style="display: none">
+                        <div  style="font-weight: bold;font-size: 1.3rem;margin-left: 30px;">物料添加框：</div>
+                        <div id="itemSearchBox" style="margin-top: 10px;margin-left: 20px" >
+                            <input class="indexOf" id="searchText" name="searchText" style="margin-left: 4px;width: 45%" placeholder="根据物料的名称/型号/备注搜索">
+                            <button class="searchInputBoxButton" value="1" name="indexOfButton" type="button" onclick="searchItems()" style="margin-left: 45.2%" >搜&emsp;索</button>
+                        </div>
+
+                        <table id="addItemsBox" style="padding-top: 50px;width: 100%;height: 100%">
+                            <tr style="width: 100%">
+                                <td id="searchResultBox" >
+                                    <div class="col-md" >
+                                        <div class="card" style="border-radius: 10px;overflow: hidden ">
+                                            <div class="card-header text-center">
+                                                <h2 id="searchResultHeader">搜索结果</h2>
+                                            </div>
+                                            <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px "></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td id="comfirmAddBox" style="width: 50%" >
+                                    <div class="col-md" style="">
+                                        <div class="card" style="border-radius: 10px;overflow: hidden;">
+                                            <div class="card-header text-center">
+                                                <h2>添加物料</h2>
+                                            </div>
+                                            <div id="itemAddBox" class="card-body" style="height: 400px;overflow:auto ;padding: 0px;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <button class="searchInputBoxButton" type="button" onclick="saveAdd()" style="margin-top: -55px; margin-left: 72%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;"  >保存&emsp;添加表</button>
+                    </div>
+
+                    <%if (component[0].itemId){%>
+                    <div style="margin-bottom: 10px;font-weight: bold;font-size: 1.3rem;margin-left: 30px;">BOM表详情：(<%=component.length%>种物料)</div>
+
+                    <ul  id="BOMListItem" ondragstart="dragstart_handler(event);" ondragover="dragover_handler(event)" style=" width: 100%;font-size: 1rem; padding-left: 0px" >
+                        <%for(let j = 0 ; j < component.length ; j++) { %>
+
+                        <li  class="noteButton3" draggable="false" id="item<%=j%>" style="width: 100%;  ">
+                            <table  cellspacing="0" cellpadding="0" draggable="false" style="width: 100%;">
+                                <tr  cellspacing="0" cellpadding="0" draggable="false" style="width: 100%;">
+                                    <td  cellspacing="0" cellpadding="0" draggable="false" style="width: 87%" >
+
+                                        <button draggable="false"  class="noteButton3" name="itemButton" style="padding-left: 80px;" type="button" onclick="location.href='/adItem?itemId=<%=component[j].itemId%>&returnSql='+document.URL.split('sql=')[1]">
+                                            <div draggable="false"  style= "font-size: 0.7rem; height: 30px; ">
+                                                <span draggable="false" class="itemInfo" style="margin-left: -50px;color: #0050fa;">#<%=j+1%></span>
+                                                <span draggable="false" class="itemInfo" >名称：<a draggable="false" style="font-weight: normal;color: #0050fa;"><%=component[j].itemName%></a></span>
+                                                <span draggable="false" class="itemInfo" style="margin-left: 260px">物料编号：<a draggable="false" id="itemId" style="font-weight:normal;color: #0050fa; "><%=component[j].itemId%></a></span>
+                                            </div>
+                                            <div draggable="false" style= "font-size: 0.7rem; height: 30px; ">
+                                                <span draggable="false" class="itemInfo" >型号（图号）：<a draggable="false" id="itemModel" style="font-weight: normal;color: #0050fa;"><%=component[j].itemModel%></a></span>
+                                                <span draggable="false" class="itemInfo" id="itemCostRow<%=j%>" hidden style="margin-left: 350px">物料单价：<a draggable="false" style="font-weight:normal;color: #0050fa; "><%=component[j].itemPrice%></a></span>
+                                                <style onload="Authority('系统管理员','#itemCostRow<%=j%>')"></style>
+                                            </div>
+                                            <div draggable="false" style= "font-size: 0.7rem; height: 30px;" id="">
+                                                <span draggable="false" class="itemInfo" >类型：<a draggable="false" style="font-weight: normal;color: #0050fa;"><%=component[j].itemType%></a></span>
+                                                <span draggable="false" class="itemInfo" style="margin-left: 120px">所需数量/总数：<a draggable="false" id="itemQty" style="font-weight:normal;color: #0050fa; "><input draggable="false" class="itemDetailsInput" onkeyup = "value=value.replace(/[^\d]/g,'')" type="text" value="<%=component[j].itemQuantity%>" id="requireNum<%=j%>" disabled style="height: 100%" ></a></span>
+                                                <span draggable="false" class="itemInfo" style="margin-left: 350px">备注：<a draggable="false" style="font-weight:normal;color: red; "><%=component[j].itemNote%></a></span>
+                                            </div>
+                                        </button>
+
+
+                                    </td>
+                                    <td draggable="false" style="width: 13%">
+                                        <table draggable="false" cellspacing="0" cellpadding="0" style="width: 100%">
+                                            <tr draggable="false">
+                                                <td draggable="false">
+                                                    <a draggable="false" name="editItemBtn" hidden><button class="itemButton4" style="height: 90px;border: 0" type="button" onclick="removeItem(<%=j%>)" ><img draggable="false" draggable="false" src='images/bin.png' height="30px" width="30px"></button></a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </li>
+
+                        <% }} else {%>
+                            此部件未添加物料
+                        <%}%>
+
+
+                    </ul>
+
+
+                </div>
+                <div style="margin-bottom: 10%">
+                    <a name="editItemBtn" hidden>
+                        <button class="searchInputBoxButton" type="button" onclick="saveEdit()" style="margin-top: 10px; margin-left:60%;border-bottom-left-radius: 0.3rem;border-top-left-radius: 0.3rem;">保存&emsp;BOM表</button>
+                    </a>
+                </div>
+
+
+
+                <!--            <div id="BomListRecord" style="display: none">-->
+                <!--            <table  style=";width: 100%;font-size: 1rem; background-color:rgb(250, 241, 247)!important; ">-->
+                <!--                <div style="margin-top: -45px;margin-bottom: 30px;font-weight: bold;font-size: 1.3rem;margin-left: 30px">一键出仓记录：</div>-->
+
+                <!--                <%for(let j = 0 ; j < 10 ; j++) { %>-->
+                <!--                <tr id="component<%=j%>"  >-->
+                <!--                    <td style="width: 87%!important;">-->
+                <!--                        <button class="noteButton"  style="padding-left: 80px;" type="button" onclick="location.href='/adBOMList'">-->
+                <!--                            <span class="itemInfo"  style=" font-size: 1rem;margin-left: -50px;color: #0050fa;   ">一键出仓</span>-->
+                <!--                            <div style="margin-left: 50px">-->
+                <!--                            <div  style= "font-size: 0.7rem; height: 30px; ">-->
+                <!--                                <span class="itemInfo" >日期：<a style="font-weight: normal;color: #0050fa;"></a></span>-->
+                <!--                                <span class="itemInfo" style="margin-left: 260px">申请人：<a style="font-weight:normal;color: #0050fa; "></a></span>-->
+                <!--                                <span class="itemInfo" style="margin-left: 530px">经办人：<a style="font-weight:normal;color: #0050fa; "></a></span>-->
+                <!--                            </div>-->
+                <!--                            <div  style= "font-size: 0.7rem; height: 30px; ">-->
+                <!--                                <span class="itemInfo" >报警：<a style="font-weight: normal;color: red;"></a></span>-->
+                <!--                            </div>-->
+
+                <!--                            <div  style= "font-size: 0.7rem; height: 30px;" id="">-->
+                <!--                                <span class="itemInfo" >备注：<a style="font-weight: normal;color: red;"></a></span>-->
+                <!--                            </div>-->
+                <!--                            </div>-->
+                <!--                        </button>-->
+                <!--                    </td>-->
+                <!--                </tr>-->
+                <!--                <% } %>-->
+                <!--            </table>-->
+                <!--            </div>-->
+            </div>
 
         </main>
     </div>
@@ -60,8 +837,8 @@
 
 
 
-
 <%- include('zFooter') %>
+
 
 </body>
 

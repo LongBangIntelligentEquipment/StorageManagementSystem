@@ -518,6 +518,138 @@ router.get('/adProductionMachineMan', function(req, res) {
 });
 
 
+//   ---从生产设备中增加部件---
+/* GET adProductionComponentAdd*/
+router.get('/adProductionComponentAdd', function(req, res) {
+    var url, machineId, categorySql, machineSql, machineName;
+    url = URL.parse(req.url,true).query;
+    machineId = url.machineId;
+    categorySql = 'SELECT categoryName FROM category;';
+    machineSql = 'SELECT machineName FROM p_machine WHERE machineId = ' + '"' + machineId + '"' +';';
+
+    connection.query(categorySql,function (err, categoryName) {
+        if (err) {
+            console.log('[SELECT ERROR] - ', err.message);
+            res.send('查找类别出错：' + '\n' + err);
+            return;
+        }
+        connection.query(machineSql,function (err, machine) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+                res.send('查找设备出错：' + '\n' + err);
+                return;
+            }
+            machineName = machine[0].machineName;
+            res.render('adProductionComponentAdd', {
+                user:req.session.user,
+                categoryName: categoryName,
+                machineName: machineName,
+                machineId: machineId
+            });
+        });
+    });
+});
+
+
+
+
+//   ---查找生产设备中的部件物料--- 详细页
+/* GET adProductionComponentMan */
+router.get('/adProductionComponentMan', function (req, res) {
+    let url = URL.parse(req.url, true).query;
+    // 部件有物料
+    let componentItemSql = 'SELECT * ' +
+        'FROM p_component\n' +
+        'INNER JOIN component_has_item\n' +
+        'ON component_has_item.component_componentId = component.componentId\n' +
+        'INNER JOIN machine\n' +
+        'ON component.machineId = machine.machineId\n' +
+        'INNER JOIN item\n' +
+        'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
+        'INNER JOIN category\n' +
+        'ON component.categoryId = category.categoryId\n' +
+        'INNER JOIN itemType\n' +
+        'ON item.itemTypeId = itemtype.itemTypeId\n' +
+        'INNER JOIN user\n' +
+        'ON component.userId = user.userId\n' +
+        'WHERE componentId =' + '\'' + url.componentId + '\'' + '\n' +
+        'ORDER BY itemOrderBy, itemType';
+    // 部件无物料
+    let componentSql = 'SELECT *'+
+        'FROM p_component\n' +
+        'LEFT JOIN category\n' +
+        'ON component.categoryId = category.categoryId\n' +
+        'INNER JOIN machine\n' +
+        'ON component.machineId = machine.machineId\n' +
+        'INNER JOIN user\n' +
+        'ON component.userId = user.userId\n' +
+        'WHERE componentId =' + '\'' + url.componentId + '\'';
+    let categorySql = 'SELECT * FROM category;';
+
+    let machineSql = 'SELECT * FROM machine;';
+
+
+    connection.query(machineSql,function (err,machine) {
+        if(err){
+            console.log('[SELECT ERROR] - ',err.message);
+            res.send('查找设备出错：' + '\n' + err);
+            return;
+        }
+        connection.query(categorySql, function (err, category) {
+            if (err) {
+                console.log('[SELECT ERROR] - ', err.message);
+                res.send(err);
+                return;
+            }
+            connection.query(componentItemSql, function (err, componentItem) {
+                if (err) {
+                    console.log('[SELECT ERROR] - ', err.message);
+                    res.send(err);
+                    return;
+                }
+                connection.query(categorySql,function (err, categoryName) {
+                    if (err) {
+                        console.log('[SELECT ERROR] - ', err.message);
+                        res.send('查找类别出错：' + '\n' + err);
+                        return;
+                    }
+
+                    if (componentItem.length === 0){
+                        connection.query(componentSql, function (err, component) {
+                            if (err) {
+                                console.log('[SELECT ERROR] - ', err.message);
+                                res.send(err);
+                                return;
+                            }
+                            if (component.length === 0){
+                                res.send("部件不存在!")
+                            } else {
+                                res.render('adProductionComponentMan', {
+                                    user: req.session.user,
+                                    category: category,
+                                    component: component,
+                                    categoryName: categoryName,
+                                    machine: machine,
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        res.render('adProductionComponentMan', {
+                            user: req.session.user,
+                            category: category,
+                            component: componentItem,
+                            categoryName: categoryName,
+                            machine: machine,
+                        });
+                    }
+                });
+            });
+        });
+    });
+});
+
+
 //
 // //   ---修改设备---
 // /* POST adBOMListMachineEdit Page */
