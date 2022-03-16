@@ -1400,36 +1400,23 @@ router.post('/adItemTemEnter', function(req, res, next) {
         });
     }
 
-    function addNotification(enterModel,addSqlInput) {
-        var countSql='SELECT * FROM notification';
-        var checkSql='SELECT * \n' +
+    function addNotification(enterModel, addSqlInput) {
+        let checkSql = 'SELECT itemId \n' +
             'FROM orderlist\n' +
-            'LEFT JOIN item\n' +
-            'ON orderlist.itemId = item.itemId\n' +
-            'LEFT JOIN item_one\n' +
-            'ON orderlist.orderId = item_one.orderId\n' +
-            'WHERE orderlist.orderId='+'\''+url.orderId+'\'';
-        var  itemId;
-        connection.query( checkSql,function (err, result0) {
+            'WHERE orderlist.orderId=' + '\'' + url.orderId + '\';';
+
+        var itemId;
+        connection.query(checkSql, function (err, result0) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
             }
-            connection.query( countSql,function (err, result1) {
+            itemId = result0[0].itemId;
+            var addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
+            var addSqlParams = [dateOutput, '采购事件更新', enterModel, addSqlInput, itemId, url.orderId];
+            connection.query(addSql, addSqlParams, function (err) {
                 if (err) {
-                    console.log('[SELECT ERROR] - ', err.message);
+                    console.log('[INSERT ERROR] - ', err.message);
                 }
-                var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
-                if (result0[0].itemId){
-                    itemId = result0[0].itemId;
-                } else {
-                    itemId = result0[0].itemOneId;
-                }
-                var  addSqlParams =[dateOutput, '采购事件更新',enterModel,addSqlInput,itemId,url.orderId ];
-                connection.query(addSql,addSqlParams,function (err) {
-                    if(err){
-                        console.log('[INSERT ERROR] - ',err.message);
-                    }
-                });
             });
         });
     }
@@ -1520,7 +1507,6 @@ router.get('/adItemEnter', function(req, res, next) {
 
 router.post('/adItemEnter', function(req, res, next) {
     var url=URL.parse(req.url,true).query;
-
     var  addSql = 'INSERT INTO record(itemId,type,date,manager,deliver,note,orderId,state,reason,applicant,returnee,num,exitDate,returnNum,price) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
 
     //console.log(dateOutput)
@@ -1539,6 +1525,9 @@ router.post('/adItemEnter', function(req, res, next) {
         } else {
             checkSql='SELECT * FROM orderlist,item WHERE orderlist.itemId=item.itemId AND orderId='+'\''+url.orderId+'\'';
         }
+
+        // console.log("orderId: " + orderId);
+        // console.log("url.itemId: " + url.itemId);
 
         connection.query(checkSql,function (err, result1) {
             if(err){
@@ -1667,9 +1656,10 @@ router.post('/adItemEnter', function(req, res, next) {
         var sec=parseInt(saveDate.getSeconds());
         var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
         var  addSqlParams = [url.itemId, '进仓',dateOutput, req.body.saveManager,req.body.saveDeliver,req.body.saveNote,orderId,'null','null','unll','null',req.body.saveNum,'1111-01-01 01:01:01',0, req.body.savePrice];
+        // console.log("addSqlParams: " + addSqlParams)
         connection.query(addSql,addSqlParams,function (err, result) {
             if(err){
-                console.log('[INSERT ERROR] - ',err.message);
+                console.log('[INSERT ERROR] - function itemEnter() ',err.message);
                 return;
             }
 
@@ -1716,41 +1706,23 @@ router.post('/adItemEnter', function(req, res, next) {
         }
 
         var dateOutput= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
-        console.log(dateOutput);
-        var countSql='SELECT * FROM notification';
-        var checkSql='SELECT * \n' +
+
+        let checkSql = 'SELECT itemId \n' +
             'FROM orderlist\n' +
-            'LEFT JOIN item\n' +
-            'ON orderlist.itemId = item.itemId\n' +
-            'LEFT JOIN item_one\n' +
-            'ON orderlist.orderId = item_one.orderId\n' +
-            'WHERE orderlist.orderId='+'\''+url.orderId+'\'';
-        var  itemId;
-        connection.query( checkSql,function (err, result0) {
+            'WHERE orderlist.orderId=' + '\'' + url.orderId + '\';';
+
+        var itemId;
+        connection.query(checkSql, function (err, result0) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
             }
-            connection.query( countSql,function (err, result1) {
+            itemId = result0[0].itemId;
+            var addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
+            var addSqlParams = [dateOutput, '采购事件更新', enterModel, addSqlInput, itemId, url.orderId];
+            connection.query(addSql, addSqlParams, function (err) {
                 if (err) {
-                    console.log('[SELECT ERROR] - ', err.message);
+                    console.log('[INSERT ERROR] - ', err.message);
                 }
-                var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
-                if (result0[0].itemId){
-                    itemId = result0[0].itemId;
-                } else {
-                    itemId = result0[0].itemOneId;
-                }
-                var  addSqlParams =[dateOutput, '采购事件更新',enterModel,addSqlInput,itemId,url.orderId ];
-               // console.log(addSqlParams)
-                connection.query(addSql,addSqlParams,function (err, result) {
-                    if(err){
-                        console.log('[INSERT ERROR] - ',err.message);
-                        return;
-                    }
-
-                });
-
-
             });
         });
     }
@@ -2272,6 +2244,8 @@ router.get('/adOrder', function(req, res, next) {
                 if (err) {
                     console.log('[SELECT ERROR] - ', err.message);
                 }
+                // console.log(notificationSql);
+                // console.log(notification);
                 res.render('adOrder', {
                     orderList: order,
                     notificationList : notification,
@@ -2281,7 +2255,7 @@ router.get('/adOrder', function(req, res, next) {
             });
         });
     } else {
-        sql = 'SELECT * FROM orderlist,item,itemstate WHERE item.itemId=itemstate.itemId AND orderlist.itemId=item.itemId AND orderlist.orderId=' + '\'' + url.orderId + '\'';
+        let sql = 'SELECT * FROM orderlist,item,itemstate WHERE item.itemId=itemstate.itemId AND orderlist.itemId=item.itemId AND orderlist.orderId=' + '\'' + url.orderId + '\'';
         connection.query(sql, function (err, result1) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
@@ -2302,6 +2276,7 @@ router.get('/adOrder', function(req, res, next) {
                     addNote('物料事件更新', result1[0].itemName, result1[0].itemId, '取消存在未检测状态');
                 }
 
+                // console.log(sql1);
                 // console.log(result2);
                 res.render('adOrder', {
                     orderList: result1,
@@ -2396,7 +2371,7 @@ router.post('/adOrder', function(req, res, next) {
 
                     var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
                     var  addSqlParams = [dateOutput, '采购事件更新','已下单',req.body.applyNum,result0[0].itemId,orderId];
-                    //console.log(addSqlParams)
+                    // console.log(addSqlParams)
                     connection.query(addSql,addSqlParams,function (err, result) {
                         if(err){
                             console.log('[INSERT ERROR] - ',err.message);
@@ -2697,39 +2672,22 @@ router.post('/adOrderFix', function(req, res, next) {
 
 
     function addNotification(enterModel,addSqlInput) {
-        var countSql='SELECT * FROM notification';
-        var checkSql='SELECT * \n' +
+        let checkSql = 'SELECT itemId \n' +
             'FROM orderlist\n' +
-            'LEFT JOIN item\n' +
-            'ON orderlist.itemId = item.itemId\n' +
-            'LEFT JOIN item_one\n' +
-            'ON orderlist.orderId = item_one.orderId\n' +
-            'WHERE orderlist.orderId='+'\''+url.orderId+'\'';
-        var  itemId;
-        connection.query( checkSql,function (err, result0) {
+            'WHERE orderlist.orderId=' + '\'' + url.orderId + '\';';
+
+        var itemId;
+        connection.query(checkSql, function (err, result0) {
             if (err) {
                 console.log('[SELECT ERROR] - ', err.message);
             }
-            connection.query( countSql,function (err, result1) {
+            itemId = result0[0].itemId;
+            var addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
+            var addSqlParams = [dateOutput, '采购事件更新', enterModel, addSqlInput, itemId, url.orderId];
+            connection.query(addSql, addSqlParams, function (err) {
                 if (err) {
-                    console.log('[SELECT ERROR] - ', err.message);
+                    console.log('[INSERT ERROR] - ', err.message);
                 }
-                var  addSql = 'INSERT INTO notification (noteDate,noteType,noteState,noteContent,itemId,orderId) VALUES(?,?,?,?,?,?)';
-                if (result0[0].itemId){
-                    itemId = result0[0].itemId;
-                } else {
-                    itemId = result0[0].itemOneId;
-                }
-                var  addSqlParams =[dateOutput, '采购事件更新',enterModel,addSqlInput,itemId,url.orderId ];
-                connection.query(addSql,addSqlParams,function (err, result) {
-                    if(err){
-                        console.log('[INSERT ERROR] - ',err.message);
-                        return;
-                    }
-
-                });
-
-
             });
         });
     }

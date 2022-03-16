@@ -212,10 +212,10 @@
                                                 <span class="MachineProductionInfo" style="margin-left: 355px;">周期：<a style="font-weight:normal;color: #0050fa; "><%=productionStart%>&nbsp;至&nbsp;<%=productionFinish%></a></span>
                                             </div>
                                             <div style="font-size: 0.7rem; height: 30px;" id="">
-                                                <span class="MachineProductionInfo" style="margin-left: 0px">出仓进度：<a style="font-weight: normal;color: #0050fa;">95.5%</a></span>
-                                                <span class="MachineProductionInfo" style="margin-left: 150px">质检进度：<a style="font-weight:normal;color: #0050fa; ">50.5%</a></span>
-                                                <span class="MachineProductionInfo" style="margin-left: 300px">任务进度：<a style="font-weight:normal;color: #0050fa; ">20.5%</a></span>
-                                                <span class="MachineProductionInfo" style="margin-left: 460px">总进度：<a style="font-weight:normal;color: #0050fa; ">80%</a></span>
+                                                <span class="MachineProductionInfo" style="margin-left: 0px">出仓进度：<a style="font-weight: normal;color: #0050fa;"><%=projectMachine[j].exitProgressRate * 100 %> % </a></span>
+                                                <span class="MachineProductionInfo" style="margin-left: 150px">质检进度：<a style="font-weight:normal;color: #0050fa; "><%=projectMachine[j].QCProgressRate * 100 %> % </a></span>
+                                                <span class="MachineProductionInfo" style="margin-left: 300px">任务进度：<a style="font-weight:normal;color: #0050fa; "><%=projectMachine[j].TaskProgressRate * 100 %> % </a></span>
+                                                <span class="MachineProductionInfo" style="margin-left: 460px">总进度：<a style="font-weight:normal;color: #0050fa; "><%=(projectMachine[j].exitProgressRate + projectMachine[j].QCProgressRate + projectMachine[j].TaskProgressRate) / 3 * 100 %>) % </a></span>
                                             </div>
                                     </button>
                                 </td>

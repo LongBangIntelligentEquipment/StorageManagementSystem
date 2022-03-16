@@ -382,8 +382,6 @@ router.post('/adProductionMachineAdd', async function (req, res) {
 
     async function addProductionMachine(machineId, addQtyIndex){
 
-
-
         let machine = await getBOMListMachine(machineId);
 
         let p_machineId, b_machineId, machineName, updateTime, productionStart, productionFinish,
@@ -408,6 +406,8 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         taskProgressRate = 0;
 
         let addSql = 'INSERT INTO p_machine(p_machineId, machineId, machineName, updateTime, productionStart, productionFinish, productionState, note, designer, machineCost, machineFileName, projectId, customerOrderId, exitProgressRate, QCProgressRate, taskProgressRate) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+        let addComponentSql = 'INSERT INTO p_component(p_machineId, componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManger, categoryId, cost, componentFileName) VALUES(?,?,?,?,?,?,?,?,?,?,?)';
+
 
         let eachAddQty = parseInt(addQty[addQtyIndex]);
         console.log("eachAddQty: " + eachAddQty);
@@ -418,6 +418,29 @@ router.post('/adProductionMachineAdd', async function (req, res) {
             // console.log(addSqlParams);
             await addProductionMachineDB(addSql,addSqlParams);
 
+            let components = await getBOMListComponent(machineId);
+
+            for (let component in components){
+                let componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManger, categoryId, cost, componentFileName;
+                componentId = component.componentId;
+                componentName = component.componentName;
+                componentModel = component.componentModel;
+                updateTime = component.updateTime;
+                componentState = "生产中";
+                componentNote = component.componentNote;
+                categoryId = component.categoryId;
+                cost = component.cost;
+                componentFileName = component.componentFileName;
+
+                componentProductionManger = "未知";
+
+                let addComponentSqlParams = [p_machineId, componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManger, categoryId, cost, componentFileName];
+
+                await addProductionComponentDB(addComponentSql,addComponentSqlParams);
+
+
+            }
+
 
             eachAddQty --;
         }
@@ -425,6 +448,19 @@ router.post('/adProductionMachineAdd', async function (req, res) {
 
 
 
+    }
+
+    function getBOMListMachine(machineId) {
+        let machineSql = 'SELECT * FROM machine WHERE machineId ="' + machineId + '";';
+        return new Promise((resolve, reject) => {
+            connection.query(machineSql, function (err, data) {
+                if (err) {
+                    console.log('[SELECT ERROR] - 查找设备错误！\n', err.message);
+                    reject(err);
+                }
+                resolve(data);
+            });
+        });
     }
 
     function addProductionMachineDB(addSql, addSqlParams) {
@@ -439,12 +475,24 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         });
     }
 
-    function getBOMListMachine(machineId) {
-        let machineSql = 'SELECT * FROM machine WHERE machineId ="' + machineId + '";';
+    function getBOMListComponent(machineId){
+        let componentSql = 'SELECT * FROM component WHERE machineId ="' + machineId + '";';
         return new Promise((resolve, reject) => {
-            connection.query(machineSql, function (err, data) {
+            connection.query(componentSql, function (err, data) {
                 if (err) {
-                    console.log('[SELECT ERROR] - 查找设备错误！\n', err.message);
+                    console.log('[SELECT ERROR] - getBOMListComponent 查找项目部件错误！\n', err.message);
+                    reject(err);
+                }
+                resolve(data);
+            });
+        });
+    }
+
+    function addProductionComponentDB(addSql, addSqlParams){
+        return new Promise((resolve, reject) => {
+            connection.query(addSql, addSqlParams, function (err, data) {
+                if (err) {
+                    console.log('[INSERT ERROR] - addProductionComponentDB 添加项目部件错误！\n', err.message);
                     reject(err);
                 }
                 resolve(data);
@@ -464,21 +512,27 @@ router.post('/adProductionMachineAdd', async function (req, res) {
 
     var projectId, machineId, addQty;
     projectId = req.body.belongProject;
-    machineId = req.body.machineId;
+    machineId = req.body.belongMachine;
     addQty = req.body.addQty;
 
     console.log(projectId)
     console.log(machineId)
     console.log(addQty)
 
+    if (machineId){
+        for (let i = 0; i < machineId.length; i++) {
+            await addProductionMachine(machineId[i],i);
 
-    for (let i = 0; i < machineId.length; i++) {
-        await addProductionMachine(machineId[i],i);
-
-        if (i === machineId.length){
-            res.redirect('/adProductionProjectMan');
+            if (i === machineId.length){
+                res.redirect('/adProductionProjectMan');
+            }
         }
+    } else {
+        await addProductionMachine(machineId,0);
+        res.redirect('/adProductionProjectMan');
+
     }
+
 
 
 });

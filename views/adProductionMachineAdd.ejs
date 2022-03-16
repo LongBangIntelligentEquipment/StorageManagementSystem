@@ -54,13 +54,13 @@
                 </div>
             </header>
 
-            <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data">
+            <form onsubmit="return confirmAgain()" method="post">
                 <div class="itemDetailsPage">
                     <div class="itemDetail">添加生产设备：</div>
                     <div class="itemDetail">所属项目 <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="belongProject" required="required" style="height: 35px;width: 440px;color:black;" >
                             <% for(let i = 0; i < project.length; i++) { %>
                             <%if(parseInt(project[i].projectId)===parseInt(url.projectId)){%>
-                            <option value="<%=project[i].projectName%>"><%=project[i].projectName%>&emsp;<%=project[i].projectCode%></option>
+                            <option value="<%=project[i].projectId%>"><%=project[i].projectName%>&emsp;<%=project[i].projectCode%></option>
                             <% break;}if(i+1===project.length){ %>
                             <option value="">请选择项目</option>
                             <%}%>
@@ -69,7 +69,7 @@
                             <% for(let j = 0; j < project.length; j++) { %>
                             <%if(parseInt(project[j].projectId)!==parseInt(url.projectId)){%>
 
-                            <option value="<%=project[j].projectName%>"><%=project[j].projectName%>&emsp;<%=project[j].projectCode%></option>
+                            <option value="<%=project[j].projectId%>"><%=project[j].projectName%>&emsp;<%=project[j].projectCode%></option>
                             <%}}%>
 
                         </select>
@@ -82,13 +82,13 @@
                             <input checked  type="checkbox" onchange="checkboxIsOn(this.id,<%=i%>)" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
                             <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
                         </div>
-                        <div id="addQtyDiv<%=i%>" style="margin-left: 45px" >添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="'+'Input" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"  >&emsp;台 </div>
+                        <div id="addQtyDiv<%=i%>" style="margin-left: 45px" >添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="addQty" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"  >&emsp;台 </div>
 
                         <%}else{%>
                             <input  type="checkbox" onchange="checkboxIsOn(this.id,<%=i%>)" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
                         <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
                     </div>
-                    <div id="addQtyDiv<%=i%>" style="margin-left: 45px" hidden>添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="'+'Input"  style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" disabled  >&emsp;台 </div>
+                    <div id="addQtyDiv<%=i%>" style="margin-left: 45px" hidden>添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="addQty"  style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" disabled  >&emsp;台 </div>
 
                     <%}%>
 
