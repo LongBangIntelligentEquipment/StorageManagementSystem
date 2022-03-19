@@ -4,7 +4,7 @@
     // BUG x2
     function confirmAgainDelete() {
         if (window.confirm("确认执行【删除设备 <%=machineComponents[0].machineId%>-<%=machineComponents[0].machineName%>】操作?")){
-            return location.href=('/adBOMListMachineDelete?machineId=<%=machineComponents[0].machineId%>')
+            return location.href=('/adProductionMachineDelete?p_machineId=<%=machineComponents[0].p_machineId%>&projectId=<%=machineComponents[0].projectId%>')
         }
     }
 
@@ -123,8 +123,8 @@
 
     //计算成本
     <%var machineCost = 0;%>
-    <%for(let i=0; i<machine.length; i++) {
-        machineCost += machine[i].componentCost;
+    <%for(let i=0; i<componentCount; i++) {
+        machineCost += machineComponents[i].componentCost;
     }%>
 
 </script>

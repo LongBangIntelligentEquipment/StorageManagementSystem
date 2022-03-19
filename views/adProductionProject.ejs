@@ -3,8 +3,8 @@
 
     //
     function confirmAgainDelete() {
-        if (window.confirm("确认执行【删除设备 <%=projectMachine[0].projectId%>-<%=projectMachine[0].projectName%>】操作?")){
-            return location.href=('/')
+        if (window.confirm("确认执行【删除项目 <%=projectMachine[0].projectCode%>-<%=projectMachine[0].projectName%>】操作?")){
+            return location.href=('/adProductionProjectDelete?projectId=<%=projectMachine[0].projectId%>')
         }
     }
 
