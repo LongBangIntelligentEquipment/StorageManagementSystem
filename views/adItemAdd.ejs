@@ -12,6 +12,20 @@
             }
         }
 
+        function ValidateValue(textbox) {
+            var IllegalString = "[`~!#$^&=|{}':;',\\[\\]<>/?~！#￥……&——|{}‘；：”“'。，、？@ ]‘’";
+            var textboxvalue = textbox.value;
+            var index = textboxvalue.length - 1;
+
+            var s = textbox.value.charAt(index);
+
+            if (IllegalString.indexOf(s) >= 0) {
+                s = textboxvalue.substring(0, index);
+                textbox.value = s;
+            }
+
+        }
+
 
     </script>
 
@@ -33,13 +47,8 @@
             </u1>
             <button class="functionBoard-Button" type="button" id="buttonRegister" onclick="location.href='/logout'" style="position: fixed;bottom: 6%;" >退出登录</button>
         </div>
-
-
-
-
-
     </div>
-    </div>
+
 
 
     <div class="functionBoard right">
@@ -57,10 +66,10 @@
             <form onsubmit="return confirmAgain()" method="post"  enctype="multipart/form-data">
                             <div class="itemDetailsPage" >
                                 <div class="itemDetail">添加新型物料：</div>
-                                <div class="itemDetail">供应商<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addSupplier" class="itemDetailsInput addItemInfo" id="detail1.0" required="required"  style="width: 490px" placeholder="请填写供应商名称"  ></div>
-                                <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addName" class="itemDetailsInput addItemInfo" id="detail1" required="required"  style="width: 510px" placeholder="请输入物料名称" ></div>
-                                <div class="itemDetail">规格<a style="color: red; font-size: x-large">*</a>：<input name="addSize" class="itemDetailsInput addItemInfo" id="detail2" required="required"   style="width: 510px" placeholder="请输入物料规格" ></div>
-                                <div class="itemDetail">型号（图号）：<input name="addModel" class="itemDetailsInput addItemInfo" id="detail2.1"    style="width: 445px" placeholder="有图号写图号,没图号写产品型号,都没有则不填" ></div>
+                                <div class="itemDetail">供应商<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addSupplier" class="itemDetailsInput addItemInfo" id="detail1.0" required="required"  style="width: 490px" placeholder="请填写供应商名称"  onkeyup="ValidateValue(this) "  ></div>
+                                <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addName" class="itemDetailsInput addItemInfo" id="detail1" required="required"  style="width: 510px" placeholder="请输入物料名称"  onkeyup="ValidateValue(this) "></div>
+                                <div class="itemDetail">规格<a style="color: red; font-size: x-large">*</a>：<input name="addSize" class="itemDetailsInput addItemInfo" id="detail2" required="required"   style="width: 510px" placeholder="请输入物料规格" onkeyup="ValidateValue(this) "></div>
+                                <div class="itemDetail">型号（图号）：<input name="addModel" class="itemDetailsInput addItemInfo" id="detail2.1"    style="width: 445px" placeholder="有图号写图号,没图号写产品型号,都没有则不填" onkeyup="ValidateValue(this) " ></div>
                                 <div class="itemDetail" >类型<a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addType" id="detail3" required="required"  style="height: 35px;width: 100px;color:black;" >
                                         <% for(let i = 0; i < itemTypes.length; i++) { %>
                                             <option value="<%= itemTypes[i].itemTypeId %>"><%= itemTypes[i].itemTypeName %></option>
@@ -70,13 +79,13 @@
                                         <button class="searchBarButton" onclick="location.href='/adItemTypeMan'" type="button" id="manageCategoryButton" style="background-color: #0050fa!important;width: 100px;margin-left:30px">管理分类</button>
                                     </span>
                                 </div>
-                                <div class="itemDetail">单位<a style="color: red; font-size: x-large">*</a>：<input required="required" name="addUnit" class="itemDetailsInput addItemInfo" id="detail5"   style="width: 100px"></div>
-                                <div class="itemDetail">区域<a style="color: red; font-size: x-large">*</a>：<input required="required" name="addArea" class="itemDetailsInput addItemInfo" id="detail4"  style="width: 100px; "></div>
-                                <div class="itemDetail">数量预警<a style="color: red; font-size: x-large">*</a>：<input required="required" name="addAlarmSetting" class="itemDetailsInput addItemInfo" id="detail5"  style="width: 60px"></div>
+                                <div class="itemDetail">单位<a style="color: red; font-size: x-large">*</a>：<input required="required" name="addUnit" class="itemDetailsInput addItemInfo" id="detail5"   style="width: 100px" onkeyup="ValidateValue(this) "></div>
+                                <div class="itemDetail">区域<a style="color: red; font-size: x-large">*</a>：<input required="required" name="addArea" class="itemDetailsInput addItemInfo" id="detail4"  style="width: 100px; " onkeyup="ValidateValue(this) "></div>
+                                <div class="itemDetail">数量预警<a style="color: red; font-size: x-large">*</a>：<input type="number" required="required" name="addAlarmSetting" class="itemDetailsInput addItemInfo" id="detail5"  style="width: 60px"></div>
 
                                 <div class="itemDetail">价格：<input name="addPrice" class="itemDetailsInput addItemInfo" id="detail6" type="number" min="0" step="0.01" style="width: 60px"></div>
 
-                                <div class="itemDetail" >备注：<input name="addNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" ></div>
+                                <div class="itemDetail" >备注：<input name="addNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 500px" onkeyup="ValidateValue(this) "></div>
                                 <div class="itemDetail" id="detail7" >上传图纸：<input name="addFileName" class="itemDetailsInput addItemInfo" type="file"   style="width: 462px"></div>
 
                             </div>

@@ -123,8 +123,8 @@
 
     //计算成本
     <%var machineCost = 0;%>
-    <%for(let i=0; i<machineComponents.length; i++) {
-        machineCost += machineComponents[i].componentCost;
+    <%for(let i=0; i<machine.length; i++) {
+        machineCost += machine[i].componentCost;
     }%>
 
 </script>
@@ -203,7 +203,7 @@
 
 
 
-                <div style="margin-top: 80px;margin-left: 30px">
+                <div style="margin-top: 140px;margin-left: 30px">
                     <a id="editButtonControl" hidden><button class="btn btn-block btn-submit button button--primary smaller" type="button" id="editButton" onclick="detailEditable()">编辑</button></a>
                     <a id="cancelEditButtonControl" hidden> <button class="btn btn-block btn-submit button button--primary smaller" type="button" id="" onclick="cancelDetailEditable()" style="background-color: #fa5000!important;" >取消编辑</button></a>
                     <style onload="Authority('系统管理员','#editButtonControl')"></style>
@@ -215,7 +215,7 @@
                     <style onload="Authority('系统管理员','#moveButtonControl')"></style>
                     <style onload="Authority('生产主管','#moveButtonControl')"></style>
                 </div>
-                <form method="post" enctype="multipart/form-data" onsubmit="return comfirmAgain()" action="">
+                <form method="post" enctype="multipart/form-data" onsubmit="return comfirmAgain()" action="" >
                     <div id="moveInputBox" hidden style="position: absolute;margin-top: -500px;width: 50%;height: 60%;margin-left: 15%;z-index: 999">
                         <div class="col-md" >
                             <div class="card" style="border-radius: 10px;overflow: hidden ">
@@ -250,7 +250,7 @@
                 </form>
 
 
-                <div class="pageCard" style="border-top: 0.1rem solid #404142; width: auto;margin-top: 150px">
+                <div class="pageCard" style="border-top: 0.1rem solid #404142; width: auto;margin-top: 200px">
                     <div  class="pageTitle" >
                         <div  style="font-weight: bold;width: 340px;font-size: 1.3rem;color: #404143">部件详情/操作记录:</div>
                         <input   type="checkbox" id="checkBoxSwitch" onchange="slideSwitch()" class="onoff sw1" style="background-color: transparent!important;margin-left: 225px;"  >
