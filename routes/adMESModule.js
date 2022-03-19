@@ -38,6 +38,22 @@ var upload = multer({
 
 
 
+//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------//
+/*******************************  function  *********************************************/
+function getDateTime(){
+    var saveDate, year, month, day, hour, min, sec, dateTime;
+    saveDate = new Date();
+    year = saveDate.getFullYear();
+    month = saveDate.getMonth() + 1;
+    day = saveDate.getDate();
+    hour = saveDate.getHours();
+    min = saveDate.getMinutes();
+    sec = saveDate.getSeconds();
+    dateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    return dateTime;
+}
 
 
 
@@ -279,7 +295,7 @@ router.get('/ajaxProductionMachines', function(req, res) {
                 '                                            <td style="width: 80%;">\n' +
                 '                                                <div class="noteButton" name="componentBtn" id="DSII-46F-ST256" value="0" style="padding-left: 80px;" type="button" onclick="">\n' +
                 '                                                    <div style="font-size: 0.7rem; height: 30px; ">\n' +
-                '                                                        <span class="MachineProductionInfo" style="margin-left: -50px;color: #0050fa;   ">设备&nbsp;1</span>\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: -50px;color: #0050fa;   ">设备&nbsp;'+ j + '</span>\n' +
                 '                                                        <span class="MachineProductionInfo" style="margin-left: 0px">名称：<a style="font-weight: normal;color: #0050fa;">' + machine[j].machineName + '</a></span>\n' +
                 '                                                        <span class="MachineProductionInfo" style="margin-left: 270px">型号：<a style="font-weight:normal;color: #0050fa; ">' + machine[j].machineId + j + '</a></span>\n' +
                 '                                                        <span class="MachineProductionInfo" style="margin-left: 460px">状态：<a style="font-weight:normal;color: #0050fa; ">' + machine[j].productionState + '</a></span>\n' +
@@ -359,7 +375,7 @@ router.post('/adProductionMachineAdd', async function (req, res) {
                     reject(err);
                 }
                 maxMachineCode = maxMachineCode[0].maxMachineCode;
-                console.log("maxMachineCode = " + maxMachineCode);
+                // console.log("maxMachineCode = " + maxMachineCode);
                 resolve(maxMachineCode);
             });
         });
@@ -376,25 +392,26 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         }
         formattedMachineCode = formattedMachineCode.toString().padStart(3, '0');
         formattedMachineCode = 'PM' + year + formattedMachineCode;
-        console.log("formattedMachineCode = " + formattedMachineCode);
+        // console.log("formattedMachineCode = " + formattedMachineCode);
         return formattedMachineCode;
     }
 
-    async function addProductionMachine(machineId, addQtyIndex){
-
+    async function addProductionMachine(machineId, addQtyIndex) {
         let machine = await getBOMListMachine(machineId);
 
         let p_machineId, b_machineId, machineName, updateTime, productionStart, productionFinish,
-        productionState, note, designer, machineCost, machineFileName, customerOrderId,
-        exitProgressRate,
-        QCProgressRate, taskProgressRate;
+            productionState, note, designer, machineCost, machineFileName, customerOrderId,
+            exitProgressRate,
+            QCProgressRate, taskProgressRate;
+        let year = new Date().getFullYear();
+        let today = getDateTime();
 
         p_machineId = 'PM' + year + '000';
         b_machineId = machine[0].machineId;
         machineName = machine[0].machineName;
-        updateTime = machine[0].updateTime;
-        productionStart = '2222-12-22';
-        productionFinish = '2222-12-22';
+        updateTime = today;
+        productionStart = today;
+        productionFinish = today;
         productionState = '审核中';
         note = machine[0].note;
         designer = machine[0].designer;
@@ -406,46 +423,47 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         taskProgressRate = 0;
 
         let addSql = 'INSERT INTO p_machine(p_machineId, machineId, machineName, updateTime, productionStart, productionFinish, productionState, note, designer, machineCost, machineFileName, projectId, customerOrderId, exitProgressRate, QCProgressRate, taskProgressRate) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-        let addComponentSql = 'INSERT INTO p_component(p_machineId, componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManger, categoryId, cost, componentFileName) VALUES(?,?,?,?,?,?,?,?,?,?,?)';
+        let addComponentSql = 'INSERT INTO p_component(p_machineId, componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManager, categoryId, cost, componentFileName) VALUES(?,?,?,?,?,?,?,?,?,?,?)';
 
-
-        let eachAddQty = parseInt(addQty[addQtyIndex]);
-        console.log("eachAddQty: " + eachAddQty);
-        while (eachAddQty > 0){
+        // console.log("eachAddQty: " + eachAddQty);
+        while (eachAddQty > 0) {
 
             p_machineId = await formatMachineCode();
             let addSqlParams = [p_machineId, b_machineId, machineName, updateTime, productionStart, productionFinish, productionState, note, designer, machineCost, machineFileName, projectId, customerOrderId, exitProgressRate, QCProgressRate, taskProgressRate];
             // console.log(addSqlParams);
-            await addProductionMachineDB(addSql,addSqlParams);
+            await addProductionMachineDB(addSql, addSqlParams);
 
             let components = await getBOMListComponent(machineId);
 
-            for (let component in components){
-                let componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManger, categoryId, cost, componentFileName;
-                componentId = component.componentId;
-                componentName = component.componentName;
-                componentModel = component.componentModel;
-                updateTime = component.updateTime;
+            console.log("components result:" + components);
+
+            for (let c in components) {
+                let componentId, componentName, componentModel, updateTime, componentState, componentNote,
+                    componentProductionManager, categoryId, cost, componentFileName;
+                componentId = components[c].componentId;
+                componentName = components[c].componentName;
+                componentModel = components[c].componentModel;
+                updateTime = components[c].updateTime;
                 componentState = "生产中";
-                componentNote = component.componentNote;
-                categoryId = component.categoryId;
-                cost = component.cost;
-                componentFileName = component.componentFileName;
+                componentNote = components[c].componentNote;
+                categoryId = components[c].categoryId;
+                cost = components[c].cost;
+                componentFileName = components[c].componentFileName;
 
-                componentProductionManger = "未知";
+                componentProductionManager = "未知";
 
-                let addComponentSqlParams = [p_machineId, componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManger, categoryId, cost, componentFileName];
+                let addComponentSqlParams = [p_machineId, componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManager, categoryId, cost, componentFileName];
 
-                await addProductionComponentDB(addComponentSql,addComponentSqlParams);
+                console.log("addComponentSqlParams: " + addComponentSqlParams)
+
+                await addProductionComponentDB(addComponentSql, addComponentSqlParams);
 
 
             }
 
 
-            eachAddQty --;
+            eachAddQty--;
         }
-
-
 
 
     }
@@ -475,7 +493,7 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         });
     }
 
-    function getBOMListComponent(machineId){
+    function getBOMListComponent(machineId) {
         let componentSql = 'SELECT * FROM component WHERE machineId ="' + machineId + '";';
         return new Promise((resolve, reject) => {
             connection.query(componentSql, function (err, data) {
@@ -488,7 +506,7 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         });
     }
 
-    function addProductionComponentDB(addSql, addSqlParams){
+    function addProductionComponentDB(addSql, addSqlParams) {
         return new Promise((resolve, reject) => {
             connection.query(addSql, addSqlParams, function (err, data) {
                 if (err) {
@@ -500,37 +518,30 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         });
     }
 
-    var saveDate, year, month, day, hour, min, sec, projectUpdateTime;
-    saveDate = new Date();
-    year = saveDate.getFullYear();
-    month = saveDate.getMonth() + 1;
-    day = saveDate.getDate();
-    hour = saveDate.getHours();
-    min = saveDate.getMinutes();
-    sec = saveDate.getSeconds();
-    projectUpdateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    // Main Function addProductionMachine
 
-    var projectId, machineId, addQty;
+    // let projectUpdateTime = getDateTime();
+    let projectId, machineId, addQty;
     projectId = req.body.belongProject;
     machineId = req.body.belongMachine;
     addQty = req.body.addQty;
+    let eachAddQty;
 
-    console.log(projectId)
     console.log(machineId)
     console.log(addQty)
 
-    if (machineId){
+    if (Array.isArray(projectId)) {
         for (let i = 0; i < machineId.length; i++) {
-            await addProductionMachine(machineId[i],i);
-
-            if (i === machineId.length){
+            eachAddQty = addQty[i];
+            await addProductionMachine(machineId[i], i);
+            if (i === machineId.length) {
                 res.redirect('/adProductionProjectMan');
             }
         }
     } else {
-        await addProductionMachine(machineId,0);
+        eachAddQty = addQty;
+        await addProductionMachine(machineId, 1);
         res.redirect('/adProductionProjectMan');
-
     }
 
 
@@ -540,35 +551,108 @@ router.post('/adProductionMachineAdd', async function (req, res) {
 
 //   ---查找生产设备详细---
 /* GET adProductionMachineMan */
-router.get('/adProductionMachineMan', function(req, res) {
-    let url=URL.parse(req.url,true).query;
-    let projectSql = 'SELECT * FROM project;';
-    let machineSql = 'SELECT * FROM p_machine WHERE p_machineId= \''+url.p_machineId+'\'';
-    let userSql = 'SELECT userName,role FROM user;';
-    connection.query(userSql, function (err, users) {
-        if (err) {
-            console.log('[SELECT ERROR] - ', err.message);
-            res.send(err);
-            return;
-        }
+router.get('/adProductionMachineMan', async function(req, res) {
 
-        connection.query(projectSql, function (err, project) {
-            connection.query(machineSql, function (err, machine) {
+    function getProductionMachineComponents(){
+        return new Promise((resolve, reject) => {
+            let machineComponentSql =
+                'SELECT p_machine.machineId, p_machine.p_machineId, machineName, p_machine.updateTime AS mUpdateTime, productionStart, productionFinish, productionState, \n' +
+                'p_machine.note AS mNote, designer, machineCost, customerOrderId, exitProgressRate, QCProgressRate, TaskProgressRate,\n' +
+                'componentModel, componentName, p_component.updateTime AS cUpdateTime, componentNote AS cNote, cost AS componentCost, componentProductionManager, categoryName\n' +
+                'FROM p_component\n' +
+                'INNER JOIN p_machine\n' +
+                'ON p_component.p_machineId = p_machine.P_machineId\n' +
+                'INNER JOIN category\n' +
+                'ON p_component.categoryId = category.categoryId\n' +
+                'WHERE p_machine.p_machineId =  "'+ machineId +'"\n' +
+                'ORDER BY category.categoryId;'
+
+            connection.query(machineComponentSql, function (err, machineComponents) {
                 if (err) {
-                    console.log('[SELECT ERROR] - ', err.message);
-                    res.send('查找设备出错：' + '\n' + err);
-                    return;
+                    console.log('[SELECT ERROR] - getProductionMachine\n', err.message);
+                    reject();
                 }
-                res.render('adProductionMachineMan', {
-                    user: req.session.user,
-                    project: project,
-                    machine: machine,
-                    url: url,
-                    users:users
-                });
+                resolve(machineComponents);
             });
         });
-    });
+    }
+
+    function getProductionMachine(){
+        return new Promise((resolve, reject) => {
+            let machineSql =
+                'SELECT p_machine.machineId, p_machine.p_machineId, machineName, p_machine.updateTime AS mUpdateTime, productionStart, productionFinish, productionState, \n' +
+                'p_machine.note AS mNote, designer, machineCost, customerOrderId, exitProgressRate, QCProgressRate, TaskProgressRate,\n' +
+                'FROM p_machine\n' +
+                'WHERE p_machine.p_machineId =  "'+ machineId +'"'
+
+            connection.query(machineSql, function (err, machine) {
+                if (err) {
+                    console.log('[SELECT ERROR] - getProductionMachine\n', err.message);
+                    reject();
+                }
+                resolve(machine);
+            });
+        });
+    }
+
+    function getUsers(){
+        return new Promise((resolve, reject) => {
+            let userSql = 'SELECT userName,role FROM user;';
+
+            connection.query(userSql, function (err, users) {
+                if (err) {
+                    console.log('[SELECT ERROR] - getProductionMachine\n', err.message);
+                    reject();
+                }
+                resolve(users);
+            });
+        });
+    }
+
+    function getProjects(){
+        return new Promise((resolve, reject) => {
+            let projectSql = 'SELECT * FROM project;';
+            connection.query(projectSql, function (err, projects) {
+                if (err) {
+                    console.log('[SELECT ERROR] - getProductionMachine\n', err.message);
+                    reject();
+                }
+                resolve(projects);
+            });
+        });
+    }
+
+
+    let url=URL.parse(req.url,true).query;
+    let machineId = url.p_machineId;
+
+    let machineComponents = getProductionMachineComponents();
+    let users = getUsers();
+    let project = getProjects();
+
+    // await Promise.all([machineComponent, users, projects]);
+
+    machineComponents = await machineComponents;
+    users = await users;
+    project = await project;
+
+    let componentCount = machineComponents.length;
+
+    if (machineComponents[0].componentModel === undefined){
+        machineComponents = await getProductionMachine();
+        componentCount = 0;
+    }
+
+
+
+    res.render('adProductionMachineMan', {
+        user: req.session.user,
+        machineComponents: machineComponents,
+        componentCount: componentCount,
+        project: project,
+        url: url,
+        users: users
+    })
 });
 
 
