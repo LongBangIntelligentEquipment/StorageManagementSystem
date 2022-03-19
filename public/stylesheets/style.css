@@ -594,7 +594,7 @@ footer {
 .noteButton4:hover{
   background-color: #fff6d6 !important;
   border-radius: 0px;
-  width: 115.5%;
+  width: 101%;
 }
 
 
@@ -923,4 +923,15 @@ li{
 li:hover{
 
   list-style-image: url("../images/order1.png") ;
+}
+
+.progressBar{
+  line-height: 200%;
+  text-align: center;
+  color: white;height: 50px;
+}
+
+.smallBoxInLine{
+  margin-right: 20px;
+
 }

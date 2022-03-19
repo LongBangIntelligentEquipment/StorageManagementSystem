@@ -5,6 +5,20 @@
             return window.confirm("确认执行【添加新型设备】操作?");
         }
 
+        function ValidateValue(textbox) {
+            var IllegalString = "[`~!#$^&=|{}':;',\\[\\]<>/?~！#￥……&——|{}‘；：”“'。，、？@ ]‘’";
+            var textboxvalue = textbox.value;
+            var index = textboxvalue.length - 1;
+
+            var s = textbox.value.charAt(index);
+
+            if (IllegalString.indexOf(s) >= 0) {
+                s = textboxvalue.substring(0, index);
+                textbox.value = s;
+            }
+
+        }
+
 
     </script>
 
@@ -28,8 +42,8 @@
             <form onsubmit="return confirmAgain()" method="post" enctype="multipart/form-data">
                 <div class="itemDetailsPage">
                     <div class="itemDetail">创建新设备：</div>
-                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="detail1" style="width: 500px" placeholder="请输入设备名称" required></div>
-                    <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="detail2" style="width: 500px" placeholder="请输入设备型号" required></div>
+                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="detail1" style="width: 500px" placeholder="请输入设备名称" required onkeyup="ValidateValue(this) "></div>
+                    <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="detail2" style="width: 500px" placeholder="请输入设备型号" required onkeyup="ValidateValue(this) "></div>
                     <div class="itemDetail">设计工程师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="detail3" required="required" style="height: 35px;width: 130px;color:black;" >
                             <% for(let i = 0; i < users.length; i++) { %>
                                 <% if (users[i].role === '技术员' || users[i].role === '系统管理员') { %>
@@ -37,7 +51,7 @@
                             <% }} %>
                         </select>
                     </div>
-                    <div class="itemDetail">备注：<input name="addMachineNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 510px"></div>
+                    <div class="itemDetail">备注：<input name="addMachineNote" class="itemDetailsInput addItemInfo" id="detail6" style="width: 510px" onkeyup="ValidateValue(this) "></div>
                     <div class="itemDetail" id="updateFile">上传图片：<input class="itemDetailsInput addItemInfo" type="file"  name="machineFileName" value="" style="width: 470px">
                         <div style="color: red">请上传图片格式文件</div>
                     </div>

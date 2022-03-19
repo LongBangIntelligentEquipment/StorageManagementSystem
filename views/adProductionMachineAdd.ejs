@@ -22,15 +22,37 @@
         var actAddQtyDiv='#'+'addQtyDiv'+num
         var actMachineQty='#'+'machineQty'+num
 
+        var startDateDiv='#'+'startDateDiv'+num
+        var startDate='#'+'startDate'+num
+
+        var endDateDiv='#'+'endDateDiv'+num
+        var endDate='#'+'endDate'+num
+
         if(document.getElementById(objectId).checked){
             $(actAddQtyDiv).removeAttr('hidden')
             $(actMachineQty).attr('required','required')
             $(actMachineQty).removeAttr('disabled')
+
+            $(startDateDiv).removeAttr('hidden')
+            $(startDate).attr('required','required')
+            $(startDate).removeAttr('disabled')
+
+            $(endDateDiv).removeAttr('hidden')
+            $(endDate).attr('required','required')
+            $(endDate).removeAttr('disabled')
         }else{
             $(actAddQtyDiv).attr('hidden','hidden')
             $(actMachineQty).removeAttr('required')
-
             $(actMachineQty).attr('disabled','disabled')
+
+            $(startDateDiv).attr('hidden','hidden')
+            $(startDate).removeAttr('required')
+            $(startDate).attr('disabled','disabled')
+
+            $(endDateDiv).attr('hidden','hidden')
+            $(endDate).removeAttr('required')
+            $(endDate).attr('disabled','disabled')
+
         }
     }
 
@@ -82,13 +104,17 @@
                             <input checked  type="checkbox" onchange="checkboxIsOn(this.id,<%=i%>)" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
                             <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
                         </div>
-                        <div id="addQtyDiv<%=i%>" style="margin-left: 45px" >添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="addQty" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"  >&emsp;台 </div>
+                        <div id="addQtyDiv<%=i%>" style="margin-left: 45px" >添加数量<a style="color: red; font-size: x-large">*</a>：<input type="number" id="machineQty<%=i%>" class="itemDetailsInput" name="addQty" required style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;"  onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')">&emsp;台 </div>
+                        <div id="startDateDiv<%=i%>" class="itemDetail" style="margin-left: 45px" >开始时间<a style="color: red; font-size: x-large">*</a>：<input id="startDate<%=i%>"  class="itemDetailsInput addItemInfo" type="date" name="projectStartDate" style="height: 35px;width: 35%" required></div>
+                        <div id="endDateDiv<%=i%>" class="itemDetail" style="margin-left: 45px" >结束时间<a style="color: red; font-size: x-large">*</a>：<input id="endDate<%=i%>" class="itemDetailsInput addItemInfo" type="date" name="projectFinishDate" style="height: 35px;width: 35%" required></div>
 
                         <%}else{%>
                             <input  type="checkbox" onchange="checkboxIsOn(this.id,<%=i%>)" value="<%=machine[i].machineId%>" name="belongMachine" id="<%=machine[i].machineId%>">
                         <label style="width: 80%" for="<%=machine[i].machineId%>"><%=machine[i].machineName%>&emsp;<%=machine[i].machineId%></label>
                     </div>
-                    <div id="addQtyDiv<%=i%>" style="margin-left: 45px" hidden>添加数量：<input id="machineQty<%=i%>" class="itemDetailsInput" name="addQty"  style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" disabled  >&emsp;台 </div>
+                    <div id="addQtyDiv<%=i%>" style="margin-left: 45px" hidden>添加数量<a style="color: red; font-size: x-large">*</a>：<input type="number" id="machineQty<%=i%>" class="itemDetailsInput" name="addQty"  style="width: 80px;outline: none; padding-left: 10px; border-radius: 0.3rem; padding-bottom: 3px; border:1.8px solid #0050fa;background-color: rgb(232, 240, 254) !important;" disabled onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" >&emsp;台 </div>
+                    <div id="startDateDiv<%=i%>" class="itemDetail" style="margin-left: 45px" hidden >开始时间<a style="color: red; font-size: x-large">*</a>：<input id="startDate<%=i%>" class="itemDetailsInput addItemInfo" type="date" name="projectStartDate" style="height: 35px;width: 35%"  disabled></div>
+                    <div id="endDateDiv<%=i%>" class="itemDetail" style="margin-left: 45px" hidden>结束时间<a style="color: red; font-size: x-large">*</a>：<input id="endDate<%=i%>" class="itemDetailsInput addItemInfo" type="date" name="projectFinishDate" style="height: 35px;width: 35%" disabled></div>
 
                     <%}%>
 

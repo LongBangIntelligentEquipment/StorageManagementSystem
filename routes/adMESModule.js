@@ -704,6 +704,18 @@ router.get('/adProductionComponentMan', function (req, res) {
 });
 
 
+//   ---质检页面---
+/* GET adProductionComponentQC */
+router.get('/adProductionComponentQC', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    res.render('adProductionComponentQC', {
+        user: req.session.user,
+        url:url
+    });
+
+});
+
+
 //
 // //   ---修改设备---
 // /* POST adBOMListMachineEdit Page */
