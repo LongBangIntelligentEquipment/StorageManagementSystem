@@ -53,6 +53,7 @@
             let action = 'inactive'; //Check if current action is going on or not. If not then inactive otherwise active
             function load_country_data(limit, start)
             {
+
                 $.ajax({
                     url:'./AjaxFetchOrder',
                     method:"GET",
@@ -60,8 +61,10 @@
                         'limit':limit,
                         'start':start
                     },
+
                     success:function(data)
                     {
+
                         $('#load_data').append(data);
                         if(data === '')
                         {
@@ -147,7 +150,7 @@
 
                     </div>
 
-                    <div style="margin-left: 30px;color: #0050fa; font-weight: bold; font-size: small; ">订单数量：<%= orderCount %></div>
+                    <div style="margin-left: 30px;color: #0050fa; font-weight: bold; font-size: small; ">采购订单数量：<%= orderCount %></div>
 
                     <div id="load_data">
                     </div>

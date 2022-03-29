@@ -1128,7 +1128,12 @@ router.get('/qrCodePrint', function(req, res, next) {
 
     var url=URL.parse(req.url,true).query;
 
-    var sql='SELECT * FROM item,itemstate where item.itemId=itemstate.itemId AND item.itemId='+'\''+url.itemId+'\'';
+    var sql= 'SELECT * FROM item \n' +
+        'JOIN itemstate ON item.itemId=itemstate.itemId\n' +
+        'JOIN itemtype ON item.itemTypeId = itemtype.itemTypeId\n' +
+        'WHERE item.itemId = "' + url.itemId + '";\n';
+
+
 
     router.get('/create_qrcode', function (req, res, next) {
         var text = req.query.text;
@@ -1993,7 +1998,7 @@ router.get('/adItemReturnSelect', function(req, res, next) {
 /* GET adOrderMan*/
 router.get('/adOrderMan', function(req, res, next) {
     var sql='SELECT COUNT(orderId) AS orderCount FROM orderlist;'
-
+    var url=URL.parse(req.url,true).query;
     connection.query( sql,function (err, orderCount) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
@@ -2001,7 +2006,7 @@ router.get('/adOrderMan', function(req, res, next) {
         res.render('adOrderMan', {
             orderCount: orderCount[0].orderCount,
             user:req.session.user,
-            isFetch: true
+            isFetch: true,
         });
     });
 });
@@ -2011,24 +2016,29 @@ router.get('/AjaxFetchOrder', function(req, res) {
     const limit = req.query.limit;
     const start = req.query.start;
 
-    let sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,' +
-        'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,' +
-        'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel,\n' +
-        'CASE  \n' +
-        'WHEN state = \'申请中\' OR state = \'已下单\' OR state = \'有退回\' OR (state = \'已到货\' AND getNum+pendingNum != totalNum) THEN 1\n' +
-        'WHEN (state = \'已到货\' AND getNum+pendingNum = totalNum)\n' +
-        ' THEN 2\n' +
-        'WHEN state = \'已取消\'  THEN 3\n' +
-        'WHEN state = \'已拒绝\'  THEN 4\n' +
-        'WHEN state = \'已完成\' THEN 5\n' +
-        'END AS order_param\n' +
-        'FROM orderlist\n' +
-        'LEFT JOIN item\n' +
-        'ON orderlist.itemId = item.itemId\n' +
-        'LEFT JOIN item_one\n' +
-        'ON orderlist.orderId = item_one.orderId\n' +
-        'ORDER BY  order_param,commingDate DESC,orderDate ASC\n' +
-        'LIMIT ' + start + ',' + limit;
+    var  sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,' +
+            'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel,\n' +
+            'CASE  \n' +
+            'WHEN state = \'申请中\'  THEN 1\n' +
+            'WHEN state = \'已下单\'  THEN 2\n' +
+            'WHEN state = \'有退回\'  THEN 3\n' +
+            'WHEN (state = \'已到货\' AND getNum+pendingNum != totalNum)THEN 4\n'+
+            'WHEN (state = \'已到货\' AND getNum+pendingNum = totalNum)THEN 5\n'+
+            'WHEN state = \'已取消\'  THEN 6\n' +
+            'WHEN state = \'已拒绝\'  THEN 7\n' +
+            'WHEN state = \'已完成\' THEN 8\n' +
+            'END AS order_param\n' +
+            'FROM orderlist\n' +
+            'LEFT JOIN item\n' +
+            'ON orderlist.itemId = item.itemId\n' +
+            'LEFT JOIN item_one\n' +
+            'ON orderlist.orderId = item_one.orderId\n' +
+            'ORDER BY  order_param,commingDate DESC,orderDate ASC\n' +
+            'LIMIT ' + start + ',' + limit;
+
+
+
 
     function getOrderURL(orderId){return "location.href='/adOrder?orderId=" + orderId + "'";}
 
@@ -2099,7 +2109,7 @@ router.get('/AjaxFetchOrder', function(req, res) {
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
                 '                                        <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;">'+orderList[i].itemName + orderList[i].oneItemName+'</a></span>\n' +
                 '                                        <span class="itemInfo" style="margin-left: 170px">型号（图号）：<a style="font-weight:normal;color: #0050fa; ">'+orderList[i].itemModel + orderList[i].oneItemModel+'</a></span>\n' +
-                '                                        <span class="itemInfo" style="margin-left: 480px">订单数量：<a style="font-weight:normal;color: #0050fa; ">'+orderList[i].totalNum+'</a></span>\n' +
+                '                                        <span class="itemInfo" style="margin-left: 480px">收货数量：<a style="font-weight:normal;color: #0050fa; ">'+orderList[i].getNum+'/'+orderList[i].totalNum+'</a></span>\n' +
                 '                                    </div>\n' +
                 '                                    <div  style= "font-size: 0.7rem; height: 30px; ">\n' +
                 '                                        <span class="itemInfo"  >供货商：<a style="font-weight: normal;color: #0050fa;">'+orderList[i].itemSupplier + orderList[i].oneItemSupplier+'</a></span>\n' +
@@ -2186,16 +2196,18 @@ router.post('/adOrderMan', function(req, res, next) {
     }
 
     if (sql === undefined){
-        sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,' +
-            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,' +
+        sql='SELECT orderlist.orderId, state, applyDate, commingDate, orderDate, item.itemId, applyNote, replyNote, orderlist.totalNum, getNum, pendingNum,\n' +
+            'IFNULL(item.itemModel,"") AS itemModel, IFNULL(item.itemName,"") AS itemName, IFNULL(item.itemSupplier,"") AS itemSupplier,\n' +
             'IFNULL(item_one.itemSupplier,"") AS oneItemSupplier, IFNULL(item_one.itemName,"") AS oneItemName, IFNULL(item_one.itemModel,"") AS oneItemModel,\n' +
             'CASE  \n' +
-            'WHEN state = \'申请中\' OR state = \'已下单\' OR state = \'有退回\' OR (state = \'已到货\' AND getNum+pendingNum != totalNum) THEN 1\n' +
-            'WHEN (state = \'已到货\' AND getNum+pendingNum = totalNum)\n' +
-            ' THEN 2\n' +
-            'WHEN state = \'已取消\'  THEN 3\n' +
-            'WHEN state = \'已拒绝\'  THEN 4\n' +
-            'WHEN state = \'已完成\' THEN 5\n' +
+            'WHEN state = \'申请中\'  THEN 1\n' +
+            'WHEN state = \'已下单\'  THEN 2\n' +
+            'WHEN state = \'有退回\'  THEN 3\n' +
+            'WHEN (state = \'已到货\' AND getNum+pendingNum != totalNum)THEN 4\n'+
+            'WHEN (state = \'已到货\' AND getNum+pendingNum = totalNum)THEN 5\n'+
+            'WHEN state = \'已取消\'  THEN 6\n' +
+            'WHEN state = \'已拒绝\'  THEN 7\n' +
+            'WHEN state = \'已完成\' THEN 8\n' +
             'END AS order_param\n' +
             'FROM orderlist\n' +
             'LEFT JOIN item\n' +
@@ -2205,16 +2217,16 @@ router.post('/adOrderMan', function(req, res, next) {
             'ORDER BY  order_param,commingDate DESC,orderDate ASC'
     }
 
-    // console.log(sql);
-    connection.query( sql,function (err, result) {
+   // console.log(sql);
+
+
+    connection.query( sql,function (err, orderList) {
         if (err) {
             console.log('[SELECT ERROR] - ', err.message);
         }
-
         res.render('adOrderManFilter', {
-            orderList:result,
             user:req.session.user,
-            orderCount: result.length,
+            orderList:orderList
         });
     });
 

@@ -275,10 +275,10 @@
                                         <div  style= "font-size: 0.7rem; height: 30px; ">
                                             <span class="itemInfo" >名称：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].itemName%></a></span>
                                             <span class="itemInfo" style="margin-left: 170px">型号（图号）：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].itemId%></a></span>
-                                            <span class="itemInfo" style="margin-left: 480px">订单数量：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].totalNum%></a></span>
+                                            <span class="itemInfo" style="margin-left: 480px">收货数量：<a style="font-weight:normal;color: #0050fa; "><%=orderList[i].getNum%>/<%=orderList[i].totalNum%></a></span>
                                         </div>
                                         <div  style= "font-size: 0.7rem; height: 30px; ">
-                                            <span class="itemInfo"  >供货商：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].supplier%></a></span>
+                                            <span class="itemInfo"  >供货商：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].itemSupplier%></a></span>
                                             <span class="itemInfo" style="margin-left: 170px">申请备注：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].applyNote%></a></span>
                                             <span class="itemInfo" style="margin-left: 480px" >审批备注：<a style="font-weight: normal;color: #0050fa;"><%=orderList[i].replyNote%></a></span>
                                         </div>

@@ -545,6 +545,20 @@
             }
         }
 
+        function ValidateValue(textbox) {
+            var IllegalString = "[`~!#$^&=|{}':;',\\[\\]<>/?~！#￥……&——|{}‘；：”“'。，、？@ ]‘’";
+            var textboxvalue = textbox.value;
+            var index = textboxvalue.length - 1;
+
+            var s = textbox.value.charAt(index);
+
+            if (IllegalString.indexOf(s) >= 0) {
+                s = textboxvalue.substring(0, index);
+                textbox.value = s;
+            }
+
+        }
+
 
     </script>
 
@@ -576,7 +590,7 @@
                                 <a style="margin-top: 5px;font-size: 1.2rem;color:  #0050fa;"  href="/adBOMListMachineMan?machineId=<%=component[0].machineId%>"><%=component[0].machineName%><br><%=component[0].machineId%></a>
                                 <div class="itemDetail">部件信息：</div>
                                 <div class="itemDetail">名称：<input class="itemDetailsInput" name="BomListName" id="detail0" value="<%=component[0].componentName%>" disabled></div>
-                                <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=component[0].componentModel%>" disabled></div>
+                                <div class="itemDetail">图号：<input class="itemDetailsInput" name="BomListModel" id="detail1" value="<%=component[0].componentModel%>"  disabled></div>
                                 <div class="itemDetail" id="typeSelect">类型：<select class="itemDetailsInput" name="BomListType" id="detail2" required="required" disabled style="height: 35px;width: 130px;" >
                                         <option value="<%=component[0].categoryId%>" selected><%=component[0].categoryName%></option>
                                         <%for(let i = 0; i < category.length; i++) { %>
@@ -590,7 +604,7 @@
                                     </select>
                                 </div>
 
-                                <div class="itemDetail">制表人：<input class="itemDetailsInput" name="BomListMaker"  value="<%=component[0].userName%>" disabled ></div>
+                                <div class="itemDetail">制表人：<input class="itemDetailsInput" name="BomListMaker"  value="<%=component[0].userName%>" onkeyup="ValidateValue(this) "  disabled ></div>
                                 <div class="itemDetail" >更新日期：<input class="itemDetailsInput" name="BomListUpdateTime"  value="<%=component[0].updateTime.getFullYear()%>-<%=component[0].updateTime.getMonth()+1%>-<%=component[0].updateTime.getDate()%>" disabled ></div>
                                 <div class="itemDetail" id="componentCostRow" hidden >部件成本：<input class="itemDetailsInput" name="BomListCost" value="<%=componentCost%>元" disabled ></div>
                                 <style onload="Authority('系统管理员','#componentCostRow')"></style>
@@ -636,8 +650,8 @@
                             <div class="card-body"  style="height: 400px;overflow:auto ;padding: 0px ">
                                 <div  class="itemDetailsPage" style="width: 100%">
                                     <div class="itemDetail">复制部件：<a id="showComponentName"></a>&emsp;<input class="itemDetailsInput" id="copyComponentId" value="" disabled></div>
-                                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="copyDetail1" value=""   style="width: 500px" placeholder="请输入部件名称" ></div>
-                                    <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="copyDetail2"   value=""  style="width: 500px" placeholder="请输入部件图号" ></div>
+                                    <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="addComponentName" class="itemDetailsInput addItemInfo" id="copyDetail1" value=""   style="width: 500px" placeholder="请输入部件名称" onkeyup="ValidateValue(this)"></div>
+                                    <div class="itemDetail">图号<a style="color: red; font-size: x-large">*</a>：<input name="addComponentModel" class="itemDetailsInput addItemInfo" id="copyDetail2"   value=""  style="width: 500px" placeholder="请输入部件图号" onkeyup="ValidateValue(this)"></div>
                                     <div class="itemDetail" id="typeSelect">类型：
                                         <select class="itemDetailsInput addItemInfo" disabled name="BomListType" id="copyDetail3"   style="height: 35px;width: 130px;" >
                                             <option value="<%=component[0].categoryId%>" selected><%=component[0].categoryName%></option>

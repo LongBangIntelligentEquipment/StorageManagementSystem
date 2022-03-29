@@ -708,10 +708,27 @@ router.get('/adProductionComponentMan', function (req, res) {
 /* GET adProductionComponentQC */
 router.get('/adProductionComponentQC', function(req, res) {
     let url=URL.parse(req.url,true).query;
-    res.render('adProductionComponentQC', {
-        user: req.session.user,
-        url:url
+    var qcTableSql='SELECT * FROM qctable'
+
+    connection.query(qcTableSql,function (err,qcTable) {
+        if(err){
+            console.log('[SELECT ERROR] - ',err.message);
+            res.send('查找设备出错：' + '\n' + err);
+            return;
+        }
+
+        var QCfomatJsonStr =JSON.parse(JSON.stringify(eval('(' + qcTable[0].format + ')')))
+        //console.log(testStr)
+        //var jsonStr = JSON.parse(JsonStr)
+        //console.log(jsonStr)
+        res.render('adProductionComponentQC', {
+            user: req.session.user,
+            url:url,
+            qcTable:qcTable,
+            QCfomatJsonStr:QCfomatJsonStr
+        });
     });
+
 
 });
 

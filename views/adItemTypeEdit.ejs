@@ -11,6 +11,20 @@
         function confirmAgain() {
             return window.confirm("确认执行【修改新分类】操作?");
         }
+
+        function ValidateValue(textbox) {
+            var IllegalString = "[`~!#$^&=|{}':;',\\[\\]<>/?~！#￥……&——|{}‘；：”“'。，、？@ ]‘’";
+            var textboxvalue = textbox.value;
+            var index = textboxvalue.length - 1;
+
+            var s = textbox.value.charAt(index);
+
+            if (IllegalString.indexOf(s) >= 0) {
+                s = textboxvalue.substring(0, index);
+                textbox.value = s;
+            }
+
+        }
     </script>
 
 
@@ -36,7 +50,7 @@
             <form onsubmit="return confirmAgain()" method="post" >
                 <div class="itemDetailsPage" >
                     <div class="itemDetail">修改分类：</div>
-                    <div class="itemDetail" style="margin-top: 10px">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="editItemTypeName" class="itemDetailsInput addItemInfo" required="required" value="<%=itemType.itemTypeName%>" style="width: 500px" placeholder="请输入分类名称" ></div>
+                    <div class="itemDetail" style="margin-top: 10px">名称<a style="color: red; font-size: x-large">*</a>：<input type="text" name="editItemTypeName" class="itemDetailsInput addItemInfo" required="required" value="<%=itemType.itemTypeName%>" style="width: 500px" placeholder="请输入分类名称" onkeyup="ValidateValue(this)"></div>
                 </div>
                 <button class="btn btn-block btn-submit button button--primary smaller" type="submit" id="confirmButton"  style=" height: 50px;width: 555px;background-color: #00cb46!important;margin-top: 15px; margin-left: 30px">保存修改分类</button>
             </form>

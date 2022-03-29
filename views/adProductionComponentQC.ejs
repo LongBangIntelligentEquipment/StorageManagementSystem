@@ -1,8 +1,12 @@
 <%- include('zHeader') %>
 <script language="javascript">
+     function test() {
+         var a='<%=QCfomatJsonStr[0] %>'
+         alert(a)
+     }
 </script>
 
-<body id="bodyPage">
+<body id="bodyPage" onload="test()">
 <div id="blankCover" style="position: absolute;background-color: rgba(255,255,255,0.5);width: 100%;height: 100%;z-index: 998" hidden></div>
 
 <section class="functionBoard" style="height: 100%">
@@ -22,25 +26,26 @@
             </header>
 
 
-            <table cellpadding="0"cellspacing="0"  class="itemDetailsPage">
+            <table cellpadding="0"cellspacing="0"  class="itemDetailsPage" style="width: 100%">
                 <tr>
                     <td >
                         <div  style="width: 100%;height: 380px;font-size: 1.16rem   ">
-                            <table style="width: 100%;">
+                            <table style="width: 80%;">
                                 <tr>
                                     关联订单：BO2022001
                                 </tr>
                                 <tr>
                                     <td>
-                                        <div class="itemDetail">设备信息：<br>PM2022001<br>双主轴双排刀46全防护（上通定制）<br>DSII-46F-ST</div>
+                                        <div class="itemDetail">设备信息：</div>
+                                        <div class="itemDetail" style="margin-top: -30px;margin-left: 20px"><br>双主轴双排刀46全防护（上通定制）<br>DSII-46F-ST<br>PM2022001</div>
                                     </td>
                                     <td style="width: 30%;">
-                                        <div class="itemDetail">部件信息：<br>PC2022001<br>测试部件1<br>TestComponent1</div>
+                                        <div class="itemDetail">部件信息：</div>
+                                        <div class="itemDetail" style="margin-top: -30px;margin-left: 20px"><br>测试部件1<br>TestComponent1<br>PC2022001</div>
                                     </td>
                                 </tr>
-
                             </table>
-                            <table style="width: 100%;">
+                            <table style="width: 80%;">
                                 <tr>
                                     <td>
                                         <div class="itemDetail">检验标准：Q/LB01.2-2020</div>
@@ -51,14 +56,14 @@
                                 </tr>
                             </table>
                             <div class="itemDetail">质检进度：</div>
-                            <div class="progressBar" style="background-image: linear-gradient(90deg, #ffcc00 20%, #838383 0%);border: 3px solid #ffcc00;">20%</div>
+                            <div class="progressBar" style="background-image: linear-gradient(90deg, #ffcc00 20%, #838383 0%);border: 3px solid #ffcc00;width:90%">20%</div>
                         </div>
                     </td>
                 </tr>
             </table>
 
 
-            <div class="pageCard" style="border-top: 0.1rem solid #404142; width: auto;margin-top: -80px;height: 100%">
+            <div class="pageCard" style="border-top: 0.1rem solid #404142; margin-top: -60px;height: 100%;width: 100%">
                 <div  class="pageTitle" >
                     <div  style="font-weight: bold;width: 340px;font-size: 1.3rem;color: #404143">质检内容:</div>
                 </div>
@@ -66,31 +71,45 @@
 
 
                 <%for(var i=0;i<5;i++){%>
-                <table class="noteButton4" style="height: 100%">
-                    <tr>
-                        <td style="width: 200px">
-                            内容<%=i%> <br>导轨直线高低（a）
+                <table class="noteButton4" style="width: 100%;height: 100%">
+                    <tr style="width: 100%;height: 100%">
+                        <td style="width: 15%">
+                            <div style="margin-left: 10px;font-weight: bold;" >内容<%=i+1%> <br>导轨直线高低（a）</div>
+                        </td>
+                        <td style="width: 100%;height: 100%">
+                            <div style="padding: 1%;width: 100%;height: 100%">
+
+                                <%for(var j=0;j<5;j++){%>
+                                    <%if(true){%>
+                                        <a class="smallBoxInLine" style="display: inline-block;width: 27%;margin: 0.5% ">
+                                            <span style="font-weight: bold">参考允差(mm/m)：</span>0.02
+                                        </a>
+                                    <%}%>
+                                <%}%>
+
+                                    <a class="smallBoxInLine" style="display: inline-block;width: 27%;margin: 0.5%">
+                                    <span style="font-weight: bold">结果：</span><input class="normalInputBox" >
+                                    </a>
+                                    <a class="smallBoxInLine" style="display: inline-block;width: 27%;margin: 0.5%">
+                                        <span style="font-weight: bold">装配员：</span><input class="normalInputBox"  placeholder="Felix" >
+                                    </a>
+
+                                <a class="smallBoxInLine" style="display: inline-block;width: 27%;margin: 0.5%">
+                                    <span style="font-weight: bold">检测日期：</span>2022-11-17
+                                </a>
+                                <a class="smallBoxInLine" style="display: inline-block;width: 27%;margin: 0.5%">
+                                    <span style="font-weight: bold">质检员：</span>Felix
+                                </a>
+                                <a class="smallBoxInLine" style="display: inline-block;width: 27%;margin: 0.5%">
+                                    <span style="font-weight: bold">状态：</span>未检测/合格
+                                </a>
+                                <a class="smallBoxInLine" style="display: inline-block;width:90%;margin: 0.5%">
+                                    <span style="font-weight: bold">备注：</span> 阿 啊啊啊啊 阿啊啊阿阿阿阿阿啊啊
+                                </a>
+                            </div>
                         </td>
                         <td>
-                            <div >
-                                <div style="padding: 1%">
-                                    <span class="smallBoxInLine">
-                                        参考允差：0.02mm/m
-                                    </span>
-                                    <span class="smallBoxInLine">
-                                        结果：<input>
-                                    </span>
-                                    <span class="smallBoxInLine">
-                                        装配员：<input  placeholder="Felix">
-                                    </span>
-                                    <span class="smallBoxInLine">
-                                        完成日期：2022-11-17
-                                    </span>
-                                    <span class="smallBoxInLine">
-                                        备注：阿阿阿啊啊阿 阿 啊啊啊啊 阿啊啊阿阿阿阿阿啊啊
-                                    </span>
-                                </div>
-                            </div>
+
                         </td>
                     </tr>
                 </table>

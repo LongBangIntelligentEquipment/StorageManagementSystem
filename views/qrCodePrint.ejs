@@ -66,16 +66,15 @@
                         <td >
 
                             <div style="width: 450px;margin-top: 30px">
-                                <div class="itemDetail" style="font-size: xx-large;margin-bottom: 5px">物料编号：<input class="itemDetailsInput" id="detail2" value="<%=itemList[0].itemId%>" disabled="true"></div>
-                                <div class="itemDetail" style="font-size: xx-large;margin-bottom: 5px">型号(图号)：<input class="itemDetailsInput" id="detail3" value="<%=itemList[0].itemModel%>" disabled="true"></div>
-                                <div class="itemDetail" style="font-size: xx-large;margin-bottom: 15px" >类型：<%=itemList[0].itemType%></div>
-                                <div class="itemDetail" style="font-size: xx-large;margin-bottom: 15px">区域：<%=itemList[0].itemArea%></div>
-                                <div class="itemDetail" style="font-size: xx-large;margin-bottom: 15px" >备注：<input class="itemDetailsInput" id="detail6" value="<%=itemList[0].itemNote%>" disabled="true" ></div>
-
+                                <div style="width: 800px;font-size: xx-large;margin-bottom: 5px;height: 50px">物料编号：<%=itemList[0].itemId%></div>
+                                <div style="width: 800px;font-size: xx-large;margin-bottom: 5px;height: 50px">型号(图号)：<%=itemList[0].itemModel%></div>
+                                <div style="width: 800px;font-size: xx-large;margin-bottom: 5px;height: 50px">类型：<%=itemList[0].itemTypeName%></div>
+                                <div style="width: 800px;font-size: xx-large;margin-bottom: 5px;height: 50px">区域：<%=itemList[0].itemArea%></div>
+                                <div style="width: 800px;font-size: xx-large;margin-bottom: 5px;height: 50px">备注：<%=itemList[0].itemNote%></div>
                             </div>
                         </td>
                         <td>
-                            <div style="margin-left: -35px;margin-top: -20px">
+                            <div style="margin-left: 350px;">
                                 <img src="/create_qrcode?text=http://192.168.0.127:3000/adItem?itemId=<%=itemList[0].itemId%>&returnSql='+document.URL.split('sql=')[1]" height="320px" width="320px">
                             </div>
 

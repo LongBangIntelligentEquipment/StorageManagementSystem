@@ -172,6 +172,19 @@
                 document.getElementsByClassName(className)[k].innerHTML = text;
             }
         }
+
+        function ValidateValue(textbox) {
+            var IllegalString = "[`~!#$^&=|{}':;',\\[\\]<>/?~！#￥……&——|{}‘；：”“'。，、？@ ]‘’";
+            var textboxvalue = textbox.value;
+            var index = textboxvalue.length - 1;
+
+            var s = textbox.value.charAt(index);
+
+            if (IllegalString.indexOf(s) >= 0) {
+                s = textboxvalue.substring(0, index);
+                textbox.value = s;
+            }
+        }
     </script>
 
 
@@ -203,8 +216,8 @@
                                 <div class="card-body" id="itemBox" style="height: 400px;overflow:auto ;padding: 0px ">
                                     <div class="itemDetailsPage" style="width: 100%;margin-left: 3%;margin-top: 5%">
                                         <div class="itemDetail">复制设备：<a id="showMachineName"></a>&emsp;<input class="itemDetailsInput" name="copyMachineModel" id="copyMachineId" value="" disabled></div>
-                                        <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="addMachineName" style="width: 80%" placeholder="请输入设备名称" required></div>
-                                        <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="addMachineModel" style="width: 80%" placeholder="请输入设备型号" required></div>
+                                        <div class="itemDetail">名称<a style="color: red; font-size: x-large">*</a>：<input name="addMachineName" class="itemDetailsInput addItemInfo" id="addMachineName" style="width: 80%" placeholder="请输入设备名称" onkeyup="ValidateValue(this)" required ></div>
+                                        <div class="itemDetail">型号<a style="color: red; font-size: x-large">*</a>：<input name="addMachineModel" class="itemDetailsInput addItemInfo" id="addMachineModel" style="width: 80%" placeholder="请输入设备型号" onkeyup="ValidateValue(this)" required></div>
                                         <div class="itemDetail">设计师: <a style="color: red; font-size: x-large">*</a>：<select class="itemDetailsInput addItemInfo" name="addMachineDesigner" id="itemDetailsInput" required="required" style="height: 35px;color:black;" >
                                                 <option id="designer" value="" selected>请选择设计师</option>
                                                 <% for(let i = 0; i < users.length; i++) { %>

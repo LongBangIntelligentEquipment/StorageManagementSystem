@@ -191,6 +191,20 @@
             }
         }
 
+        function ValidateValue(textbox) {
+            var IllegalString = "[`~!#$^&=|{}':;',\\[\\]<>/?~！#￥……&——|{}‘；：”“'。，、？@ ]‘’";
+            var textboxvalue = textbox.value;
+            var index = textboxvalue.length - 1;
+
+            var s = textbox.value.charAt(index);
+
+            if (IllegalString.indexOf(s) >= 0) {
+                s = textboxvalue.substring(0, index);
+                textbox.value = s;
+            }
+
+        }
+
 
 
     </script>
@@ -221,10 +235,10 @@
                         <td >
                             <div style="width: 450px;margin-top: -10px">
                                 <div class="itemDetail">详细信息：</div>
-                                <div class="itemDetail">供应商：<input class="itemDetailsInput" name="updateSupplier" id="detail0" value="<%=item[0].itemSupplier%>" disabled ></div>
-                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="updateName" id="detail1" value="<%=item[0].itemName%>" disabled ></div>
-                                <div class="itemDetail">物料编号：<input class="itemDetailsInput" name="updateId" id="detail2" value="<%=item[0].itemId%>" placeholder="<%=item[0].itemId%>" disabled></div>
-                                <div class="itemDetail">型号（图号）：<input class="itemDetailsInput" name="updateModel" id="detail3" value="<%=item[0].itemModel%>" placeholder="<%=item[0].itemModel%>" disabled></div>
+                                <div class="itemDetail">供应商：<input class="itemDetailsInput" name="updateSupplier" id="detail0" value="<%=item[0].itemSupplier%>" onkeyup="ValidateValue(this) "  disabled ></div>
+                                <div class="itemDetail">名称：<input class="itemDetailsInput" name="updateName" id="detail1" value="<%=item[0].itemName%>" onkeyup="ValidateValue(this) "  disabled ></div>
+                                <div class="itemDetail">物料编号：<input class="itemDetailsInput" name="updateId" id="detail2" value="<%=item[0].itemId%>" placeholder="<%=item[0].itemId%>" onkeyup="ValidateValue(this) "  disabled></div>
+                                <div class="itemDetail">型号（图号）：<input class="itemDetailsInput" name="updateModel" id="detail3" value="<%=item[0].itemModel%>" placeholder="<%=item[0].itemModel%>" onkeyup="ValidateValue(this) "  disabled></div>
                                 <div class="itemDetail" >类型：<select class="itemDetailsInput" name="updateType" id="detail4" disabled style="width: 100px;color:black;">
                                         <option value="<%=item[0].itemTypeId%>"><%=item[0].itemTypeName%></option>
                                         <% for(let i = 0; i < itemTypes.length; i++) { %>
@@ -240,7 +254,7 @@
                                     </select></div>
                                 <div class="itemDetail" >库存总数：<span id="totalNum"><%=item[0].itemNum%></span><%=item[0].itemUnit%></div>
                                 <div class="itemDetail">临时进仓总数：<span style="color: orange"><%=item[0].itemTemNum%></span><%=item[0].itemUnit%></div>
-                                <div id="fixUnit" style="display:  none" ><span>修改单位为：<input class="itemDetailsInput" name="updateUnit" id="detail-1" value="<%=item[0].itemUnit%>" disabled style="width: 50px" ></span></div>
+                                <div id="fixUnit" style="display:  none" ><span>修改单位为：<input class="itemDetailsInput" name="updateUnit" id="detail-1" value="<%=item[0].itemUnit%>"  disabled style="width: 50px" ></span></div>
                                 <div class="itemDetail">区域：<input class="itemDetailsInput" name="updateArea" id="detail5" value="<%=item[0].itemArea%>" disabled></div>
                                 <div class="itemDetail" id="price" style="display: none">购入价：<input class="itemDetailsInput" name="updatePrice" id="detail9" type="number" min="0" step="0.01" value="<%=item[0].itemPrice%>" disabled></div>
                                 <style onload="Authority('系统管理员','price')"></style>
