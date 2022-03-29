@@ -38,6 +38,22 @@ var upload = multer({
 
 
 
+//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------//
+/*******************************  function  *********************************************/
+function getDateTime(){
+    var saveDate, year, month, day, hour, min, sec, dateTime;
+    saveDate = new Date();
+    year = saveDate.getFullYear();
+    month = saveDate.getMonth() + 1;
+    day = saveDate.getDate();
+    hour = saveDate.getHours();
+    min = saveDate.getMinutes();
+    sec = saveDate.getSeconds();
+    dateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    return dateTime;
+}
 
 
 
@@ -142,7 +158,7 @@ router.get('/adProductionProjectDelete', function(req, res) {
             res.send('[DELETE ERROR] - 删除项目错误！\n ' + err);
             return;
         }
-        res.redirect('/adBOMListCategoryMan')
+        res.redirect('/adProductionProjectMan')
     });
 });
 
@@ -279,7 +295,7 @@ router.get('/ajaxProductionMachines', function(req, res) {
                 '                                            <td style="width: 80%;">\n' +
                 '                                                <div class="noteButton" name="componentBtn" id="DSII-46F-ST256" value="0" style="padding-left: 80px;" type="button" onclick="">\n' +
                 '                                                    <div style="font-size: 0.7rem; height: 30px; ">\n' +
-                '                                                        <span class="MachineProductionInfo" style="margin-left: -50px;color: #0050fa;   ">设备&nbsp;1</span>\n' +
+                '                                                        <span class="MachineProductionInfo" style="margin-left: -50px;color: #0050fa;   ">设备&nbsp;'+ j + '</span>\n' +
                 '                                                        <span class="MachineProductionInfo" style="margin-left: 0px">名称：<a style="font-weight: normal;color: #0050fa;">' + machine[j].machineName + '</a></span>\n' +
                 '                                                        <span class="MachineProductionInfo" style="margin-left: 270px">型号：<a style="font-weight:normal;color: #0050fa; ">' + machine[j].machineId + j + '</a></span>\n' +
                 '                                                        <span class="MachineProductionInfo" style="margin-left: 460px">状态：<a style="font-weight:normal;color: #0050fa; ">' + machine[j].productionState + '</a></span>\n' +
@@ -359,7 +375,7 @@ router.post('/adProductionMachineAdd', async function (req, res) {
                     reject(err);
                 }
                 maxMachineCode = maxMachineCode[0].maxMachineCode;
-                console.log("maxMachineCode = " + maxMachineCode);
+                // console.log("maxMachineCode = " + maxMachineCode);
                 resolve(maxMachineCode);
             });
         });
@@ -376,25 +392,26 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         }
         formattedMachineCode = formattedMachineCode.toString().padStart(3, '0');
         formattedMachineCode = 'PM' + year + formattedMachineCode;
-        console.log("formattedMachineCode = " + formattedMachineCode);
+        // console.log("formattedMachineCode = " + formattedMachineCode);
         return formattedMachineCode;
     }
 
-    async function addProductionMachine(machineId, addQtyIndex){
-
+    async function addProductionMachine(machineId, addQtyIndex) {
         let machine = await getBOMListMachine(machineId);
 
         let p_machineId, b_machineId, machineName, updateTime, productionStart, productionFinish,
-        productionState, note, designer, machineCost, machineFileName, customerOrderId,
-        exitProgressRate,
-        QCProgressRate, taskProgressRate;
+            productionState, note, designer, machineCost, machineFileName, customerOrderId,
+            exitProgressRate,
+            QCProgressRate, taskProgressRate;
+        let year = new Date().getFullYear();
+        let today = getDateTime();
 
         p_machineId = 'PM' + year + '000';
         b_machineId = machine[0].machineId;
         machineName = machine[0].machineName;
-        updateTime = machine[0].updateTime;
-        productionStart = '2222-12-22';
-        productionFinish = '2222-12-22';
+        updateTime = today;
+        productionStart = today;
+        productionFinish = today;
         productionState = '审核中';
         note = machine[0].note;
         designer = machine[0].designer;
@@ -406,46 +423,47 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         taskProgressRate = 0;
 
         let addSql = 'INSERT INTO p_machine(p_machineId, machineId, machineName, updateTime, productionStart, productionFinish, productionState, note, designer, machineCost, machineFileName, projectId, customerOrderId, exitProgressRate, QCProgressRate, taskProgressRate) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-        let addComponentSql = 'INSERT INTO p_component(p_machineId, componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManger, categoryId, cost, componentFileName) VALUES(?,?,?,?,?,?,?,?,?,?,?)';
+        let addComponentSql = 'INSERT INTO p_component(p_machineId, componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManager, categoryId, cost, componentFileName) VALUES(?,?,?,?,?,?,?,?,?,?,?)';
 
-
-        let eachAddQty = parseInt(addQty[addQtyIndex]);
-        console.log("eachAddQty: " + eachAddQty);
-        while (eachAddQty > 0){
+        // console.log("eachAddQty: " + eachAddQty);
+        while (eachAddQty > 0) {
 
             p_machineId = await formatMachineCode();
             let addSqlParams = [p_machineId, b_machineId, machineName, updateTime, productionStart, productionFinish, productionState, note, designer, machineCost, machineFileName, projectId, customerOrderId, exitProgressRate, QCProgressRate, taskProgressRate];
             // console.log(addSqlParams);
-            await addProductionMachineDB(addSql,addSqlParams);
+            await addProductionMachineDB(addSql, addSqlParams);
 
             let components = await getBOMListComponent(machineId);
 
-            for (let component in components){
-                let componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManger, categoryId, cost, componentFileName;
-                componentId = component.componentId;
-                componentName = component.componentName;
-                componentModel = component.componentModel;
-                updateTime = component.updateTime;
+            console.log("components result:" + components);
+
+            for (let c in components) {
+                let componentId, componentName, componentModel, updateTime, componentState, componentNote,
+                    componentProductionManager, categoryId, cost, componentFileName;
+                componentId = components[c].componentId;
+                componentName = components[c].componentName;
+                componentModel = components[c].componentModel;
+                updateTime = components[c].updateTime;
                 componentState = "生产中";
-                componentNote = component.componentNote;
-                categoryId = component.categoryId;
-                cost = component.cost;
-                componentFileName = component.componentFileName;
+                componentNote = components[c].componentNote;
+                categoryId = components[c].categoryId;
+                cost = components[c].cost;
+                componentFileName = components[c].componentFileName;
 
-                componentProductionManger = "未知";
+                componentProductionManager = req.session.user;
 
-                let addComponentSqlParams = [p_machineId, componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManger, categoryId, cost, componentFileName];
+                let addComponentSqlParams = [p_machineId, componentId, componentName, componentModel, updateTime, componentState, componentNote, componentProductionManager, categoryId, cost, componentFileName];
 
-                await addProductionComponentDB(addComponentSql,addComponentSqlParams);
+                console.log("addComponentSqlParams: " + addComponentSqlParams)
+
+                await addProductionComponentDB(addComponentSql, addComponentSqlParams);
 
 
             }
 
 
-            eachAddQty --;
+            eachAddQty--;
         }
-
-
 
 
     }
@@ -475,7 +493,7 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         });
     }
 
-    function getBOMListComponent(machineId){
+    function getBOMListComponent(machineId) {
         let componentSql = 'SELECT * FROM component WHERE machineId ="' + machineId + '";';
         return new Promise((resolve, reject) => {
             connection.query(componentSql, function (err, data) {
@@ -488,7 +506,7 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         });
     }
 
-    function addProductionComponentDB(addSql, addSqlParams){
+    function addProductionComponentDB(addSql, addSqlParams) {
         return new Promise((resolve, reject) => {
             connection.query(addSql, addSqlParams, function (err, data) {
                 if (err) {
@@ -500,75 +518,157 @@ router.post('/adProductionMachineAdd', async function (req, res) {
         });
     }
 
-    var saveDate, year, month, day, hour, min, sec, projectUpdateTime;
-    saveDate = new Date();
-    year = saveDate.getFullYear();
-    month = saveDate.getMonth() + 1;
-    day = saveDate.getDate();
-    hour = saveDate.getHours();
-    min = saveDate.getMinutes();
-    sec = saveDate.getSeconds();
-    projectUpdateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+    // Main Function addProductionMachine
 
-    var projectId, machineId, addQty;
+    // let projectUpdateTime = getDateTime();
+    let projectId, machineId, addQty;
     projectId = req.body.belongProject;
     machineId = req.body.belongMachine;
     addQty = req.body.addQty;
+    let eachAddQty;
 
-    console.log(projectId)
     console.log(machineId)
     console.log(addQty)
 
-    if (machineId){
+    if (Array.isArray(projectId)) {
         for (let i = 0; i < machineId.length; i++) {
-            await addProductionMachine(machineId[i],i);
-
-            if (i === machineId.length){
+            eachAddQty = addQty[i];
+            await addProductionMachine(machineId[i], i);
+            if (i === machineId.length) {
                 res.redirect('/adProductionProjectMan');
             }
         }
     } else {
-        await addProductionMachine(machineId,0);
+        eachAddQty = addQty;
+        await addProductionMachine(machineId, 1);
         res.redirect('/adProductionProjectMan');
-
     }
-
-
-
 });
+
+//   ---删除生产设备---
+/* POST adProductionMachineDelete */
+router.get('/adProductionMachineDelete', function(req, res) {
+    let url=URL.parse(req.url,true).query;
+    const p_machineId = url.p_machineId;
+    const projectId = url.projectId;
+    let delSql = 'DELETE FROM p_machine WHERE p_machineId = "' + p_machineId + '";';
+    console.log(delSql);
+    connection.query(delSql,function (err) {
+        if(err){
+            console.log('[DELETE ERROR] - 删除生产设备错误！\n ', err.message);
+            res.send('[DELETE ERROR] - 删除生产设备错误！\n ' + err);
+            return;
+        }
+        res.redirect('/adProductionProject?projectId='+projectId);
+    });
+});
+
+//   ---修改生产设备详细---
 
 
 //   ---查找生产设备详细---
 /* GET adProductionMachineMan */
-router.get('/adProductionMachineMan', function(req, res) {
-    let url=URL.parse(req.url,true).query;
-    let projectSql = 'SELECT * FROM project;';
-    let machineSql = 'SELECT * FROM p_machine WHERE p_machineId= \''+url.p_machineId+'\'';
-    let userSql = 'SELECT userName,role FROM user;';
-    connection.query(userSql, function (err, users) {
-        if (err) {
-            console.log('[SELECT ERROR] - ', err.message);
-            res.send(err);
-            return;
-        }
+router.get('/adProductionMachineMan', async function(req, res) {
 
-        connection.query(projectSql, function (err, project) {
-            connection.query(machineSql, function (err, machine) {
+    function getProductionMachineComponents(){
+        return new Promise((resolve, reject) => {
+            let machineComponentSql =
+                'SELECT p_machine.machineId, p_machine.p_machineId, machineName, p_machine.updateTime AS mUpdateTime, productionStart, productionFinish, productionState, \n' +
+                'p_machine.note AS mNote, designer, machineCost, customerOrderId, exitProgressRate, QCProgressRate, TaskProgressRate, projectId,\n' +
+                'componentModel, componentName, p_component.updateTime AS cUpdateTime, componentNote AS cNote, cost AS componentCost, componentProductionManager, categoryName\n' +
+                'FROM p_component\n' +
+                'INNER JOIN p_machine\n' +
+                'ON p_component.p_machineId = p_machine.P_machineId\n' +
+                'INNER JOIN category\n' +
+                'ON p_component.categoryId = category.categoryId\n' +
+                'WHERE p_machine.p_machineId =  "'+ machineId +'"\n' +
+                'ORDER BY category.categoryId;'
+
+            connection.query(machineComponentSql, function (err, machineComponents) {
                 if (err) {
-                    console.log('[SELECT ERROR] - ', err.message);
-                    res.send('查找设备出错：' + '\n' + err);
-                    return;
+                    console.log('[SELECT ERROR] - getProductionMachine\n', err.message);
+                    reject();
                 }
-                res.render('adProductionMachineMan', {
-                    user: req.session.user,
-                    project: project,
-                    machine: machine,
-                    url: url,
-                    users:users
-                });
+                resolve(machineComponents);
             });
         });
-    });
+    }
+
+    function getProductionMachine(){
+        return new Promise((resolve, reject) => {
+            let machineSql =
+                'SELECT p_machine.machineId, p_machine.p_machineId, machineName, p_machine.updateTime AS mUpdateTime, productionStart, productionFinish, productionState, \n' +
+                'p_machine.note AS mNote, designer, machineCost, customerOrderId, exitProgressRate, QCProgressRate, TaskProgressRate, projectId,\n' +
+                'FROM p_machine\n' +
+                'WHERE p_machineId =  "'+ machineId +'"'
+
+            connection.query(machineSql, function (err, machine) {
+                if (err) {
+                    console.log('[SELECT ERROR] - getProductionMachine\n', err.message);
+                    reject();
+                }
+                resolve(machine);
+            });
+        });
+    }
+
+    function getUsers(){
+        return new Promise((resolve, reject) => {
+            let userSql = 'SELECT userName,role FROM user;';
+
+            connection.query(userSql, function (err, users) {
+                if (err) {
+                    console.log('[SELECT ERROR] - getProductionMachine\n', err.message);
+                    reject();
+                }
+                resolve(users);
+            });
+        });
+    }
+
+    function getProjects(){
+        return new Promise((resolve, reject) => {
+            let projectSql = 'SELECT * FROM project;';
+            connection.query(projectSql, function (err, projects) {
+                if (err) {
+                    console.log('[SELECT ERROR] - getProductionMachine\n', err.message);
+                    reject();
+                }
+                resolve(projects);
+            });
+        });
+    }
+
+
+    let url=URL.parse(req.url,true).query;
+    let machineId = url.p_machineId;
+
+    let machineComponents = getProductionMachineComponents();
+    let users = getUsers();
+    let project = getProjects();
+
+    // await Promise.all([machineComponent, users, projects]);
+
+    machineComponents = await machineComponents;
+    users = await users;
+    project = await project;
+
+    let componentCount = machineComponents.length;
+
+    if (machineComponents.length === 0){
+        machineComponents = await getProductionMachine();
+        componentCount = 0;
+    }
+
+
+    res.render('adProductionMachineMan', {
+        user: req.session.user,
+        machineComponents: machineComponents,
+        componentCount: componentCount,
+        project: project,
+        url: url,
+        users: users
+    })
 });
 
 
@@ -732,420 +832,6 @@ router.get('/adProductionComponentQC', function(req, res) {
 
 });
 
-
-//
-// //   ---修改设备---
-// /* POST adBOMListMachineEdit Page */
-// router.post('/adBOMListMachineEdit', upload.single('machineFileName'), function(req, res) {
-//     let  saveDate= new Date();
-//     let year= saveDate.getFullYear();
-//     let month=saveDate.getMonth()+1;
-//     let day=saveDate.getDate();
-//     let hour=saveDate.getHours();
-//     let min=saveDate.getMinutes();
-//     let sec=saveDate.getSeconds();
-//     let updateTime= year+'-'+month+'-'+day+' '+hour+':'+min+':'+sec;
-//
-//     let MachineModel = req.body.MachineModel;
-//     let MachineName = req.body.MachineName;
-//     let MachineDesigner = req.body.MachineDesigner;
-//     let MachineNote = req.body.MachineNote;
-//     MachineModel=pinyin(MachineModel,{style:pinyin.STYLE_FIRST_LETTER}).toString();
-//     MachineModel=MachineModel.replace(new RegExp(",",'g'),"").toUpperCase();
-//
-//     var machineFileName, modSql, modSqlParams, url, machineId;
-//     url = URL.parse(req.url,true).query;
-//     machineId = url.machineId;
-//
-//     if (req.file){
-//         machineFileName = req.file.filename;
-//         modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ?, machineFileName = ? WHERE machineId = '+'\''+machineId+'\'';
-//         modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote, machineFileName];
-//     } else {
-//         modSql = 'UPDATE machine SET machineId = ?, machineName = ?, updateTime = ?, designer = ?, note = ? WHERE machineId = '+'\''+machineId+'\'';
-//         modSqlParams = [MachineModel, MachineName, updateTime, MachineDesigner, MachineNote];
-//     }
-//
-//     connection.query(modSql,modSqlParams,function (err) {
-//         if(err){
-//             console.log('[UPDATE ERROR] - ',err.message);
-//             res.send( '更新设备信息错误，请检查设备名称或设备型号是否已存在。 \n' + err);
-//             return;
-//         }
-//         // --添加事件更新到首页--
-//         addNote('设备事件更新', MachineName, MachineModel, '修改设备');
-//         res.redirect('/adBOMListMachineMan?machineId=' + MachineModel);
-//
-//     });
-// });
-//
-// //   ---查找部件设备--- 详细页
-// /* GET adBOMListMachineMan */
-// router.get('/adBOMListMachineMan', function (req, res) {
-//     let url = URL.parse(req.url, true).query;
-//     let machineId = url.machineId;
-//     // 设备有部件
-//     let machineComponentSql = 'SELECT machine.machineId, machineName, machine.updateTime AS mUpdateTime, machine.note AS mNote, designer, componentId, componentModel, componentName, component.updateTime AS cUpdateTime, component.note AS cNote, categoryName, cost As componentCost, machineFileName\n' +
-//         'FROM machine\n' +
-//         'INNER JOIN component\n' +
-//         'ON machine.machineId = component.machineId\n' +
-//         'INNER JOIN category\n' +
-//         'ON component.categoryId = category.categoryId\n' +
-//         'INNER JOIN user\n' +
-//         'ON component.userId = user.userId\n' +
-//         'WHERE machine.machineId =' + '\'' + machineId + '\'' + '\n' +
-//         'ORDER BY component.categoryId';
-//
-//     // 设备无部件
-//     let machineSql = 'SELECT machineId, machineName, updateTime AS mUpdateTime, machine.note AS mNote, designer, machineFileName\n' +
-//         'FROM machine\n' +
-//         'INNER JOIN user\n' +
-//         'ON machine.designer = user.userName\n' +
-//         'WHERE machine.machineId =' + '\'' + machineId + '\'';
-//     let categorySql = 'SELECT * FROM category;';
-//
-//     let userSql = 'SELECT userName,role FROM user;'
-//     connection.query(userSql,function (err, users) {
-//         if (err) {
-//             console.log('[SELECT ERROR] - ', err.message);
-//             res.send(err);
-//             return;
-//         }
-//
-//         connection.query(categorySql, function (err, category) {
-//             if (err) {
-//                 console.log('[SELECT ERROR] - ', err.message);
-//                 res.send(err);
-//                 return;
-//             }
-//             connection.query(machineComponentSql, function (err, machineComponent) {
-//                 if (err) {
-//                     console.log('[SELECT ERROR] - ', err.message);
-//                     res.send(err);
-//                     return;
-//                 }
-//                 if (machineComponent.length === 0){
-//                     connection.query(machineSql, function (err, machine) {
-//                         if (err) {
-//                             console.log('[SELECT ERROR] - ', err.message);
-//                             res.send(err);
-//                             return;
-//                         }
-//                         if (machine.length === 0){
-//                             res.send("设备不存在!")
-//                         } else {
-//                             res.render('adBOMListMachineMan', {
-//                                 user: req.session.user,
-//                                 category: category,
-//                                 machine: machine,
-//                                 users: users,
-//                                 machineComponentCount: 0
-//                             });
-//                         }
-//                     });
-//                 }
-//                 else {
-//                     res.render('adBOMListMachineMan', {
-//                         user: req.session.user,
-//                         category: category,
-//                         machine: machineComponent,
-//                         users: users,
-//                         machineComponentCount: machine.length
-//                     });
-//                 }
-//             });
-//         });
-//     });
-// });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-// /*                            ****************************************生产部件增删改查******************************************                  */
-// //   ---从设备中增加部件---
-// /* GET adBOMListComponentAdd*/
-// router.get('/adBOMListComponentAdd', function(req, res) {
-//     var url, machineId, categorySql, machineSql, machineName;
-//     url = URL.parse(req.url,true).query;
-//     machineId = url.machineId;
-//     categorySql = 'SELECT categoryName FROM category;';
-//     machineSql = 'SELECT machineName FROM machine WHERE machineId = ' + '"' + machineId + '"' +';';
-//
-//     connection.query(categorySql,function (err, categoryName) {
-//         if (err) {
-//             console.log('[SELECT ERROR] - ', err.message);
-//             res.send('查找类别出错：' + '\n' + err);
-//             return;
-//         }
-//         connection.query(machineSql,function (err, machine) {
-//             if (err) {
-//                 console.log('[SELECT ERROR] - ', err.message);
-//                 res.send('查找设备出错：' + '\n' + err);
-//                 return;
-//             }
-//             machineName = machine[0].machineName;
-//             res.render('adBOMListComponentAdd', {
-//                 user:req.session.user,
-//                 categoryName: categoryName,
-//                 machineName: machineName,
-//                 machineId: machineId
-//             });
-//         });
-//     });
-// });
-//
-// /* POST adBOMListComponentAdd*/
-// router.post('/adBOMListComponentAdd', upload.single('BomListFileName'), function (req, res) {
-//     var saveDate, year, month, day, hour, min, sec, updateTime;
-//     saveDate = new Date();
-//     year = saveDate.getFullYear();
-//     month = saveDate.getMonth() + 1;
-//     day = saveDate.getDate();
-//     hour = saveDate.getHours();
-//     min = saveDate.getMinutes();
-//     sec = saveDate.getSeconds();
-//     updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
-//
-//     var addComponentName, addComponentModel, addComponentNote, addComponentType, designerId, fileName, addToMachineId;
-//     addComponentName = req.body.addComponentName;
-//     addComponentModel = req.body.addComponentModel;
-//     // let addComponentState = req.body.addComponentState;
-//     addComponentNote = req.body.addComponentNote;
-//     addComponentType = req.body.addComponentType;
-//     designerId = req.session.user.userId;
-//     addToMachineId = req.body.addToMachineId;
-//
-//     if (req.file){
-//         fileName=req.file.filename;
-//     } else {
-//         fileName = 'no-image-available.jpg';
-//     }
-//
-//     let categorySql = 'SELECT * FROM category WHERE categoryName = ' + '"' + addComponentType + '"';
-//     connection.query(categorySql, function (err, category) {
-//         if (err) {
-//             console.log('[SELECT ERROR] - ', err.message);
-//             res.send('查找类别出错：' + '\n' + err);
-//             return;
-//         }
-//         let categoryId = category[0].categoryId;
-//         let addSql = 'INSERT INTO component(componentModel,componentName,updateTime,state,note,userId,categoryId,cost,componentFileName, machineId) VALUES(?,?,?,?,?,?,?,?,?,?)';
-//         let addSqlParams = [addComponentModel, addComponentName, updateTime, "正常", addComponentNote, designerId, categoryId,0,fileName, addToMachineId];
-//         connection.query(addSql, addSqlParams, function (err) {
-//             if (err) {
-//                 console.log('[INSERT ERROR] - ', err.message);
-//                 res.send('添加错误, 检查部件图号是否重复' + err);
-//                 return;
-//             }
-//
-//             let lastIdSql = 'SELECT LAST_INSERT_ID() AS lastId';
-//             connection.query(lastIdSql, function (err, lastId) {
-//                 // --添加事件更新到首页--
-//                 addNote('部件事件更新', addComponentName + " " + addComponentModel, lastId[0].lastId , '添加新部件');
-//
-//                 res.redirect('/adBOMListMachineMan?machineId=' + addToMachineId);
-//
-//                 if (err) {
-//                     console.log('[SELECT ERROR] - ', err.message);
-//                     res.send(err);
-//                 }
-//             });
-//         });
-//     });
-// });
-//
-// //   ---从设备中删除部件---
-// /* GET adBOMListComponentDelete Page */
-// router.get('/adBOMListComponentDelete', function (req, res) {
-//     let url = URL.parse(req.url, true).query;
-//     let componentId = url.componentId;
-//     let delSql = 'DELETE FROM component WHERE componentId = ' + '\'' + componentId + '\'';
-//     let componentMachineSql = 'SELECT component.machineId\n' +
-//         'FROM component\n' +
-//         'INNER JOIN machine\n' +
-//         'ON component.machineId = machine.machineId\n' +
-//         'WHERE componentId = ' + '"' + componentId + '"';
-//     let componentSql = 'SELECT * FROM component WHERE componentId = ' + componentId + ';'
-//
-//     connection.query(componentSql, function (err, component) {
-//         if (err) {
-//             console.log('[SELECT ERROR] 查找部件错误！- ', err.message + '\n');
-//             return ('[SELECT ERROR] 查找部件设备错误！- ' + err.message + '\n');
-//         }
-//         // --添加事件更新到首页--
-//         addNote('部件事件更新', component[0].componentName + " " + component[0].componentModel, componentId, '删除部件');
-//         res.redirect('/adBOMListMan')
-//
-//         connection.query(componentMachineSql, function (err, machineIds) {
-//             if (err) {
-//                 console.log('[SELECT ERROR] 查找部件设备错误！- ', err.message + '\n');
-//                 return ('[SELECT ERROR] 查找部件设备错误！- ' + err.message + '\n');
-//             }
-//             let machineId = machineIds[0].machineId;
-//             connection.query(delSql, function (err) {
-//                 if (err) {
-//                     console.log('[DELETE ERROR] - ', err.message);
-//                     res.send(err);
-//                     return;
-//                 }
-//                 // 更新设备成本
-//                 updateMachineCost(machineId);
-//             });
-//         });
-//     });
-// });
-//
-// //   ---修改部件---
-// /* POST adBOMList Page */
-// router.post('/adBOMList', upload.single('BomListFileName'), function(req, res) {
-//     var url=URL.parse(req.url,true).query;
-//     var componentId = url.componentId;
-//     var saveDate, year, month, day, hour, min, sec, updateTime;
-//     saveDate = new Date();
-//     year = saveDate.getFullYear();
-//     month = saveDate.getMonth() + 1;
-//     day = saveDate.getDate();
-//     hour = saveDate.getHours();
-//     min = saveDate.getMinutes();
-//     sec = saveDate.getSeconds();
-//     updateTime = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
-//
-//     var BomListName, BomListModel, BomListNote, BomListType, userId, componentFileName, modSql, modSqlParams;
-//     BomListName = req.body.BomListName;
-//     BomListModel = req.body.BomListModel;
-//     // let addComponentState = req.body.addComponentState;
-//     BomListNote = req.body.BomListNote;
-//     BomListType = req.body.BomListType;
-//     userId = req.session.user.userId;
-//
-//     if (req.file){
-//         componentFileName = req.file.filename;
-//         modSql = 'UPDATE component SET componentModel = ?,  componentName = ?, updateTime = ?, userId = ?, note = ?, categoryId = ?, componentFileName = ? WHERE componentId = '+'\''+componentId+'\'';
-//         modSqlParams = [BomListModel, BomListName, updateTime, userId, BomListNote, BomListType, componentFileName];
-//     } else {
-//         modSql = 'UPDATE component SET componentModel = ?,  componentName = ?, updateTime = ?, userId = ?, note = ?, categoryId = ? WHERE componentId = '+'\''+componentId+'\'';
-//         modSqlParams = [BomListModel, BomListName, updateTime, userId, BomListNote, BomListType];
-//     }
-//
-//     connection.query(modSql,modSqlParams,function (err) {
-//         if(err){
-//             console.log('[UPDATE ERROR] - ',err.message);
-//             res.send(err);
-//             return;
-//         }
-//         // --添加事件更新到首页--
-//         addNote('部件事件更新', BomListName + " " + BomListModel, componentId , '修改部件');
-//         res.redirect('/adBOMList?componentId=' + componentId);
-//     });
-//
-// });
-//
-//
-// //   ---查找部件物料--- 详细页
-// /* GET adBOMList */
-// router.get('/adBOMList', function (req, res) {
-//     let url = URL.parse(req.url, true).query;
-//     // 部件有物料
-//     let componentItemSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, ' +
-//         'cost, componentFileName, userName, itemId, itemName, itemPrice, itemModel, itemTypeName AS itemType, itemNote, itemQuantity, machineName, machine.machineId\n' +
-//         'FROM component\n' +
-//         'INNER JOIN component_has_item\n' +
-//         'ON component_has_item.component_componentId = component.componentId\n' +
-//         'INNER JOIN machine\n' +
-//         'ON component.machineId = machine.machineId\n' +
-//         'INNER JOIN item\n' +
-//         'ON component_has_item.item_itemId = item.itemId AND component_has_item.item_itemModel = item.itemModel\n' +
-//         'INNER JOIN category\n' +
-//         'ON component.categoryId = category.categoryId\n' +
-//         'INNER JOIN itemType\n' +
-//         'ON item.itemTypeId = itemtype.itemTypeId\n' +
-//         'INNER JOIN user\n' +
-//         'ON component.userId = user.userId\n' +
-//         'WHERE componentId =' + '\'' + url.componentId + '\'' + '\n' +
-//         'ORDER BY itemOrderBy, itemType';
-//     // 部件无物料
-//     let componentSql = 'SELECT componentId, componentModel, componentName, component.updateTime, component.state, component.note, component.categoryId, category.categoryName, ' +
-//         'cost, componentFileName, userName, machineName, machine.machineId\n' +
-//         'FROM component\n' +
-//         'LEFT JOIN category\n' +
-//         'ON component.categoryId = category.categoryId\n' +
-//         'INNER JOIN machine\n' +
-//         'ON component.machineId = machine.machineId\n' +
-//         'INNER JOIN user\n' +
-//         'ON component.userId = user.userId\n' +
-//         'WHERE componentId =' + '\'' + url.componentId + '\'';
-//     let categorySql = 'SELECT * FROM category;';
-//
-//     let machineSql = 'SELECT * FROM machine;';
-//
-//
-//     connection.query(machineSql,function (err,machine) {
-//         if(err){
-//             console.log('[SELECT ERROR] - ',err.message);
-//             res.send('查找设备出错：' + '\n' + err);
-//             return;
-//         }
-//         connection.query(categorySql, function (err, category) {
-//             if (err) {
-//                 console.log('[SELECT ERROR] - ', err.message);
-//                 res.send(err);
-//                 return;
-//             }
-//             connection.query(componentItemSql, function (err, componentItem) {
-//                 if (err) {
-//                     console.log('[SELECT ERROR] - ', err.message);
-//                     res.send(err);
-//                     return;
-//                 }
-//                 connection.query(categorySql,function (err, categoryName) {
-//                     if (err) {
-//                         console.log('[SELECT ERROR] - ', err.message);
-//                         res.send('查找类别出错：' + '\n' + err);
-//                         return;
-//                     }
-//
-//                     if (componentItem.length === 0){
-//                         connection.query(componentSql, function (err, component) {
-//                             if (err) {
-//                                 console.log('[SELECT ERROR] - ', err.message);
-//                                 res.send(err);
-//                                 return;
-//                             }
-//                             if (component.length === 0){
-//                                 res.send("部件不存在!")
-//                             } else {
-//                                 res.render('adBOMList', {
-//                                     user: req.session.user,
-//                                     category: category,
-//                                     component: component,
-//                                     categoryName: categoryName,
-//                                     machine: machine,
-//                                 });
-//                             }
-//                         });
-//                     }
-//                     else {
-//                         res.render('adBOMList', {
-//                             user: req.session.user,
-//                             category: category,
-//                             component: componentItem,
-//                             categoryName: categoryName,
-//                             machine: machine,
-//                         });
-//                     }
-//                 });
-//             });
-//         });
-//     });
-// });
 
 
 
